@@ -1,0 +1,61 @@
+.container {
+    display:flex;
+    flex-direction:row;
+}
+
+td {
+    border-width: 1px;
+    border-style: solid;
+    border-color:grey;
+    text-align:center;
+    transition: 01.s ease-in-out;
+}
+
+.label {
+    background-color:lightgrey;
+    transform-origin:center;
+}
+
+.label:hover {
+    cursor:pointer;
+    transform: scale(1.2);
+}
+
+.void {
+    visibility:hidden;
+}
+
+.select {
+    background-color:lightblue;
+}
+
+.labelSelect {
+    background-color:grey;
+    border-color:black;
+    color:white;
+}
+
+.find {
+    background-color:darkcyan;
+}
+
+.single {
+    border-width:1px;
+    border-color:grey;
+    border-style:solid;
+    text-align:center;
+}
+
+#matrix {
+    padding:2%;
+}
+
+#lower {
+    display:flex;
+    flex-direction:column;
+}
+
+.inline {
+    display:flex;
+    flex-direction:column;
+}

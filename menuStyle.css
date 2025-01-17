@@ -1,0 +1,13 @@
+#links {
+    display:flex;
+    flex-direction:column;
+}
+
+li :hover {
+    cursor: pointer;
+    font-size:larger;
+}
+
+footer {
+    text-align:center;
+}

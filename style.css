@@ -1,0 +1,161 @@
+.container {
+    border-style:double;
+    border-radius:1px;
+    border-color:grey;
+    display:flex;
+    flex-direction:column;
+}
+
+.myNode {
+    cursor:pointer;
+    position:relative;
+    transform-origin:center;
+}
+
+.myNode:hover {
+    font-size:larger;
+}
+
+.myNode:hover > circle {
+    transform:scale(1.2);
+}
+
+.single {
+    display:flex;
+    flex-direction:column;
+    max-width:20%;
+    border-width:1px;
+    border-style:solid;
+    border-color:grey;
+    max-height:min-content;
+}
+
+#inputs {
+    display:flex;
+    flex-direction:row;
+}
+
+svg > .inSub > circle {
+    fill:grey;
+}
+
+svg > .inSub > text {
+    fill:white;
+}
+
+.inSuper > circle {
+    fill:lightgrey;
+}
+
+.small > circle {
+    r: 7;
+}
+
+.small > text {
+    transform: scale(1.2);
+}
+
+#subsetPoly {
+    stroke-width: 1px;
+    stroke:black;
+    fill:rgb(87, 87, 87);
+}
+
+#subsetPoly:hover {
+    stroke-dasharray: 2;
+}
+
+#supersetPoly {
+    stroke-width: 1px;
+    stroke:black;
+    fill:rgb(192, 192, 192);
+}
+
+#supersetPoly:hover {
+    stroke-dasharray: 2;
+}
+
+button {
+    cursor:pointer;
+}
+
+button:hover {
+    font-weight:bolder;
+}
+
+.myRow {
+    display:flex;
+    flex-direction:row;
+    border-radius:1px;
+    border-style:solid;
+    border-color:grey;
+}
+
+#lower {
+    display:flex;
+    flex-direction:row;
+}
+
+/*Selected buttons*/
+.sel {
+    background-color:darkblue;
+    color:white;
+}
+
+/*Transformation polygons*/
+
+.transform > text {
+    visibility: hidden;
+}
+
+.transform {
+    stroke-width: 1px;
+    stroke:lightgrey;
+    fill:rgba(110, 110, 110, 0.586);
+}
+
+.transform:hover {
+    fill:rgb(75, 75, 75);
+}
+
+.transform:hover > text {
+    visibility:visible;
+}
+
+.playing > circle {
+    scale: 1.5;
+}
+
+.playing > text {
+    scale: 1.5;
+}
+
+polygon:hover {
+    cursor:pointer;
+}
+
+.transButton {
+    width:100%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.trans {
+    max-height: 150px;
+    max-width:15%;
+    overflow:auto;
+    border-radius:1px;
+    border-style:solid;
+    border-color:grey;
+}
+
+@font-face {
+    font-family: 'BravuraText';
+    src: url('BravuraText.otf') format('opentype');
+}
+
+.floater {
+    border-radius:1px;
+    border-color:grey;
+    border-style: dashed;
+}
