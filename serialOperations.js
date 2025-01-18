@@ -1256,14 +1256,5 @@ document.addEventListener('DOMContentLoaded',() => {
 // [7,8,0,3,5,11,10,2,4,9,6,1] No. 19 in anthology
 //Reach out to people about math/music
 
-/**
- * Contains the HTML escape characters for various accidentals.
- */
-const Accidentals = {
-    'sharp': '&#x266F;',
-    'flat': '&#x266D;',
-    'halfSharp': '&#x1D132;',
-    'halfFlat': '&#x1D133;',
-    'natural': '&#x266E;',
-    };
+
 

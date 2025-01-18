@@ -75,12 +75,22 @@ svg > .inSub > text {
     stroke-dasharray: 2;
 }
 
+.extra {
+    display:none;
+    position:static;
+    background-color:lightblue;
+}
+
 button {
     cursor:pointer;
 }
 
 button:hover {
     font-weight:bolder;
+}
+
+.single:hover > .extra {
+    display:contents;
 }
 
 .myRow {
@@ -154,8 +164,15 @@ polygon:hover {
     src: url('BravuraText.otf') format('opentype');
 }
 
-.floater {
+.void {
+    visibility:hidden;
+}
+
+.floating {
+    position:absolute;
+    background-color:white;
     border-radius:1px;
+    border-style:solid;
     border-color:grey;
-    border-style: dashed;
+    font-style:italic;
 }

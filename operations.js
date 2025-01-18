@@ -957,9 +957,10 @@ const urlOperations = (operation = 'change') => {
  * Creates a single input element.
  * @param {string} name 
  * @param {string} type 'number' || 'button'
+ * @param {string} message 
  * @param {string} parent element id 
  */
-const buildInput = (name,type,parent = 'inputs') => {
+const buildInput = (name,type,message,parent = 'inputs') => {
     let par = document.getElementById(parent);
     let cont = document.createElement('div');
     cont.setAttribute('class','single');
@@ -996,10 +997,12 @@ const buildInput = (name,type,parent = 'inputs') => {
     }
     let val = document.createElement('p');
     lab.innerHTML = `${name}:`;
+    inp.id = `inp${document.querySelectorAll('input, button').length}`;
     cont.appendChild(lab);
     cont.appendChild(inp);
     cont.appendChild(val);
-    par.appendChild(cont);  
+    par.appendChild(cont);
+    nodeMessage(`${inp.id}`,message);
 }
 
 /**
@@ -1052,7 +1055,6 @@ const attachEventListeners = () => {
         document.querySelectorAll('.transform').forEach(item => {
             item.remove();
         })
-        document.getElementById('')
         K.redraw();
     })
     document.querySelector('#Play\\ Option > button').addEventListener('mousedown',() => {
@@ -1108,7 +1110,7 @@ const getPoints = (center,numPoints,length = 50) => {
         let angle = ((a*allAngles) -90) * Math.PI/180;  //-90 sets top element to 0;
         let x = center[0] + length * Math.cos(angle);
         let y = center[1] + length * Math.sin(angle);
-    vertices.push([x, y]);
+        vertices.push([x, y]);
     }
     return vertices;
 }
@@ -1232,6 +1234,9 @@ function Drawing (parent = undefined,sizeX = 500,sizeY = 500) {
         ihead.innerHTML = `TnI: ${iUnique}`;
         document.getElementById('inputs').appendChild(ts);
         document.getElementById('inputs').appendChild(is);
+        document.querySelectorAll('.transButton').forEach(button => {
+            nodeMessage(`${button.id}`,`[${currentData['subset']}] => ${button.id}.`)
+        })
     }
     /**
      * Updates the drawing.
@@ -1289,6 +1294,8 @@ function Drawing (parent = undefined,sizeX = 500,sizeY = 500) {
         this.subsetPolygon.plot(subCoords);
         currentData.setRepSuper = new MySet(currentData.Modulus,...currentData.superset);
         currentData.setRepSub = new MySet(currentData.Modulus,...currentData.subset);
+        nodeMessage('supersetPoly',`Click to play [${currentData.setRepSuper.normal_order()}]`);
+        nodeMessage('subsetPoly',`Click to play [${currentData.setRepSub.normal_order()}]`);
         fromObject(currentData.setRepSuper.exportable(),'displaySuper');
         fromObject(currentData.setRepSub.exportable(),'displaySub');
         K.manageTransformations();//K.manageTransformations(subsetChange);
@@ -1365,6 +1372,7 @@ function MyNode (x,y,data,parent,diameter = 30) {
     grp.addClass('myNode');
     this.instance = document.querySelectorAll('.myNode').length;
     this.self.id = `node${this.instance}`;
+    nodeMessage(this.self.id,`Left click to add ${this.data} to superset.<br>Right click to add ${this.data} to subset.`);
     /**
      * Handle left and right clicks to add elements or remove them from currentData.
      * @param {function} callback 
@@ -1394,6 +1402,7 @@ function MyNode (x,y,data,parent,diameter = 30) {
             else if (event.button === 2) {
                 this.superset? this.subset = !this.subset: console.error(`Element ${value} cannot be part of subset if it is not a member of the superset!`);
             }
+            console.log(document.querySelectorAll('.void').length);
             currentData.superset = [];
             currentData.subset = [];
             nodes.forEach(element => {
@@ -1413,27 +1422,47 @@ function MyNode (x,y,data,parent,diameter = 30) {
     nodes.push(this);
 }
 
-// /**
-//  * Place div on mouse.
-//  * @param {string} text 
-//  */
-// const divOnMouse = (text) => {
-//     document.addEventListener('mousemove',(event) => {
-//         let x = null;
-//         let y = null;
-//         let item = null;
-//         item = document.createElement('div');
-//         item.classList.add('floater');
-//         item.textContent = `${text? text : [x,y]}`;
-//         document.body.append(item);
-//         console.log(item);
-//         x = event.clientX;
-//         y = event.clientY;
-//         item.style.left = `${x}px`;
-//         item.style.right = `${y}px`;
-//         console.log(`X${x}:Y${y}`);
-//     });
-// }
+/**
+ * Keeps track of the mouse position and places a div on it. 
+ */
+const trackMouse = () => {
+    let floater =  document.createElement('div');
+    floater.classList.add('floating');
+    document.body.append(floater);
+    floater.classList.add('void');
+    document.addEventListener('mousemove',(event) => {
+        floater.style.left = `${event.clientX+25}px`;
+        floater.style.top = `${event.clientY+60}px`;
+    })
+    document.body.append(floater);
+}
+
+/**
+ * Allows for an object to have a message appear when hovered over.
+ * @param {string} id 
+ * @param {string} message 
+ */
+const nodeMessage = (id,message) => {
+    let mod = null
+    if (id.indexOf(' ') !== -1) {
+        let spl = id.split(' ');
+        mod = spl.join('\\ ');
+    }
+    /**
+     * Fix if id has spaces.
+     */
+    mod = mod == null? id : mod;
+    let item = document.querySelector(`#${mod}`);
+    item.addEventListener('mouseover',() => {
+        let fl = document.querySelector('.floating');
+        fl.classList.remove('void')
+        fl.innerHTML = message;
+    })
+    item.addEventListener('mouseout',() => {
+        let fl = document.querySelector('.floating');
+        fl.classList.add('void');
+    });
+}
 
 /**
  * SVG drawing with my control object.
@@ -1466,12 +1495,12 @@ document.addEventListener('DOMContentLoaded',() => {
         'names': false
     };
     K = new Drawing('drawing');
-    buildInput('Modulus','number');
-    buildInput('Superset Complement','button');
-    buildInput('Subset Complement','button');
-    buildInput('Clear Superset','button');
-    buildInput('Clear Subset','button');
-    buildInput('Play Option','button');
+    buildInput('Modulus','number','Submit the modular universe cardinality.');
+    buildInput('Superset Complement','button','Click here to toggle all elements in the superset');
+    buildInput('Subset Complement','button','Of subset elements contained within the superset, toggle subset elements.');
+    buildInput('Clear Superset','button','Deselect all elements from superset.');
+    buildInput('Clear Subset','button','Deselect all elements from subset.');
+    buildInput('Play Option','button','Toggle playback between pitch and rhythm.');
     attachEventListeners();
-    //divOnMouse(`Here's my text!`)
+    trackMouse();
 })

@@ -3,7 +3,7 @@
     flex-direction:column;
 }
 
-li :hover {
+li:hover {
     cursor: pointer;
     font-size:larger;
 }
