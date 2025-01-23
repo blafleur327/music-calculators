@@ -3,9 +3,10 @@
     flex-direction:column;
 }
 
-li:hover {
+li:hover > a {
     cursor: pointer;
     font-size:larger;
+    max-width:fit-content;
 }
 
 footer {

@@ -1,0 +1,97 @@
+
+/**
+ * Builds a library entry
+ * @param {} term 
+ * @param {*} definition 
+ * @param {*} example
+ * @param {} furtherReading 
+ */
+function LibraryItem (term,definition,example,furtherReading) {
+    this.term = term;
+    this.definition = definition;
+    this.example = example?  example : 'N/A';
+    this.external = furtherReading? furtherReading : 'N/A';
+    library[this.term] = {
+        'definition': this.definition,
+        'example': this.example,
+        'link': this.external
+    }
+}
+
+let library = {}
+
+const build = (obj = library) => {
+    let termList = document.getElementById('terms');
+    let defs = document.getElementById('display');
+    defs.classList.add('void');
+    for (let [key,value] of Object.entries(obj)) {
+        console.log(`${key}?`);
+        let term = document.createElement('li');
+        term.innerHTML = `${key}:`;
+        termList.append(term);
+        term.addEventListener('mousedown',() => {
+            /**
+             * Clear display if not empty.
+             */
+            defs.innerHTML = '';
+            defs.classList.remove('void');
+            let title = document.createElement('h4');
+            title.classList.add('emphasis');
+            title.innerHTML = `${key}:`;
+            defs.append(title);
+            for (let [k,v] of Object.entries(value)) {
+                let div = document.createElement('div');
+                let head = document.createElement('h4');
+                head.innerHTML = `${k.toUpperCase()}:`;
+                div.appendChild(head);
+                div.classList.add('mini');
+                if (k == 'link') {
+                    let lin;
+                    if (v == 'N/A') {
+                        lin = document.createElement('p');
+                        lin.innerHTML = 'N/A';
+                    }
+                    else {
+                        lin = document.createElement('a');
+                        lin.setAttribute('href',`${v}`);
+                        lin.setAttribute('id',`${k}`);
+                        lin.innerHTML = `Further Reading`;
+                    }
+                    div.append(lin);
+                }
+                else {
+                    let small = document.createElement('p');
+                    div.setAttribute('id',`${k}`);
+                    if (k == 'example') {
+                        small.innerHTML = `${v}`; 
+                    }
+                    else {
+                        small.innerHTML = `${v}`;
+                    }  
+                    div.appendChild(small);
+                }
+                defs.append(div);             
+            }
+        })
+    }
+}
+
+LibraryItem('Pitch Class','The set of all pitches under octave and enharmonic equivalence.','PC 0 = {C1,C2,C3...B#3,B#4...Dbb4,Dbb5...}','https://viva.pressbooks.pub/openmusictheory/chapter/pitch-and-pitch-class/');
+LibraryItem('Set','A collection of distinct or unique items to be considered as a single entity. Items in the collection are known as elements. Usually denoted with curly braces {}.','{1,2,3,...} or {a,b,c,...} or {red,yellow,green,...}','https://www.cuemath.com/algebra/sets/');
+LibraryItem('Maximal Evenness',"Generally, the closest a number of elements can get to an equilateral geometric distribution within the parent universe. More specifically, a musical collection is said to be maximally even if it contains intervals of only two sizes and is 'as spread out as possible'.",'Diatonic Collection ME dist of 7 into 12. Whole tone colelction ME dist of 6 into 12.',"https://microtonal.miraheze.org/wiki/Maximal_evenness");
+LibraryItem('Normal Order','The rotation of the numerically ordered set within the tightest or smallest span. Usually denoted with hard brackets []. Some partial and all fully symmetrical sets have multiple valid Normal forms, conventionally the one starting on the lowest integer is chosen.','{0,3,7,11} => [11,0,3,7]','https://viva.pressbooks.pub/openmusictheory/chapter/pc-sets-normal-order-and-transformations/');
+LibraryItem('Well-Formedness','In scale theory, a collection is well formed if it can be generated using a single specific interval.','Pentatonic generator = 5 or 7, cardinality 5 and the Diatonic generator = 5 or 7, cardinality 7.','https://www.jstor.org/stable/745935?seq=1');
+LibraryItem('Subset','A set whose elements are all contained within a parent collection or superset.','{D,F,A} ⊆ {C,D,E,F,G,A,B}: in English, {D,F,A} is a subset or is equal to {C,D,E,F,G,A,B}');
+LibraryItem('Superset','A set that contains another set and possibly more elements.','{C,D,E,F,G,A,B} ⊇ {D,F,A}: in English, {C,D,E,F,G,A,B} is a superset or equal to {D,F,A}');
+LibraryItem('Complement',`The opposite collection of elements of a set with relation to it's superset.`,'In the 12 tone chromatic universe, the complement of the augmented triad {0,4,8} is {1,2,3,5,6,7,9,10,11} where the union (∪) of {0,4,8} and {1,2,3,5,6,7,9,10,11} completes the aggregate {0,1,2,3,4,5,6,7,8,9,10,11}');
+LibraryItem('Literal Inclusion','See Subset.');
+LibraryItem('Abstract Inclusion','A special inclusionary relationship, where not all or none of the literal elements are present, but the set-class or prime form is. One could read the example below as, "The B♭ major scale includes one or more instances of the prime form (0,3,7), but not necessarily {2,6,9}."','D major is an Abstract Subset of the B♭ Major scale.')
+
+//Sort into alphabetical order
+let temp = Object.entries(library).sort((a,b) => a[0].localeCompare(b[0]));
+library = Object.fromEntries(temp);
+
+document.addEventListener('DOMContentLoaded',() => {
+    console.log('Loaded!');
+    build();
+})

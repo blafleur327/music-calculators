@@ -131,34 +131,37 @@ const ArrayMethods = {
  * @returns 2D array (res)
  */
  adjacentIndices: function (array,search,res = [],offset = 0) {
+    /**
+     * Base case.
+     */
     if (array.length == 0 || array.indexOf(search[0]) == -1) {
       return res;
     }
-    else {
-      let inds = [];
-      search.forEach(item => {
-        if (array.indexOf(item) > -1) {
-            inds.push(array.indexOf(item));
-        }
-      })
-      let valid = search.length == inds.length;
-      let big = Math.max(...inds);
-      let small = Math.min(...inds);
-      let adj = big-small == search.length-1;
-      adj == true && valid == true? res.push([small+offset,big+offset]): null;
-      //console.log(`[${small} : ${big}] = ${adj}`);
-      //console.log(`slice from ${adj == true? big : small}`);
-      /**
-       * This needs to not start from the max if the adjacency check fails...
-       */
-      let stor = adj == true? array.slice(big) : array.slice(small+1);
-      //console.log(`[...${stor}]`);
-      /**
-       * Offset adjusts by where you start!
-       */
-      let offVal = adj == true? big : small+1;
-      return ArrayMethods.adjacentIndices(stor,search,res,offset+offVal);
+    else if (search.length == 1) {
+        return [array.indexOf(search[0])];
     }
+    else {
+        let inds = [];
+        search.forEach(item => {
+            if (array.indexOf(item) > -1) {
+                inds.push(array.indexOf(item));
+            }
+        })
+        let valid = search.length == inds.length;
+        let big = Math.max(...inds);
+        let small = Math.min(...inds);
+        let adj = big-small == search.length-1;
+        adj == true && valid == true? res.push([small+offset,big+offset]): null;
+        /**
+        * This needs to not start from the max if the adjacency check fails...
+        */
+        let stor = adj == true? array.slice(big) : array.slice(small+1);
+        /**
+        * Offset adjusts by where you start!
+        */
+        let offVal = adj == true? big : small+1;
+        return ArrayMethods.adjacentIndices(stor,search,res,offset+offVal);
+        }
   },
 
 /**
@@ -1099,13 +1102,15 @@ function myMatrix () {
      * Converts the arrayForm property into note names.
      */
     this.noteNames = (state = true) => {
+        document.getElementById('matrix').innerHTML = '';
         this.arrayForm = Serialism.buildMatrix(currentData['Series'],currentData['Universe'],state,true);
         this.createMatrix();
     }
     this.createMatrix = () => {
         currentData['matrix'] = this.arrayForm;
         makeTable(currentData['matrix']);
-        document.getElementById('lower').innerHTMl = '';
+        document.getElementById('lower').innerHTML = '';
+        //document.getElementById('matrix').innerHTML = '';
         let results = {
             'Derivation': Serialism.derivation(currentData['Series'],currentData['Universe']),
             'AllInterval': Serialism.allInterval(currentData['Series'],currentData['Universe'])
@@ -1136,6 +1141,17 @@ function myMatrix () {
         ints.innerHTML = `All Interval: ${results['AllInterval']}`;  
         document.getElementById('lower').append(ints);
         urlOperations('change');
+    }
+    /**
+     * Partitions the matrix into even n*n squares.
+     * @param {int} size 
+     */
+    this.checkerboard = (size = currentData['partition']) => {
+        let cells = document.querySelectorAll('td:not(.label):not(.void)');
+        let parts = [];
+        for (let a = 0; a < cells.length; a++) {
+            a % size == 0? cells[a].classList.add('dark') : cells[a].classList.remove('dark');
+        }
     }
     /**
      * Updates the matrix according to currentData.
@@ -1171,7 +1187,7 @@ function myMatrix () {
         urlOperations('change');
     }
     /**
-     * Search the matrix for adjacent elements. Currently only works for subsets of size > 1?
+     * Search the matrix for adjacent elements. Currently only works for subsets of size > 1.
      * @param {array} search 
      */
     this.findAdjacent = (search = currentData['search']) => {
@@ -1182,7 +1198,8 @@ function myMatrix () {
         let forms = Serialism.rowDictionary(currentData['Series'],currentData['Universe']);
         for (let [key,value] of Object.entries(forms)) {
             if (key[0] == 'P' || key[0] == 'I') {
-                let inds = ArrayMethods.adjacentIndices(value,search);            
+                let inds = ArrayMethods.adjacentIndices(value,search); 
+                console.log(`inds?: ${inds}`)           
                 inds.length !== 0? found[key] = inds : null;
             }
         }
@@ -1210,13 +1227,16 @@ function myMatrix () {
                 });
             }
             for (let a = 0; a < cr.length; a++) {
-                value.forEach(sub => {
-                    for (let b = sub[0]; b <= sub[1]; b++) {
-                        //console.log(`.${cr[a]}.${oppo[a]}${b+1}`);
-                        //console.log(document.querySelector(`.${cr[a]}.${oppo[a]}${b+1}`));
-                        document.querySelector(`.${cr[a]}.${oppo[a]}${b+1}`).classList.add('find');
-                    }
-                })
+                if (search.length == 1) {
+                    
+                }
+                else {
+                    value.forEach(sub => {
+                        for (let b = sub[0]; b <= sub[1]; b++) {
+                            document.querySelector(`.${cr[a]}.${oppo[a]}${b+1}`).classList.add('find');
+                        }
+                    })
+                }
             }
         }
         urlOperations('change');

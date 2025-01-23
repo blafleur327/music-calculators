@@ -59,3 +59,7 @@ td {
     display:flex;
     flex-direction:column;
 }
+
+.dark {
+    background-color:rgb(255, 160, 93);
+}

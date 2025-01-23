@@ -878,7 +878,7 @@ function MyPlay () {
          * If Pitch selected.
          */
         if (currentData['Play Option'] == false) {
-            multiple == playData.length;
+            multiple = playData.length;
             for (let a = 0; a < playData.length; a++) {
                 let currentNode = nodes[playData[a]].self;
                 
@@ -897,19 +897,22 @@ function MyPlay () {
          * If a rhythm selected.
          */
         else {
-            for (let a = 0; a < this.partitions; a++) {
-                multiple = this.partitions;
-                let currentNode = nodes[a].self;
+            let reps = 4;
+            let faster = ioi/4;//????
+            for (let a = 0; a < currentData['Modulus']*reps; a++) {
+                let metPitch = a%currentData['Modulus'] == 0 ? this.startPitch*2 : this.startPitch;
+                multiple = currentData['Modulus'];
+                let currentNode = nodes[a%currentData['Modulus']].self;
 
                 setTimeout(() => {
                     currentNode.classList.add('playing');
-                }, ioi * a * 1000); // Delay to match the note onset
+                }, faster * a * 1000); // Delay to match the note onset
 
-                playData.indexOf(a) == -1? null: this.synth.triggerAttackRelease(this.startPitch,ioi,now+(ioi*a));
+                playData.indexOf(a%currentData['Modulus']) == -1? null: this.synth.triggerAttackRelease(metPitch,faster,now+(faster*a));
 
                 setTimeout(() => {
                     currentNode.classList.remove('playing');
-                }, (ioi * 1000) + (ioi * a * 1000)); // Convert ioi to milliseconds and add delay
+                }, (faster * 1000) + (faster * a * 1000)); // Convert ioi to milliseconds and add delay
             }
         }
     }
@@ -988,19 +991,32 @@ const buildInput = (name,type,message,parent = 'inputs') => {
                 val.innerHTML = data;
                 K.redraw();
             }
-        })  
+        })
+        lab.innerHTML = `${name}:`;  
     }
     else {
         inp = document.createElement('button');
-        inp.innerHTML = name == 'Play Option'? 'Pitch' : 'Click';
+        if (name == 'Superset Complement' || name == 'Subset Complement') {
+            lab.innerHTML = name == 'Superset Complement'? 'Superset:' : 'Subset:';
+        }
+        else if (name == 'Clear Subset' || name == 'Clear Superset') {
+            null;
+        }
+        else if (name == 'Note Names') {
+            cont.classList.add('void');
+        }
+        else {
+            lab.innerHTML = `${name}:`;
+        }
+        inp = document.createElement('button');
+        inp.innerHTML = name == 'Play Option'? 'Pitch' : `${name}`;
         currentData[`${name}`] = false;
     }
     let val = document.createElement('p');
-    lab.innerHTML = `${name}:`;
     inp.id = `inp${document.querySelectorAll('input, button').length}`;
-    cont.appendChild(lab);
+    lab.textContent == ''? null : cont.appendChild(lab);
     cont.appendChild(inp);
-    cont.appendChild(val);
+    type == 'number'? cont.appendChild(val) : null;
     par.appendChild(cont);
     nodeMessage(`${inp.id}`,message);
 }
@@ -1061,6 +1077,16 @@ const attachEventListeners = () => {
         currentData['Play Option'] = !currentData['Play Option'];
         document.querySelector('#Play\\ Option > button').innerHTML = currentData['Play Option']? 'Rhythm' : 'Pitch';
     })
+    // document.querySelector('#Note\\ Names > button').addEventListener('mousedown',() => {
+    //     let self = document.querySelector('#Note\\ Names');
+    //     if (currentData['Modulus'] == 12 || currentData['Modulus'] == 31) {
+    //         self.classList.remove('void');
+    //         K.noteNames();
+    //     }
+    //     else {
+    //         self.classList.add('void');
+    //     }
+    // })
 }
 
 /**
@@ -1495,12 +1521,13 @@ document.addEventListener('DOMContentLoaded',() => {
         'names': false
     };
     K = new Drawing('drawing');
-    buildInput('Modulus','number','Submit the modular universe cardinality.');
-    buildInput('Superset Complement','button','Click here to toggle all elements in the superset');
-    buildInput('Subset Complement','button','Of subset elements contained within the superset, toggle subset elements.');
-    buildInput('Clear Superset','button','Deselect all elements from superset.');
-    buildInput('Clear Subset','button','Deselect all elements from subset.');
-    buildInput('Play Option','button','Toggle playback between pitch and rhythm.');
+    buildInput('Modulus','number','Submit the modular universe cardinality.','modulus');
+    buildInput('Superset Complement','button','Click here to toggle all elements in the superset','superset');
+    buildInput('Subset Complement','button','Of subset elements contained within the superset, toggle subset elements.','subset');
+    buildInput('Clear Superset','button','Deselect all elements from superset.','superset');
+    buildInput('Clear Subset','button','Deselect all elements from subset.','subset');
+    buildInput('Play Option','button','Toggle playback between pitch and rhythm.','play');
+    buildInput('Note Names','button','Toggle note names and PCs if applicable.');
     attachEventListeners();
     trackMouse();
 })

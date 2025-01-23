@@ -23,7 +23,7 @@
 .single {
     display:flex;
     flex-direction:column;
-    max-width:20%;
+    /* max-width:20%; */
     border-width:1px;
     border-style:solid;
     border-color:grey;
@@ -175,4 +175,6 @@ polygon:hover {
     border-style:solid;
     border-color:grey;
     font-style:italic;
+    max-width: 14%;
+    text-overflow:ellipsis
 }
