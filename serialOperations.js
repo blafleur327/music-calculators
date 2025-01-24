@@ -1150,6 +1150,7 @@ function myMatrix () {
         let cells = document.querySelectorAll('td:not(.label):not(.void)');
         let parts = [];
         for (let a = 0; a < cells.length; a++) {
+            //partitions the rows correctly
             a % size == 0? cells[a].classList.add('dark') : cells[a].classList.remove('dark');
         }
     }
@@ -1212,6 +1213,7 @@ function myMatrix () {
             let cr = [];
             //Stores the opposite of the cr value per entry.
             let oppo = [];
+            //If P, get the r(n) value from class list, oppo = c.
             if (key[0] == 'P') {
                 document.querySelectorAll(`#${key}`).forEach(item => {
                     let cur = item.classList[0];
@@ -1219,6 +1221,7 @@ function myMatrix () {
                     oppo.push(cur[0] == 'r'? 'c' : 'r');
                 });
             }
+            //If I, get the c(n) value from class list, oppo = r.
             else if (key[0] == 'I') {
                 document.querySelectorAll(`#${key}`).forEach(item => {
                     let cur = item.classList[1];
@@ -1228,9 +1231,10 @@ function myMatrix () {
             }
             for (let a = 0; a < cr.length; a++) {
                 if (search.length == 1) {
-                    
+                   document.querySelector(`.${cr}.${oppo}${parseInt(value)+1}`).classList.add('find');
                 }
                 else {
+                    console.log(value)
                     value.forEach(sub => {
                         for (let b = sub[0]; b <= sub[1]; b++) {
                             document.querySelector(`.${cr[a]}.${oppo[a]}${b+1}`).classList.add('find');

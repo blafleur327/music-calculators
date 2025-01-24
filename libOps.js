@@ -85,7 +85,9 @@ LibraryItem('Subset','A set whose elements are all contained within a parent col
 LibraryItem('Superset','A set that contains another set and possibly more elements.','{C,D,E,F,G,A,B} ⊇ {D,F,A}: in English, {C,D,E,F,G,A,B} is a superset or equal to {D,F,A}');
 LibraryItem('Complement',`The opposite collection of elements of a set with relation to it's superset.`,'In the 12 tone chromatic universe, the complement of the augmented triad {0,4,8} is {1,2,3,5,6,7,9,10,11} where the union (∪) of {0,4,8} and {1,2,3,5,6,7,9,10,11} completes the aggregate {0,1,2,3,4,5,6,7,8,9,10,11}');
 LibraryItem('Literal Inclusion','See Subset.');
-LibraryItem('Abstract Inclusion','A special inclusionary relationship, where not all or none of the literal elements are present, but the set-class or prime form is. One could read the example below as, "The B♭ major scale includes one or more instances of the prime form (0,3,7), but not necessarily {2,6,9}."','D major is an Abstract Subset of the B♭ Major scale.')
+LibraryItem('Abstract Inclusion','A special inclusionary relationship, where not all or none of the literal elements are present, but the set-class or prime form is. One could read the example below as, "The B♭ major scale includes one or more instances of the prime form (0,3,7), but not necessarily {2,6,9}."','D major is an Abstract Subset of the B♭ Major scale.');
+LibraryItem('Cardinality Equals Variety',`A collection exhibits cardinality equals variety (cv) if any generic subset has n specific varieties.`,'In the diatonic collection generic set comprised of two thirds (triads) come in three varieties, major, minor, diminished. The entire collection of size 7, has 7 varieties, the 7 modes.','https://www.jstor.org/stable/843615?searchText=Variety+and+multiplicity+in+diatonic+systems&searchUri=%2Faction%2FdoBasicSearch%3FQuery%3DVariety%2Band%2Bmultiplicity%2Bin%2Bdiatonic%2Bsystems%26so%3Drel&ab_segments=0%2Fbasic_search_gsv2%2Fcontrol&refreqid=fastly-default%3A0d156298457903ea736ecf97b7fd5b69&seq=1');
+LibraryItem('Cardinality','The size of a set, or the number of elements in a set. In mathematical contexts, usually denoted by a lowercase k.','{C,E,G} = cardinality of 3')
 
 //Sort into alphabetical order
 let temp = Object.entries(library).sort((a,b) => a[0].localeCompare(b[0]));
@@ -95,3 +97,5 @@ document.addEventListener('DOMContentLoaded',() => {
     console.log('Loaded!');
     build();
 })
+
+//https://docs.cycling74.com/learn/series/max-tutorials/
