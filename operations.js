@@ -1,5 +1,7 @@
 // import * as methods from './pc_bc_methodsCopy.js';
 
+// const { Scale } = require("tone");
+
 let urls = {
     'Pareidolia': 'C:/Users/blafl/OneDrive/Desktop/updated/pcbcCalculatorV4.html?defaultState=%7B%22superset%22%3A%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%2C10%2C11%5D%2C%22subset%22%3A%5B0%2C3%2C8%5D%2C%22setRepSuper%22%3A%7B%22universe%22%3A12%2C%22set%22%3A%5B0%2C1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%2C10%2C11%5D%7D%2C%22setRepSub%22%3A%7B%22universe%22%3A12%2C%22set%22%3A%5B0%2C3%2C8%5D%7D%2C%22transformations%22%3A%5B%5D%2C%22names%22%3Atrue%2C%22Superset+Complement%22%3Afalse%2C%22Subset+Complement%22%3Afalse%2C%22Clear+Superset%22%3Afalse%2C%22Clear+Subset%22%3Afalse%2C%22Play+Option%22%3Afalse%2C%22Modulus%22%3A12%7D',
 }
@@ -546,6 +548,15 @@ function MySet(modulus,...elements) {
             }
         }
     },
+    /**
+     * Determines if the input set is or is not maximally even within the parent modulus. May change modulus.
+     * @returns Boolean
+     */
+    this.maximallyEven = (modifiedUniverse = this.universe) => {
+        let uni = modifiedUniverse == this.universe? this.universe : ScaleTheory.proportionalModuloConversion(this.set,this.universe,modifiedUniverse);
+        let is = ScaleTheory.maximallyEven(this.set,uni,false);
+        return is;
+    }
     this.displayProperties = (...info) => {
         let result = {};
         let options = {
@@ -553,6 +564,7 @@ function MySet(modulus,...elements) {
             'Prime Form': this.prime_form(),
             'Interval Class Vector': this.interval_class_vector(),
             'Index Vector': this.index_vector(),
+            'Maximally Even': `${this.set.length} into ${this.universe}: ${this.maximallyEven()}`,
             'Literal Subsets': this.literal_subsets(),
             'Abstract Subsets': this.abstract_subsets()
         }
@@ -574,10 +586,12 @@ function MySet(modulus,...elements) {
      */
     this.symmetry = (array = this.set,modulus = this.universe) => {
         let res = [];
-        let test = array.sort((r,s) => r-s).reduce((f,k) => f+'|'+k);
+        let test = array.length > 0? array.sort((r,s) => r-s).reduce((f,k) => f+'|'+k) : null;
         for (let a = 0; a < modulus; a++) {
-            let opt = this.invert(array,modulus,a).sort((i,j) => i-j).reduce((l,m) => l+'|'+m);
-            opt == test? res.push([a/2,(a/2)+(modulus/2)]): null;
+            if (array.length !== 0) {
+                let opt = this.invert(array,modulus,a).sort((i,j) => i-j).reduce((l,m) => l+'|'+m);
+                opt == test? res.push([a/2,(a/2)+(modulus/2)]): null;
+            }
         }
         return res;
     }
@@ -591,7 +605,7 @@ function MySet(modulus,...elements) {
             'Prime Form': this.prime_form(),
             'Interval Class Vector': this.interval_class_vector(),
             'Index Vector': this.index_vector(),
-            // 'Maximally Even': this.maximallyEven()
+            'Maximally Even': `${this.set.length} into ${this.universe}: ${this.maximallyEven()}`
         };
         return json? JSON.stringify(obj) : obj;
     } 
@@ -732,7 +746,6 @@ const ScaleTheory = {
             return false;
         }
     },
-
     /**
      * Generates the AIS or indexes of true values of a maximally even distribution of size n within a given universe.
      * @param {int} sub 
@@ -1115,7 +1128,9 @@ const fromObject = (obj,parent) => {
         else if (key == 'Interval Class Vector' || key == 'Index Vector') {
             v.innerHTML = ` <${value}>`;
         }
-        //Additional clauses if needed!
+        else if (key == 'Maximally Even') {
+            v.innerHTML = value;
+        }
         row.appendChild(k);
         row.appendChild(v);
         par.appendChild(row);
@@ -1140,6 +1155,22 @@ const getPoints = (center,numPoints,length = 50) => {
     }
     return vertices;
 }
+/**
+ * Select elements in the polygon manually, optionally choose superset or subset.
+ * @param {boolean} subset 
+ * @param  {...any} elements 
+ */
+const manualSelector = (subset = false,...elements) => {
+    elements.forEach(item => {
+        if (subset == true) {
+            currentData.subset.push(...elements);
+        }
+        else {
+            currentData.superset.push(...elements);
+        }
+    })
+    K.redraw();
+}
 
 /**
  * An object that controls various aspects of the dynamic drawing.
@@ -1147,7 +1178,7 @@ const getPoints = (center,numPoints,length = 50) => {
  * @param {float} sizeX Width of drawframe
  * @param {float} sizeY Height of drawframe
  */
-function Drawing (parent = undefined,sizeX = 500,sizeY = 500) {
+function Drawing (parent = undefined,sizeX = 500,sizeY = 500) { //CHANGE TO 500!
     /**
      * If no SVG object exists in parent.
      */
@@ -1166,11 +1197,12 @@ function Drawing (parent = undefined,sizeX = 500,sizeY = 500) {
         console.log(`#${parent} does not exist!`);
     }
     this.draw = SVG().addTo(`#${parent}`).size(sizeX,sizeY);
+    this.bigOuter;
     this.clear = () => {
         /**
          * Remove nodes, but not polygons!;
          */
-        document.querySelectorAll('.myNode').forEach(elem => {
+        document.querySelectorAll('.myNode, .symmline').forEach(elem => {
             elem.remove();
         })
         /**
@@ -1269,7 +1301,10 @@ function Drawing (parent = undefined,sizeX = 500,sizeY = 500) {
      */
     this.redraw = () => {
         this.clear();
-        let locations = getPoints([...K.center],currentData.Modulus,200);
+        //Node Locations
+        let locations = getPoints([...K.center],currentData.Modulus,200);    //Remover ternary clauses
+        //Possible Symmetry points;
+        this.bigOuter = getPoints([...K.center],currentData.Modulus*2,230);  //Same as prev
         /**
          * Remove drawing children
          */
@@ -1320,6 +1355,15 @@ function Drawing (parent = undefined,sizeX = 500,sizeY = 500) {
         this.subsetPolygon.plot(subCoords);
         currentData.setRepSuper = new MySet(currentData.Modulus,...currentData.superset);
         currentData.setRepSub = new MySet(currentData.Modulus,...currentData.subset);
+        let subSymm = currentData.setRepSub.symmetry();//?
+        if (subSymm.length !== 0) {
+            subSymm.forEach(axis => {
+                let lin = this.draw.line(...this.bigOuter[axis[0]*2],...this.bigOuter[axis[1]*2]).id(`line${axis[0]*2}-${axis[1]*2}`);
+                lin.stroke({color: 'black', width: '1px',dasharray: '3'});
+                lin.addClass('symmline');
+                nodeMessage(`line${axis[0]*2}-${axis[1]*2}`,`Inversionally symmetrical/invariant under I${axis[0]*2}.`);
+            })
+        }
         nodeMessage('supersetPoly',`Click to play [${currentData.setRepSuper.normal_order()}]`);
         nodeMessage('subsetPoly',`Click to play [${currentData.setRepSub.normal_order()}]`);
         fromObject(currentData.setRepSuper.exportable(),'displaySuper');
@@ -1344,7 +1388,9 @@ function Drawing (parent = undefined,sizeX = 500,sizeY = 500) {
                 newShape.add(label);
                 document.querySelector(`#${entry}`).classList.add('sel');
                 newShape.addClass('transform');
+                //Add symmetry functionality to the selected T/I
                 let coords = [];
+                //Member is for each t or i available in the superset.
                 currentData.setRepSub.set_class()[entry].forEach(member => {
                     coords.push([nodes[member].x,nodes[member].y]);
                 })
@@ -1531,3 +1577,6 @@ document.addEventListener('DOMContentLoaded',() => {
     attachEventListeners();
     trackMouse();
 })
+
+//manualSelector(false,0,11,22,33,48,48+11,48+22,48+33,97,97+11,97+22,97+33,144,144+12,4);
+//manualSelector(true,0,48,97,144)

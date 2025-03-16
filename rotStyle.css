@@ -1,0 +1,95 @@
+td {
+    min-width: 30px;
+    min-height: 30px;
+    border-radius:1px;
+    border-color:grey;
+    border-style:solid;
+    text-align:center;
+}
+
+.box {
+    border-width:1px;
+    border-style:inset;
+    border-color:black;
+    padding:2%;
+}
+
+input {
+    max-height: min-content;
+}
+
+table {
+    padding:1%;
+}
+
+td:hover {
+    border-width:2px;
+    border-color:black;
+    font-weight:bolder;
+    cursor:pointer;
+}
+
+#inputs {
+    display:flex;
+    flex-direction:row;
+    padding: 2%;
+}
+
+.find {
+    background-color:rgb(95, 162, 185);
+}
+
+.vertFind {
+    background-color:rgb(255, 153, 0);
+}
+
+#big {
+    display:flex;
+    flex-direction:row;
+    padding: 2%;
+}
+
+#big > div {
+    padding: 2%;
+}
+
+#redraw {
+    display:flex;
+    flex-direction:row;
+    padding:2%;
+}
+
+.co {
+    display:flex;
+    flex-direction:column;
+}
+
+.label {
+    background-color:grey;
+}
+
+.void {
+    visibility:hidden;
+}
+
+.hLabel {
+    text-align:center;
+}
+
+#big > div {
+    border-color:lightgrey;
+    border-width:2px;
+    border-style:inset;
+}
+
+select:hover {
+    cursor:pointer;
+}
+
+option:hover {
+    cursor:pointer;
+}
+
+#search {
+    padding-top: 1%;
+}

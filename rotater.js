@@ -110,7 +110,48 @@ const ArrayMethods = {
         else {
             let find = array.indexOf(item);
             result.push(find+(offset));
-            return AdvancedArray.allIndexesOf(array.slice(find+1),item,result,offset+find+1)
+            return ArrayMethods.allIndexesOf(array.slice(find+1),item,result,offset+find+1)
+        }
+    },
+    /**
+     * Invert dimensionality of 2D array.
+     * @param {array} array 
+     * @returns 2D array.
+     */
+    flipDimensions: (array) => {
+        return array[0].map((_, i) => array.map(row => row[i]));
+    },
+    /**
+     * 
+     * @param {array} array1 
+     * @param {array} query 
+     * @param {boolean} ordered 
+     * @returns Boolean
+     */
+    allHere: (array1,query,ordered = true) => {
+        if (ordered) {
+            return array1.join('.') == query.join('.');
+        }
+        else {
+            return ArrayMethods.sameArray(array1,query);
+        }
+    },
+    /**
+     * Checks array1 for if it contains query.
+     * @param {array} array1 
+     * @param {array} query 
+     * @param {bool} ordered 
+     */
+    containsWithin: (array1,query,ordered = true) => {
+        if (ordered) {
+            return array1.join('.').match(query.join('.')) !== null
+        }
+        else {
+            let sum = 0;
+            query.forEach(ind => {
+                array1.indexOf(ind) !== -1? sum+=1 : null;
+            })
+            return sum == query.length;
         }
     },
     /**
@@ -307,6 +348,23 @@ const factors = (n) => {
         test++;
     }
     return Array.from(new Set(res.sort((a,b) => a-b)));
+}
+
+/**
+ * Shuffles an array in place.
+ * @param {array} array 
+ * @param {array} res 
+ * @returns Reordered Array
+ */
+const shuffle = (array,res = []) => {
+    if (array.length == 0) {
+        return res;
+    }
+    else {
+        let pick = Math.floor(Math.random()*array.length);
+        res.push(array[pick]);
+        return shuffle(array.filter(x => x !== array[pick]),res);
+    }
 }
 
 /**
@@ -988,303 +1046,12 @@ const urlOperations = (operation = 'change') => {
     }
 }
 
-/**
- * Builds a 2d table of values.
- * @param {array} array
- * @param {string} parent 
- */
-const makeTable = (array,parent = 'matrix') => {
-    let par = document.getElementById(parent);
-    let tab = document.createElement('table');
-    for (let a = 0; a < array.length; a++) {
-        let row = document.createElement('tr');
-        for (let b = 0; b < array[a].length; b++) {
-            let isLabel = false;
-            /**
-             * Improved check for label, should help with note name operations.
-             */
-            if (array[a][b][0] == 'P' || array[a][b][0] == 'R' || array[a][b][0] == 'I') {
-                isLabel = true;
-            }
-            /**
-             * Placeholder cells to offset labels.
-             */
-            let invis = typeof array[a][b] == 'string' && array[a][b] == ' '; 
-            let cell = document.createElement('td');
-            cell.classList.add(`r${a}`);
-            cell.classList.add(`c${b}`);
-            invis? cell.classList.add('class','void') : null;
-            if (isLabel && invis == false) {
-                cell.classList.add('class','label');
-                cell.id = `${array[a][b]}`;
-            }
-            cell.innerHTML = `${array[a][b]}`;
-            row.appendChild(cell);
-        }
-        tab.appendChild(row);
-    }
-    par.appendChild(tab);
-    labelListeners();
-}
-
-/**
- * Adds event listeners to all elements of the .label class.
- */
-const labelListeners = () => {
-    document.querySelectorAll('.label').forEach(cell => {
-        let row = cell.classList[0];
-        let col = cell.classList[1];
-        //This needs to be modified...
-        cell.addEventListener('mousedown',() => {  
-            /**
-             * Toggle selected status.
-             */
-            currentData['selected'].indexOf(cell.textContent) == -1? currentData['selected'].push(cell.textContent) : currentData['selected'] = currentData['selected'].filter(x => x !== cell.textContent);
-            
-            K.updateMatrix();
-        });
-    });
-}
-
-/**
- * Creates a single input element.
- * @param {string} name 
- * @param {string} type 'number' || 'button' || 'text'
- * @param {string} parent element id 
- */
-const buildInput = (name,type,parent = 'upper') => {
-    let par = document.getElementById(parent);
-    let cont = document.createElement('div');
-    cont.setAttribute('class','single');
-    cont.setAttribute('id',`${name}`);
-    let lab = document.createElement('h4');
-    let inp;
-    if (type == 'number') {
-        let mini = document.createElement('div');
-        mini.setAttribute('class','buttonCont');
-        inp = document.createElement('input');
-        inp.setAttribute('type','number');
-        inp.setAttribute('placeholder','Enter to Submit');
-        inp.addEventListener('keydown',(event) => {
-            /**
-             * If enter, submit data to collection object.
-             */
-            if (event.key == 'Enter') {
-                document.querySelectorAll('.buttonCont > button').forEach(child => {
-                    child.remove();
-                })
-                let regex = /[0-9]+/g;
-                let data = parseInt(inp.value.match(regex));
-                currentData[`${name}`] = data;
-                val.innerHTML = data;
-                let facts = factors(data);
-                facts = facts.slice(0,facts.length-1);
-                currentData['partition'] = null;
-                for (let a = 0; a < facts.length; a++) {
-                    let b = document.createElement('button');
-                    b.addEventListener('mousedown',() => {
-                        currentData['partition'] = facts[a];
-                        K.checkerboard(currentData['partition']);
-                        console.log(currentData['partition']);
-                    })
-                    b.innerHTML = `${facts[a]}`;
-                    mini.append(b);
-                }
-            }
-            par.append(mini);
-        })  
-    }
-    else if (type == 'button') {
-        inp = document.createElement('button');
-        currentData[`${name}`] = false;
-    }
-    else if (type == 'text') {
-        inp = document.createElement('input');
-        inp.setAttribute('type','text');
-        inp.setAttribute('placeholder','Enter to Submit');
-        inp.addEventListener('keydown',(event) => {
-            /**
-             * If enter, submit data to collection object.
-             */
-            if (event.key == 'Enter') {
-                let regex = /[0-9]+/g;
-                let data = inp.value.match(regex);
-                if (name == 'Series') {
-                    let series = data.map(x => parseInt(x));
-                    currentData[`${name}`] = series;
-                    val.innerHTML = currentData[`${name}`];
-                    document.querySelector('#matrix').innerHTML = '';
-                    K = new myMatrix();
-                    K.createMatrix();
-                }
-                else if (name == 'Search') {
-                    currentData['search'] = data.map(x => parseInt(x));
-                    K.findAdjacent(currentData['search']);
-                }
-            }
-        }) 
-    }
-    let val = document.createElement('p');
-    lab.innerHTML = `${name}:`;
-    cont.appendChild(lab);
-    cont.appendChild(inp);
-    cont.appendChild(val);
-    par.appendChild(cont);  
-}
-
-function myMatrix () {
-    this.arrayForm = Serialism.buildMatrix(currentData['Series'],currentData['Universe'],false,true);
-    /**
-     * Converts the arrayForm property into note names.
-     */
-    this.noteNames = (state = true) => {
-        document.getElementById('matrix').innerHTML = '';
-        this.arrayForm = Serialism.buildMatrix(currentData['Series'],currentData['Universe'],state,true);
-        this.createMatrix();
-    }
-    this.createMatrix = () => {
-        currentData['matrix'] = this.arrayForm;
-        makeTable(currentData['matrix']);
-        document.getElementById('lower').innerHTML = '';
-        //document.getElementById('matrix').innerHTML = '';
-        let results = {
-            'Derivation': Serialism.derivation(currentData['Series'],currentData['Universe']),
-            'AllInterval': Serialism.allInterval(currentData['Series'],currentData['Universe'])
-        }
-        for (let [key,value] of Object.entries(results['Derivation'])) {
-            //Check if entry is null.
-            if (value['set'] !== null) {
-                let item = document.createElement('div');
-                item.classList.add('inline');
-                let i = document.createElement('div')
-                i.innerHTML = `${key}: (${value['set']})`;
-                let conc = '';
-                /**
-                 * Consider changing. These are adjacent n-chords, it might be better to not do this?
-                 */
-                for (let [k, v] of Object.entries(value['levels'])) {
-                    console.log(v);
-                    conc += conc == ''? `${v}` : `, ${v}`;
-                }
-                let ts = document.createElement('div')
-                ts.innerHTML = `Level(s): ${conc}`;
-                item.append(i);
-                item.append(ts);
-                document.getElementById('lower').append(item);
-            }
-        }
-        let ints = document.createElement('div'); 
-        ints.innerHTML = `All Interval: ${results['AllInterval']}`;  
-        document.getElementById('lower').append(ints);
-        urlOperations('change');
-    }
-    /**
-     * Partitions the matrix into even n*n squares.
-     * @param {int} size 
-     */
-    this.checkerboard = (size = currentData['partition']) => {
-        let cells = document.querySelectorAll('td:not(.label):not(.void)');
-        for (let a = 0; a < cells.length; a++) {
-            cells[a].classList.remove('dark');
-            let col = parseInt(cells[a].classList[1].match(/[0-9]+/ig))-1;
-            let row = parseInt(cells[a].classList[0].match(/[0-9]+/ig))-1;
-            let sect = Math.floor(col/size)+Math.floor(row/size);
-            if (sect % 2 == 0) {
-                cells[a].classList.add('dark');
-            }
-        }
-    }
-    /**
-     * Updates the matrix according to currentData.
-     */
-    this.updateMatrix = () => {
-        document.querySelectorAll('td').forEach(item => {
-            item.classList.remove('select');
-            item.classList.remove('labelSelect');
-        })
-        currentData['selected'].forEach(key => {
-            let form = key.match(/[a-z]+/ig);
-            let all = document.querySelectorAll(`#${key}`);//Accommodate for multiple.
-            let toFind = null;
-            all.forEach(cell => {
-                cell.classList.add('labelSelect');
-                if (form == 'P') {
-                    toFind = cell.classList[0];
-                }
-                else if (form == 'RP') {
-                    toFind = cell.classList[0];
-                }
-                else if (form == 'I') {
-                    toFind = cell.classList[1];
-                }
-                else if (form == 'RI') {
-                    toFind = cell.classList[1];
-                }
-                document.querySelectorAll(`.${toFind}`).forEach(item => {
-                    item.classList.contains('label')? null : item.classList.add('select');
-                });
-            })
-        })
-        urlOperations('change');
-    }
-    /**
-     * Search the matrix for adjacent elements. Currently only works for subsets of size > 1.
-     * @param {array} search 
-     */
-    this.findAdjacent = (search = currentData['search']) => {
-        let found = {};
-        document.querySelectorAll('.find').forEach(elem => {
-            elem.classList.remove('find');
-        })
-        let forms = Serialism.rowDictionary(currentData['Series'],currentData['Universe']);
-        for (let [key,value] of Object.entries(forms)) {
-            if (key[0] == 'P' || key[0] == 'I') {
-                let inds = ArrayMethods.adjacentIndices(value,search); 
-                console.log(`inds?: ${inds}`)           
-                inds.length !== 0? found[key] = inds : null;
-            }
-        }
-        console.log(found)
-        /**
-         * Loop over each entry in the found object.
-         */
-        for (let [key,value] of Object.entries(found)) {
-            //Whether the result needs a column or a row.
-            let cr = [];
-            //Stores the opposite of the cr value per entry.
-            let oppo = [];
-            //If P, get the r(n) value from class list, oppo = c.
-            if (key[0] == 'P') {
-                document.querySelectorAll(`#${key}`).forEach(item => {
-                    let cur = item.classList[0];
-                    cr.push(cur);
-                    oppo.push(cur[0] == 'r'? 'c' : 'r');
-                });
-            }
-            //If I, get the c(n) value from class list, oppo = r.
-            else if (key[0] == 'I') {
-                document.querySelectorAll(`#${key}`).forEach(item => {
-                    let cur = item.classList[1];
-                    cr.push(cur);
-                    oppo.push(cur[0] == 'r'? 'c' : 'r');
-                });
-            }
-            for (let a = 0; a < cr.length; a++) {
-                if (search.length == 1) {
-                   document.querySelector(`.${cr}.${oppo}${parseInt(value)+1}`).classList.add('find');
-                }
-                else {
-                    console.log(value)
-                    value.forEach(sub => {
-                        for (let b = sub[0]; b <= sub[1]; b++) {
-                            document.querySelector(`.${cr[a]}.${oppo[a]}${b+1}`).classList.add('find');
-                        }
-                    })
-                }
-            }
-        }
-        urlOperations('change');
-    }
+//Clears the highlighted elements.
+const clear = () => {
+    document.querySelectorAll('td').forEach(item => {
+        item.classList.contains('find')? item.classList.remove('find') : null;
+        item.classList.contains('vertFind')? item.classList.remove('vertFind') : null;
+    })
 }
 
 /**
@@ -1297,46 +1064,227 @@ const RowLibrary = {
     ContrapunctusSecundus: [7,8,0,3,5,11,10,2,4,9,6,1],
     RequiemCanticles1: [5,7,3,4,6,1,11,0,2,9,8,10],
     RequiemCanticles2: [5,0,11,9,10,2,1,3,8,6,4,7],
+    RequiemCanticlesLacrimosa: [5,9,8,6,11,7]
+}
+
+/**
+ * Builds an object that creates all rotational arrays of all row forms.
+ * @param {array} row 
+ * @param {int} universe 
+ */
+function RA(row,universe = 12) {
+    let rns = ['P','I','II','III','IV','V'];
+    let verts = [' ','0','1','2','3','4','5'];
+    this.row = row;
+    let h1 = this.row.slice(0,(Math.floor(universe/2)));
+    let h2 = this.row.slice(Math.floor(universe/2));
+    this.rowForms = Serialism.rowDictionary(this.row,universe);
+    this.rotationalArray1 = Serialism.rotationalArray(h1,universe);
+    this.rotationalArray2 = Serialism.rotationalArray(h2,universe);
+    this.graph1 = null;
+    this.graph2 = null;
+    /**
+     * Updates the properties of RA object.
+     * @param {array} row 
+     */
+    this.update = (row) => {
+        this.row = row;
+        h1 = this.row.slice(0,(Math.floor(universe/2)));
+        h2 = this.row.slice(Math.floor(universe/2));
+        this.rowForms = Serialism.rowDictionary(this.row,universe);
+        this.rotationalArray1 = Serialism.rotationalArray(h1,universe);
+        this.rotationalArray2 = Serialism.rotationalArray(h2,universe);
+    }
+    /**
+     * Searches the arrays for adjacent elements.
+     * @param {boolean} ordered 
+     * @param  {...any} elements 
+     */
+    this.findSubstring = (ordered = true,...elements) => {
+        document.querySelectorAll('td').forEach(item => {
+            item.classList.remove('find');
+            item.classList.remove('vertFind');
+        })
+        let hex1 = Serialism.rotationalArray(h1,universe);  
+        let h1Trans = hex1[0].map((col, i) => hex1.map(row => row[i]));
+        let hex2 = Serialism.rotationalArray(h2,universe);
+        let h2Trans = hex2[0].map((col, i) => hex2.map(row => row[i]));
+        for (let a = 0; a < hex1.length; a++) {
+            if (ordered == true) {
+                let arr1 = ArrayMethods.adjacentIndices(hex1[a],elements);
+                let arr2 = ArrayMethods.adjacentIndices(hex2[a],elements);
+                if (arr1.length == 0 && arr2.length == 0) {
+                    null;
+                }
+                else {
+                    if (arr1.length > 0) {
+                        for (let b = arr1[0][0]; b <= arr1[0][1]; b++) {
+                            this.graph1.facsimile[a][b].classList.add('find');
+                        }
+                    }
+                    else {
+                        for (let b = arr2[0][0]; b <= arr2[0][1]; b++) {
+                            this.graph2.facsimile[a][b].classList.add('find');
+                        }
+                    }
+                }
+            }
+            else {
+                let v1 = ArrayMethods.get_many(h1Trans[a],...elements);
+                let v2 = ArrayMethods.get_many(h2Trans[a],...elements);
+                if (v1.length >= elements.length) {
+                    for (let b = 0; b < v1.length; b++) {
+                        this.graph1.facsimile[v1[b]][a].classList.add('vertFind');
+                    }
+                }
+                else if (v2.length >= elements.length) {
+                    for (let b = 0; b < v2.length; b++) {
+                        this.graph2.facsimile[v2[b]][a].classList.add('vertFind');
+                    }
+                }
+            }
+        }
+    }
+    /**
+     * Builds the Rotational Arrays of an input row.
+     * @param {array} row 
+     */
+    this.build = () => {
+        let c1 = Serialism.rotationalArray(h1,universe);
+        let c2 = Serialism.rotationalArray(h2,universe);
+        for (let a = 0; a < c1.length; a++) {
+            c1[a].unshift(rns[a]);
+            c2[a].unshift(rns[a]);
+        }
+        c1.unshift(verts);
+        c2.unshift(verts);
+        let par1 = 'hex1';
+        let par2 = 'hex2';
+        document.getElementById(par1).innerHTML = '';
+        document.getElementById(par2).innerHTML = '';
+        this.graph1 = new BetterTable(par1,c1);
+        this.graph1.draw();
+        this.graph2 = new BetterTable(par2,c2);
+        this.graph2.draw();
+    }
+}
+
+/**
+ * An object supporting a variety of methods for manipulation.
+ * @param {string} parent 
+ * @param {array} data 
+ */
+function BetterTable (parent,data) {
+    this.parent = document.getElementById(parent);
+    this.instance = document.querySelectorAll(`#${parent} > table`).length;
+    this.combined = data;
+    this.dataCells = this.combined[0][0] == ' '? this.combined.slice(1).map(z => z.slice(1)) : this.combined;
+    this.labels = this.combined[0][0] == ' '? [this.combined[0],[...this.combined.map(x => x[0])]] : null;
+    this.facsimile = [];
+    /**
+     * Create the table based on input or current data.
+     * @param {array} data 2D array || optional
+     */
+    this.draw = (data = this.combined) => {
+        document.querySelector(`#${parent} > #myTable${this.instance}`) == null? null : document.querySelector(`#${parent} > #myTable${this.instance}`).remove();
+        this.combined= data;
+        let tab = document.createElement('table');
+        for (let a = 0; a < this.combined.length; a++) {
+            let r = document.createElement('tr');
+            let temp = [];
+            for (let b = 0; b < this.combined[a].length; b++) {
+                let cell = document.createElement('td');
+                cell.textContent = `${this.combined[a][b]}`;
+                if (this.combined[0][0] == ' ') {   //Check if initial cell is a space. This suggests the first row and column are labels.
+                    if (a == 0 || b == 0) {
+                        a == 0 && b == 0? cell.classList.add('void') : cell.classList.add('label');
+                    }
+                }
+                cell.classList.contains('void') || cell.classList.contains('label')? null : temp.push(cell); 
+                r.appendChild(cell);
+            }
+            temp.length > 0? this.facsimile.push(temp) : null;
+            tab.appendChild(r);
+        }
+        this.parent.appendChild(tab);
+        tab.id = `myTable${this.instance}`;
+    }
+    /**
+     * Change the content of a single cell.
+     * @param {int} row 
+     * @param {int} column 
+     * @param {any} data 
+     */
+    this.changeCell = (row,column,data) => {
+        this.data[row][column] = data;
+        this.draw();
+    }
+}
+
+/**
+ * Converts an object into a 2D array, where it's keys are element 0 of each row.
+ * @param {object} object 
+ * @returns 2D array
+ */
+const fixObject = (object) => {
+    let res = [];
+    for (let [key,values] of Object.entries(object)) {
+        res.push([key,...values]);
+    }
+    return res;
+}
+
+//const hexLibrary = new RA(RowLibrary.RequiemCanticles1);
+
+function MyDrop (parent) {
+    this.parent = document.querySelector(`#${parent}`);
+    this.row = RowLibrary.RequiemCanticles1;
+    let drop = document.createElement('select');
+    for (let a = 0; a < 48; a++) {
+        let poss = ['P','RP','I','RI'];
+        let opt = document.createElement('option');
+        opt.textContent = `${poss[Math.floor(a/12)]}${a%12}`;
+        drop.appendChild(opt);
+    }
+    this.parent.appendChild(drop);
+    drop.addEventListener('change',() => {
+        this.selection = drop.value;
+        console.log(this.selection);
+        this.selectedRow = Serialism.rowDictionary(this.row,12)[this.selection];
+        document.getElementById('tr').innerHTML = `<${this.selectedRow}>`;
+        RAK.update(this.selectedRow);
+        RAK.build();
+    })
 }
 
 let currentData;
-let K;
+let RAK;
+let Drop;
 
 document.addEventListener('DOMContentLoaded',() => {
-    console.log('Loaded!');
-    currentData = {
-        'matrix': null,
-        'selected': []
-    }
-    buildInput('Universe','number');
-    buildInput('Series','text');
-    buildInput('Search','text');
+    let inp = document.querySelector('#trow');
+    inp.addEventListener('keydown',(event) => {
+        if (event.key == 'Enter') {
+            Drop.row = inp.value.match(/[0-9]+/g);
+            Drop.row = Drop.row.map(x => parseInt(x));
+        }
+    })
+    Drop = new MyDrop('d');
+    RAK = new RA(RowLibrary.RequiemCanticles1);
+    document.querySelector(`#tr`).innerHTML = `<${Drop.row}>`
+    let hor = document.getElementById('horiz');
+    hor.addEventListener('keydown',(event) => {
+        if (event.key == 'Enter') {
+            let conv = hor.value.match(/[0-9]+/g).map(x => parseInt(x));
+            RAK.findSubstring(true,...conv);
+        }
+    })
+    let ver = document.getElementById('vertic');
+    ver.addEventListener('keydown',(event) => {
+        if (event.key == 'Enter') {
+            let conv = ver.value.match(/[0-9]+/g).map(x => parseInt(x));
+            RAK.findSubstring(false,...conv);
+        }
+    })
 })
 
-//Viennese trichord row!
-//[0,3,4,6,9,10,1,2,5,7,8,11]; 
-
-//Webern Row: 
-// [10,9,1,11,2,0,6,5,4,8,7,3];
-
-//  Little Fugue in G minor mod 12 
-// [7,2,10,9,7,10,9,7,6,9,2,7,2,9,2,10,9,10,9,7,9,2,7,2,9,2,10,9,7,9];
-
-//Little Fugue mod7 
-// [0, 4, 2, 1, 0, 2, 1, 0, 6, 1, 4, 0, 4, 1, 4, 2, 1, 0, 1, 4, 0, 4, 1, 4, 2, 1, 0, 1];
-
-// Berg Schliesse Meine
-// [5,4,0,9,7,2,8,1,3,6,10,11]
-
-//Dallapicolla treble row 
-// [7,8,0,3,5,11,10,2,4,9,6,1] No. 19 in anthology
-//Reach out to people about math/music
-
-
-//Angular or View for JS framework
-
-//felipe-tovar-henao Bach Puzzles
-
-// let r1 = Serialism.rowDictionary(RowLibrary.RequiemCanticles1,12);
-
-// console.log(r1)

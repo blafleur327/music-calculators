@@ -87,7 +87,8 @@ LibraryItem('Complement',`The opposite collection of elements of a set with rela
 LibraryItem('Literal Inclusion','See Subset.');
 LibraryItem('Abstract Inclusion','A special inclusionary relationship, where not all or none of the literal elements are present, but the set-class or prime form is. One could read the example below as, "The B♭ major scale includes one or more instances of the prime form (0,3,7), but not necessarily {2,6,9}."','D major is an Abstract Subset of the B♭ Major scale.');
 LibraryItem('Cardinality Equals Variety',`A collection exhibits cardinality equals variety (cv) if any generic subset has n specific varieties.`,'In the diatonic collection generic set comprised of two thirds (triads) come in three varieties, major, minor, diminished. The entire collection of size 7, has 7 varieties, the 7 modes.','https://www.jstor.org/stable/843615?searchText=Variety+and+multiplicity+in+diatonic+systems&searchUri=%2Faction%2FdoBasicSearch%3FQuery%3DVariety%2Band%2Bmultiplicity%2Bin%2Bdiatonic%2Bsystems%26so%3Drel&ab_segments=0%2Fbasic_search_gsv2%2Fcontrol&refreqid=fastly-default%3A0d156298457903ea736ecf97b7fd5b69&seq=1');
-LibraryItem('Cardinality','The size of a set, or the number of elements in a set. In mathematical contexts, usually denoted by a lowercase k.','{C,E,G} = cardinality of 3')
+LibraryItem('Cardinality','The size of a set, or the number of elements in a set. In mathematical contexts, usually denoted by a lowercase k.','{C,E,G} = cardinality of 3','')
+LibraryItem('Invariance','The number of elements that map onto other elements contained within the set. Sets exhibiting symmetry will have complete invariance under some transformations.','{C,E,G#} => {T0,T4,T8,I0,I4,I8} => ${C,E,G#}')
 
 //Sort into alphabetical order
 let temp = Object.entries(library).sort((a,b) => a[0].localeCompare(b[0]));

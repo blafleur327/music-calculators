@@ -27,6 +27,7 @@ td {
 
 .select {
     background-color:lightblue;
+    font-weight: bolder;
 }
 
 .labelSelect {
@@ -36,7 +37,8 @@ td {
 }
 
 .find {
-    background-color:darkcyan;
+    background-color:darkcyan !important;
+    color: white !important;
 }
 
 .single {
@@ -61,5 +63,5 @@ td {
 }
 
 .dark {
-    background-color:rgb(255, 160, 93);
+    background-color:rgb(196, 237, 255);
 }

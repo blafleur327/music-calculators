@@ -1,0 +1,16 @@
+.major > circle {
+    fill: rgb(232, 232, 232);
+}
+
+g:hover {
+    cursor:pointer;
+}
+
+g:hover > text {
+    font-weight: bolder;
+}
+
+#upper {
+    display:flex;
+    flex-direction:row;
+}

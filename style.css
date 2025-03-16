@@ -48,11 +48,15 @@ svg > .inSub > text {
 }
 
 .small > circle {
-    r: 7;
+    r: 5;
+}
+
+.small > {
+    transform:scale(1.2);
 }
 
 .small > text {
-    transform: scale(1.2);
+    display:none;
 }
 
 #subsetPoly {
@@ -178,3 +182,10 @@ polygon:hover {
     max-width: 14%;
     text-overflow:ellipsis
 }
+
+.symmline {
+    stroke: red;
+    stroke-width:2px;
+}
+
+

@@ -1,0 +1,12 @@
+#low {
+    display:flex;
+    flex-direction: row;
+    padding:2%;
+}
+
+#low > div > div {
+    border-radius:1px;
+    border-color:grey;
+    border-style:solid;
+    text-align:center;
+}
