@@ -1231,20 +1231,40 @@ function myMatrix () {
      * Search the matrix for adjacent elements. Currently only works for subsets of size > 1.
      * @param {array} search 
      */
-    this.findAdjacent = (search = currentData['search']) => {
+    this.findAdjacent = (search = currentData['search'],primeForms = currentData['pfSrch']) => {
         let found = {};
-        document.querySelectorAll('.find').forEach(elem => {
-            elem.classList.remove('find');
+        let all = [];
+        document.querySelectorAll('.find, .columnFind, .rowFind, .both').forEach(elem => {
+            elem.classList.contains('find')? elem.classList.remove('find') : null;
+            elem.classList.contains('rowFind')? elem.classList.remove('rowFind') : null;
+            elem.classList.contains('columnFind')? elem.classList.remove('columnFind') : null;
+            elem.classList.contains('both')? elem.classList.remove('both') : null;
         })
         let forms = Serialism.rowDictionary(currentData['Series'],currentData['Universe']);
         for (let [key,value] of Object.entries(forms)) {
             if (key[0] == 'P' || key[0] == 'I') {
-                let inds = ArrayMethods.adjacentIndices(value,search); 
-                console.log(`inds?: ${inds}`)           
-                inds.length !== 0? found[key] = inds : null;
+                if (primeForms == false) {
+                    let inds = ArrayMethods.adjacentIndices(value,search);
+                    console.log(`inds?: ${inds}`)           
+                    inds.length !== 0? found[key] = inds : null;
+                }
+                else {//Issue in here for matrix find...
+                    let src = new MySet(currentData['Universe'],...search).prime_form();
+                    let full = [];
+                    for (let a = 0; a < value.length; a++) {   //This loop condition might be an issue.
+                        let pair = [a,a+(src.length)];
+                        if (a+src.length <= currentData['Universe']) {
+                            let slice = new MySet(currentData['Universe'],...value.slice(pair[0],pair[1])).prime_form();//Remove -1
+                            console.log(`${key}: {${pair[0]}-${pair[1]}} = (${slice})`);
+                            all.push(slice);
+                            src.join('.') == slice.join('.')? full.push([pair[0],pair[1]-1]) : null;
+                        }
+                    }
+                    full.length !== 0? found[key] = full : null;
+                }
             }
         }
-        console.log(found)
+        console.log(found);
         /**
          * Loop over each entry in the found object.
          */
@@ -1254,7 +1274,7 @@ function myMatrix () {
             //Stores the opposite of the cr value per entry.
             let oppo = [];
             //If P, get the r(n) value from class list, oppo = c.
-            if (key[0] == 'P') {
+            if (key[0] == 'P') { //Highlight row
                 document.querySelectorAll(`#${key}`).forEach(item => {
                     let cur = item.classList[0];
                     cr.push(cur);
@@ -1262,28 +1282,49 @@ function myMatrix () {
                 });
             }
             //If I, get the c(n) value from class list, oppo = r.
-            else if (key[0] == 'I') {
+            else if (key[0] == 'I') { //Highlight column
                 document.querySelectorAll(`#${key}`).forEach(item => {
                     let cur = item.classList[1];
                     cr.push(cur);
                     oppo.push(cur[0] == 'r'? 'c' : 'r');
                 });
             }
+            console.log(`CR: ${cr}`);
+            console.log(`OPPO: ${oppo}`);
             for (let a = 0; a < cr.length; a++) {
-                if (search.length == 1) {
-                   document.querySelector(`.${cr}.${oppo}${parseInt(value)+1}`).classList.add('find');
+                console.log(`search: ${search.length}`);
+                if (search.length == 1) { //Why is this search.length?
+                    if (primeForms == false) {
+                        document.querySelector(`.${cr}.${oppo}${parseInt(value)+1}`).classList.add('find');
+                    }
+                    else {
+                        let check = document.querySelector(`.${cr}.${oppo}${parseInt(value)+1}`);
+                        check.classList.add(cr[0] == 'r'? 'rowFind' : 'columnFind');
+                    }
                 }
                 else {
-                    console.log(value)
                     value.forEach(sub => {
                         for (let b = sub[0]; b <= sub[1]; b++) {
-                            document.querySelector(`.${cr[a]}.${oppo[a]}${b+1}`).classList.add('find');
+                            if (primeForms == false) {
+                                document.querySelector(`.${cr[a]}.${oppo[a]}${b+1}`).classList.add('find');
+                            }
+                            else {
+                                console.log(cr[a][0]);
+                                let check = document.querySelector(`.${cr[a]}.${oppo[a]}${b+1}`);
+                                check.classList.add(cr[a][0] == 'r'? 'rowFind' : 'columnFind');
+                            }
                         }
                     })
                 }
+                document.querySelectorAll('.rowFind.columnFind').forEach(item => {
+                    item.classList.remove('rowFindcolumnFind');
+                    item.classList.add('both');
+                })
             }
         }
+        let allSet = ArrayMethods.unique_subarray(all);
         urlOperations('change');
+        return allSet;//Returns all prime forms in the matrix of size n.
     }
 }
 
@@ -1291,7 +1332,7 @@ function myMatrix () {
  * A collection of Rows
  */
 const RowLibrary = {
-    VienneseTrichord: [0,3,4,6,9,10,1,2,5,7,8,11],
+    Filipe: [0,3,4,6,9,10,1,2,5,7,8,11],
     Webern: [10,9,1,11,2,0,6,5,4,8,7,3], //Figure out what row!
     SchliesseMeineAugenBieden: [5,4,0,9,7,2,8,1,3,6,10,11],
     ContrapunctusSecundus: [7,8,0,3,5,11,10,2,4,9,6,1],
@@ -1311,7 +1352,28 @@ document.addEventListener('DOMContentLoaded',() => {
     buildInput('Universe','number');
     buildInput('Series','text');
     buildInput('Search','text');
+    //Include in build input if Name == Search?
+    let tiny = document.createElement('p');
+    tiny.innerHTML = `Set-Class:`;
+    let check = document.createElement('select');
+    let a = document.createElement('option');
+    a.innerHTML = 'true';
+    let b = document.createElement('option');
+    b.innerHTML = 'false';
+    check.appendChild(b);
+    check.appendChild(a);
+    currentData['pfSrch'] = false;
+    check.addEventListener('change',() => {
+        let res = check.value === 'true'? true : false;
+        currentData['pfSrch'] = res;
+    })
+    let box = document.getElementById('Search');
+    box.appendChild(tiny);
+    box.appendChild(check);
+    //
 })
+
+
 
 //Viennese trichord row!
 //[0,3,4,6,9,10,1,2,5,7,8,11]; 

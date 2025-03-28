@@ -61,7 +61,7 @@ def equal_temperament(start:float = 220,units:int = 12,partial: int = 2) -> dict
     return res['increment'];
 
 def ratio(input: float) -> str:
-    '''Returns the ratio of an input float in simplest terms''';
+    '''Returns the ratio of an input float in simplest terms.''';
     rem = input;
     denom = None;
     numer = 0;
@@ -82,4 +82,5 @@ def ratio_to_cents(value: float) -> dict:
     res['cents'] = f'{round(numpy.log2(value)*1200,2)} cET';
     return res;
 
-print(ratio_to_cents(128/125));
+
+print(115*(3/2))

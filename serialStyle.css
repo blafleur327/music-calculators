@@ -65,3 +65,15 @@ td {
 .dark {
     background-color:rgb(196, 237, 255);
 }
+
+.rowFind {
+    background-color:rgb(255, 170, 139);
+}
+
+.columnFind {
+    background-color: rgb(155, 184, 238);
+}
+
+.both {
+    background-color:rgb(168, 255, 185);
+}

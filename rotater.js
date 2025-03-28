@@ -1073,8 +1073,8 @@ const RowLibrary = {
  * @param {int} universe 
  */
 function RA(row,universe = 12) {
-    let rns = ['P','I','II','III','IV','V'];
-    let verts = [' ','0','1','2','3','4','5'];
+    let rns = ['P','I','II','III','IV','V'];    //['I','II','III','IV','V','VI'];
+    let verts = [' ','1','2','3','4','5','6'];
     this.row = row;
     let h1 = this.row.slice(0,(Math.floor(universe/2)));
     let h2 = this.row.slice(Math.floor(universe/2));

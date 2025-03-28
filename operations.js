@@ -1155,22 +1155,6 @@ const getPoints = (center,numPoints,length = 50) => {
     }
     return vertices;
 }
-/**
- * Select elements in the polygon manually, optionally choose superset or subset.
- * @param {boolean} subset 
- * @param  {...any} elements 
- */
-const manualSelector = (subset = false,...elements) => {
-    elements.forEach(item => {
-        if (subset == true) {
-            currentData.subset.push(...elements);
-        }
-        else {
-            currentData.superset.push(...elements);
-        }
-    })
-    K.redraw();
-}
 
 /**
  * An object that controls various aspects of the dynamic drawing.
@@ -1403,15 +1387,45 @@ function Drawing (parent = undefined,sizeX = 500,sizeY = 500) { //CHANGE TO 500!
     }
     /**
      * Toggle note names on nodes.
+     * @param {boolean} state
      */
-    this.noteNames = () => {
+    this.noteNames = (state = undefined) => {
         let universe = currentData['Modulus'];
         if (universe == 12 || universe == 31 || universe == 7) {
-            currentData['names'] = !currentData['names'];
+            /**
+             * Toggle Clause
+             */
+            if (state == undefined) {
+                currentData['names'] = !currentData['names'];
+            }
+            else {
+                currentData['names'] = state;
+            }
             this.redraw();
         }
         else {
-            console.error(`${currentData['Modulus']} is not valid for note names!`);
+            console.error(`Mod${currentData['Modulus']} is not valid for note names!`);
+        }
+    }
+    /**
+    * Select elements in the polygon manually, optionally choose superset or subset.
+    * @param {boolean} subset 
+    * @param  {...any} elements 
+    */
+    this.manualSelector = (subset = false,...elements) => {
+        if (currentData['Modulus'] == undefined) {
+            console.error('Cannot perform without a Modulus!')
+        }
+        else {
+            elements.forEach(item => {
+                if (subset == true) {
+                    currentData.subset.push(...elements);
+                }
+                else {
+                    currentData.superset.push(...elements);
+                }
+            })
+            this.redraw();
         }
     }
 }
@@ -1548,6 +1562,46 @@ let currentData;
  * Array storing all instances of .myNode.
  */
 let nodes;
+
+/**
+ * A collection of PC sets in microtonal universes.
+ */
+let Library = {};
+
+/**
+ * Creates a library item to be added to the Library Object.
+ * @param {string} name
+ * @param {int} modulus 
+ * @param {array} superset
+ * @param {array} subset
+ */
+function LibraryItem (name,modulus,superset,subset = undefined) {
+    this.name = name;
+    this.modulus = modulus;
+    this.superset = Array.from(new Set(superset)).sort((a,b) => a-b);
+    this.subset = Array.from(new Set(subset)).sort((a,b) => a-b);
+    /**
+     * Renders the visualization for the item.
+     * @param {boolean} noteNames
+     */
+    this.render = (noteNames = false) => {
+        currentData['Modulus'] = this.modulus;
+        currentData['superset'] = this.superset;
+        currentData['subset'] = this.subset;
+        K.noteNames(noteNames);
+        K.redraw();
+    }
+    Library[name] = this;
+}
+
+new LibraryItem('Carillo96',96,[32, 34, 36, 38, 28, 24, 20, 16, 0, 4, 8, 12, 92, 88, 52, 72, 40, 60, 80, 56, 44, 82,76,64]);
+new LibraryItem('Octatonic',12,[0,1,3,4,6,7,9,10],[0,4,7]);
+new LibraryItem('Diatonic12',12,[0,2,4,5,7,9,11],[0,4,7]);
+new LibraryItem('Tresillo',8,[0,1,2,3,4,5,6,7],[0,3,6]);
+new LibraryItem('CincilloTresillo',16,[0,4,6,10,12],[0,6,12]);
+new LibraryItem('Diatonic7',7,[0,1,2,3,4,5,6],[0,2,4]);
+new LibraryItem('Carillo48',48,[32, 34, 36, 38, 28, 24, 20, 16, 0, 4, 8, 12, 92, 88, 52, 72, 40, 60, 80, 56, 44, 82,76,64].map(x => x/2));
+// new LibraryItem('');
 
 /**
  * Keeps hold of any synths.
