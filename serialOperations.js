@@ -830,7 +830,7 @@ const Serialism = {
         let opts = Serialism.partition(row);
         let data = {};
         opts.forEach(part => {
-            let current = data[`${universe/part.length}`] = {'set' : [],'levels' : {}}; 
+            let current = data[`${row.length/part.length}`] = {'set' : [],'levels' : {}}; 
             for (let a = 1; a < part.length; a++) {
                 let setRep = new MySet(universe,...part[a-1]);
                 current['set'].push(setRep.prime_form());
@@ -964,10 +964,10 @@ const partition = (array,parts) => {
  */
 const urlOperations = (operation = 'change') => {
     let stateName = 'defaultState';
-    if (!currentData) {
-        console.log(`currentData is empty!`);
-    }
-    else if (operation == 'change') {
+    // if (!currentData) {
+    //     console.log(`currentData is empty!`);
+    // }
+    if (operation == 'change') {
         let params = new URLSearchParams(window.location.search);
         params.set(stateName,JSON.stringify(currentData));
         window.history.replaceState({},'',`${window.location.pathname}?${params}`);
@@ -1005,6 +1005,7 @@ const makeTable = (array,parent = 'matrix') => {
              */
             if (array[a][b][0] == 'P' || array[a][b][0] == 'R' || array[a][b][0] == 'I') {
                 isLabel = true;
+                //collection[array[a][b]] = [];   //Check this indexing.
             }
             /**
              * Placeholder cells to offset labels.
@@ -1020,6 +1021,7 @@ const makeTable = (array,parent = 'matrix') => {
             }
             cell.innerHTML = `${array[a][b]}`;
             row.appendChild(cell);
+            //collection[array[a][0]].push(cell);
         }
         tab.appendChild(row);
     }
@@ -1040,11 +1042,43 @@ const labelListeners = () => {
              * Toggle selected status.
              */
             currentData['selected'].indexOf(cell.textContent) == -1? currentData['selected'].push(cell.textContent) : currentData['selected'] = currentData['selected'].filter(x => x !== cell.textContent);
-            
             K.updateMatrix();
         });
     });
 }
+
+/**
+ * Creates segmentation buttons that can manipulate matrix
+ * @param {int} size 
+ */
+const segmentationButtons = (size = currentData['Series'].length) => {
+    let mini = document.querySelector('.buttonCont');
+    console.log(mini !== null);
+    if (mini !== null) {
+        document.querySelectorAll('.buttonCont > button').forEach(child => {
+            child.remove();
+        })
+    }
+    else {
+        mini = document.createElement('div');
+        mini.setAttribute('class','buttonCont');
+        document.querySelector('#upper').append(mini);
+    }
+    let facts = factors(size);
+    facts = facts.slice(0,facts.length-1);
+    currentData['partition'] = null;
+    for (let a = 0; a < facts.length; a++) {
+        let b = document.createElement('button');
+        b.addEventListener('mousedown',() => {
+            currentData['partition'] = facts[a];
+            K.checkerboard(currentData['partition']);
+            console.log(currentData['partition']);
+        })
+        b.innerHTML = `${facts[a]}`;
+        mini.append(b);
+    }
+}
+
 
 /**
  * Creates a single input element.
@@ -1060,8 +1094,6 @@ const buildInput = (name,type,parent = 'upper') => {
     let lab = document.createElement('h4');
     let inp;
     if (type == 'number') {
-        let mini = document.createElement('div');
-        mini.setAttribute('class','buttonCont');
         inp = document.createElement('input');
         inp.setAttribute('type','number');
         inp.setAttribute('placeholder','Enter to Submit');
@@ -1070,29 +1102,13 @@ const buildInput = (name,type,parent = 'upper') => {
              * If enter, submit data to collection object.
              */
             if (event.key == 'Enter') {
-                document.querySelectorAll('.buttonCont > button').forEach(child => {
-                    child.remove();
-                })
                 let regex = /[0-9]+/g;
                 let data = parseInt(inp.value.match(regex));
-                currentData[`${name}`] = data;
+                currentData[`${name}`] = data;//This should populate currentData['Series'] in time for the segmentationButtons to run.
                 val.innerHTML = data;
-                let facts = factors(data);
-                facts = facts.slice(0,facts.length-1);
-                currentData['partition'] = null;
-                for (let a = 0; a < facts.length; a++) {
-                    let b = document.createElement('button');
-                    b.addEventListener('mousedown',() => {
-                        currentData['partition'] = facts[a];
-                        K.checkerboard(currentData['partition']);
-                        console.log(currentData['partition']);
-                    })
-                    b.innerHTML = `${facts[a]}`;
-                    mini.append(b);
-                }
+                segmentationButtons(data);
             }
-            par.append(mini);
-        })  
+        });
     }
     else if (type == 'button') {
         inp = document.createElement('button');
@@ -1134,6 +1150,7 @@ const buildInput = (name,type,parent = 'upper') => {
 
 function myMatrix () {
     this.arrayForm = Serialism.buildMatrix(currentData['Series'],currentData['Universe'],false,true);
+    this.dictionaryForm = Serialism.rowDictionary(currentData['Series'],currentData['Universe']);
     /**
      * Converts the arrayForm property into note names.
      */
@@ -1144,11 +1161,10 @@ function myMatrix () {
     }
     this.createMatrix = () => {
         currentData['matrix'] = this.arrayForm;
-        makeTable(currentData['matrix']);
+        this.nodeDictionary = makeTable(currentData['matrix']);
         document.getElementById('lower').innerHTML = '';
-        //document.getElementById('matrix').innerHTML = '';
         let results = {
-            'Derivation': Serialism.derivation(currentData['Series'],currentData['Universe']),
+            'Derivation': Serialism.derivation(currentData['Series'],currentData['Universe']),//This might need to change to currentData['Series'].length
             'AllInterval': Serialism.allInterval(currentData['Series'],currentData['Universe'])
         }
         for (let [key,value] of Object.entries(results['Derivation'])) {
@@ -1173,6 +1189,7 @@ function myMatrix () {
                 document.getElementById('lower').append(item);
             }
         }
+        segmentationButtons();
         let ints = document.createElement('div'); 
         ints.innerHTML = `All Interval: ${results['AllInterval']}`;  
         document.getElementById('lower').append(ints);
@@ -1191,6 +1208,52 @@ function myMatrix () {
             let sect = Math.floor(col/size)+Math.floor(row/size);
             if (sect % 2 == 0) {
                 cells[a].classList.add('dark');
+            }
+        }
+    }
+    /**
+     * A node list of individual cells that belong to a single row form.
+     * @param {string} row 
+     */
+    this.rowFormAsCells = (row) => {
+        let index = document.querySelector(`#${row}`);
+        let result;
+        let form = row.match(/[IRP]+/g)[0];
+        if (form == 'RP' || form == 'P') {
+            //console.log('Found as P or RP');
+            let pinult = [...document.querySelectorAll(`.${index.classList[0]}:not(.label)`)];
+            result = form == 'P'? pinult : pinult.reverse();
+        }
+        else {
+            //console.log('Found as I or RI');
+            let pinult =  [...document.querySelectorAll(`.${index.classList[1]}:not(.label)`)];
+            result = form == 'I'? pinult : pinult.reverse();
+        }
+        return result;
+    }
+    /**
+     * Tests each row form to find order invariance.
+     * @param  {array} forms 
+     * @returns 
+     */
+    this.orderPosition = (forms = currentData['selected']) => {
+        document.querySelectorAll('.positInvar').forEach(elem => {
+            elem.classList.remove('positInvar');
+        })
+        let multiList = [];
+        if (forms.length > 1) {
+            for (let a = 0; a < currentData['Series'].length; a++) {
+                let test = [];
+                forms.forEach(form => {
+                    test.push(this.dictionaryForm[form][a]);
+                    multiList.push(this.rowFormAsCells(`${form}`));
+                })
+                let pass = Array.from(new Set(test)).length == 1;
+                if (pass) {
+                    multiList.forEach(row => {
+                        row[a].classList.add('positInvar');
+                    })
+                }
             }
         }
     }
@@ -1225,6 +1288,8 @@ function myMatrix () {
                 });
             })
         })
+        segmentationButtons();
+        this.orderPosition();
         urlOperations('change');
     }
     /**
@@ -1240,8 +1305,7 @@ function myMatrix () {
             elem.classList.contains('columnFind')? elem.classList.remove('columnFind') : null;
             elem.classList.contains('both')? elem.classList.remove('both') : null;
         })
-        let forms = Serialism.rowDictionary(currentData['Series'],currentData['Universe']);
-        for (let [key,value] of Object.entries(forms)) {
+        for (let [key,value] of Object.entries(this.dictionaryForm)) {
             if (key[0] == 'P' || key[0] == 'I') {
                 if (primeForms == false) {
                     let inds = ArrayMethods.adjacentIndices(value,search);
@@ -1251,6 +1315,7 @@ function myMatrix () {
                 else {//Issue in here for matrix find...
                     let src = new MySet(currentData['Universe'],...search).prime_form();
                     let full = [];
+                    console.log(`Searching Matrix for (${src})`);
                     for (let a = 0; a < value.length; a++) {   //This loop condition might be an issue.
                         let pair = [a,a+(src.length)];
                         if (a+src.length <= currentData['Universe']) {
@@ -1289,8 +1354,8 @@ function myMatrix () {
                     oppo.push(cur[0] == 'r'? 'c' : 'r');
                 });
             }
-            console.log(`CR: ${cr}`);
-            console.log(`OPPO: ${oppo}`);
+            // console.log(`CR: ${cr}`);
+            // console.log(`OPPO: ${oppo}`);
             for (let a = 0; a < cr.length; a++) {
                 console.log(`search: ${search.length}`);
                 if (search.length == 1) { //Why is this search.length?
@@ -1309,7 +1374,7 @@ function myMatrix () {
                                 document.querySelector(`.${cr[a]}.${oppo[a]}${b+1}`).classList.add('find');
                             }
                             else {
-                                console.log(cr[a][0]);
+                                //console.log(cr[a][0]);
                                 let check = document.querySelector(`.${cr[a]}.${oppo[a]}${b+1}`);
                                 check.classList.add(cr[a][0] == 'r'? 'rowFind' : 'columnFind');
                             }
@@ -1329,26 +1394,64 @@ function myMatrix () {
 }
 
 /**
- * A collection of Rows
+ * Creates a new library item object to be added to RowLibrary.
+ * @param {string} name 
+ * @param {int} modulus 
+ * @param {array} row 
+ * @param {array} search 
+ * @param {boolean} primeForm 
  */
-const RowLibrary = {
-    Filipe: [0,3,4,6,9,10,1,2,5,7,8,11],
-    Webern: [10,9,1,11,2,0,6,5,4,8,7,3], //Figure out what row!
-    SchliesseMeineAugenBieden: [5,4,0,9,7,2,8,1,3,6,10,11],
-    ContrapunctusSecundus: [7,8,0,3,5,11,10,2,4,9,6,1],
-    RequiemCanticles1: [5,7,3,4,6,1,11,0,2,9,8,10],
-    RequiemCanticles2: [5,0,11,9,10,2,1,3,8,6,4,7],
+function RowLibraryItem (name,modulus,row,search,primeForm = false) {
+    this.name = name;
+    /**
+     * Builds a matrix based on arguments.
+     * @param {boolean} pf Change prime form search param.
+     */
+    this.render = (pf = primeForm) => {
+        document.querySelector('#matrix').childNodes.forEach(elem => {
+            elem.remove();
+        })
+        currentData['Universe'] = modulus;
+        currentData['Series'] = row; 
+        currentData['search'] = search;
+        currentData['pfSrch'] = pf;
+        //console.table(currentData);
+        K = new myMatrix();
+        K.createMatrix();
+        K.findAdjacent(search,pf);
+    }
+    RowLibrary[this.name] = this;
 }
 
-let currentData;
+/**
+ * A collection of Row Items.
+ */
+let RowLibrary = {};
+
+let currentData = {};
 let K;
+
+//
+
+new RowLibraryItem('WebernVariationsOp27',12,[4,5,1,3,0,2,8,9,10,6,7,11],[0,1,4],true);
+new RowLibraryItem('BergSchliesseMeineAugenBiedenForm1',12,[5,4,0,9,7,2,8,1,3,6,10,11],[8,1,3,6,10,11],false);
+new RowLibraryItem('BergSchliesseMeineAugenBiedenForm2',12,[5,0,10,7,3,2,8,9,1,4,6,11],[],false);
+new RowLibraryItem('StravinskyRequiemCanticles1',12,[5,7,3,4,6,1,11,0,2,9,8,10],[],false);
+new RowLibraryItem('StravinskyRequiemCanticles2',12,[5,0,11,9,10,2,1,3,8,6,4,7],[],false);
+new RowLibraryItem('DallapicollaContrapunctusSecundus',12,[7,8,0,3,5,11,10,2,4,9,6,1],[],false);
+new RowLibraryItem('DeMatosRochaDerivedRow',12,[0,3,4,6,9,10,1,2,5,7,8,11],[0,1,4],false);
+new RowLibraryItem('LaFleurHeptatonicRow',7,[4,1,6,0,2,3,5],[0,2,3],true);
+new RowLibraryItem('BachLittleFugueInGm7',7,[0, 4, 2, 1, 0, 2, 1, 0, 6, 1, 4, 0, 4, 1, 4, 2, 1, 0, 1, 4, 0, 4, 1, 4, 2, 1, 0, 1],[0,4,2],false);
+new RowLibraryItem('BachLittleFugueInGm12',12,[7,2,10,9,7,10,9,7,6,9,2,7,2,9,2,10,9,10,9,7,9,2,7,2,9,2,10,9,7,9],[0,3,7],true);
+new RowLibraryItem('FigureHumainePoulenc',12,[1,4,9,0,11,3,8,10,9,2,7,4,6,5,2,4,3,0,2,6,9,10]);
+
+//
+
 
 document.addEventListener('DOMContentLoaded',() => {
     console.log('Loaded!');
-    currentData = {
-        'matrix': null,
-        'selected': []
-    }
+    currentData['matrix'] = null;
+    currentData['selected'] = [];
     buildInput('Universe','number');
     buildInput('Series','text');
     buildInput('Search','text');
@@ -1370,9 +1473,12 @@ document.addEventListener('DOMContentLoaded',() => {
     let box = document.getElementById('Search');
     box.appendChild(tiny);
     box.appendChild(check);
-    //
+    let defaultURL = new URL(`file:///C:/Users/blafl/OneDrive/Desktop/Calculators%20v4/serialism.html`) == new URL(window.location);
+    // if (defaultURL == false) {
+    //     urlOperations('load');
+    // }
+    console.log(defaultURL)
 })
-
 
 
 //Viennese trichord row!
@@ -1402,3 +1508,5 @@ document.addEventListener('DOMContentLoaded',() => {
 // let r1 = Serialism.rowDictionary(RowLibrary.RequiemCanticles1,12);
 
 // console.log(r1)
+
+//Create order position invariance class/method.

@@ -116,7 +116,18 @@ const ArrayMethods = {
     }
     return res;
 },
-
+/**
+ * Checks the superset to confirm if all elements of query are contained.
+ * @param {array} superset 
+ * @param {array} query 
+ */
+allContained: function (superset,query) {
+    let result = 0;
+    query.forEach(element => {
+        superset.indexOf(element) > -1? result++ : null;
+    })
+    return result == query.length;
+},
 /**
  * Checks the two arrays to determine if one is an ordered rotation of the other. Can return the rotation index or a boolean.
  * @param {array} array1 
@@ -947,10 +958,10 @@ function MyPlay () {
  */
 const urlOperations = (operation = 'change') => {
     let stateName = 'defaultState';
-    if (!currentData) {
-        console.log(`currentData is empty!`);
-    }
-    else if (operation == 'change') {
+    // else if (!currentData) {
+    //     console.log(`currentData is empty!`);
+    // }
+    if (operation == 'change') {
         let params = new URLSearchParams(window.location.search);
         params.set(stateName,JSON.stringify(currentData));
         window.history.replaceState({},'',`${window.location.pathname}?${params}`);
@@ -959,6 +970,7 @@ const urlOperations = (operation = 'change') => {
         let params = new URLSearchParams(window.location.search);
         let state = params.get(stateName)? JSON.parse(params.get(stateName)) : null;
         currentData = state;
+        console.table(currentData)
         /**
          * Recreate Page;
          */
@@ -1352,7 +1364,7 @@ function Drawing (parent = undefined,sizeX = 500,sizeY = 500) { //CHANGE TO 500!
         nodeMessage('subsetPoly',`Click to play [${currentData.setRepSub.normal_order()}]`);
         fromObject(currentData.setRepSuper.exportable(),'displaySuper');
         fromObject(currentData.setRepSub.exportable(),'displaySub');
-        K.manageTransformations();//K.manageTransformations(subsetChange);
+        K.manageTransformations();
         //Draw polygons for transformations here!
         currentData.transformations.forEach(entry => {
             console.log(`Found ${entry} under selected!`)
@@ -1360,6 +1372,7 @@ function Drawing (parent = undefined,sizeX = 500,sizeY = 500) { //CHANGE TO 500!
              * If a polygon exists, remove it from the drawing.
              */
             if (document.querySelector(`#${entry}polygon`)) {
+                console.log(document.querySelector(`#${entry}polygon`))
                 document.querySelector(`#${entry}`).classList.remove('sel');
                 document.querySelector(`#${entry}polygon`).remove();
             }
@@ -1575,7 +1588,7 @@ let Library = {};
  * @param {array} superset
  * @param {array} subset
  */
-function LibraryItem (name,modulus,superset,subset = undefined) {
+function LibraryItem (name,modulus,superset,subset = undefined,...transformations) {
     this.name = name;
     this.modulus = modulus;
     this.superset = Array.from(new Set(superset)).sort((a,b) => a-b);
@@ -1585,11 +1598,14 @@ function LibraryItem (name,modulus,superset,subset = undefined) {
      * @param {boolean} noteNames
      */
     this.render = (noteNames = false) => {
+        console.log(currentData)
         currentData['Modulus'] = this.modulus;
         currentData['superset'] = this.superset;
         currentData['subset'] = this.subset;
         K.noteNames(noteNames);
-        K.redraw();
+        K.redraw();//First create the template
+        currentData['transformations'] = transformations == undefined? [] : transformations;
+        K.redraw();//Then after updating the transformations list, update again.
     }
     Library[name] = this;
 }
@@ -1601,7 +1617,10 @@ new LibraryItem('Tresillo',8,[0,1,2,3,4,5,6,7],[0,3,6]);
 new LibraryItem('CincilloTresillo',16,[0,4,6,10,12],[0,6,12]);
 new LibraryItem('Diatonic7',7,[0,1,2,3,4,5,6],[0,2,4]);
 new LibraryItem('Carillo48',48,[32, 34, 36, 38, 28, 24, 20, 16, 0, 4, 8, 12, 92, 88, 52, 72, 40, 60, 80, 56, 44, 82,76,64].map(x => x/2));
-// new LibraryItem('');
+new LibraryItem('DallapiccolaHexachord',12,[0,1,2,3,4,5,6,7,8,9,10,11],[7,8,0,3,5,11],'I9');
+new LibraryItem('HexatonicPole',12,[0,1,4,5,8,9],[5,9,0],'I1');
+new LibraryItem('HexatonicHug',12,[0,1,2,3,4,5,6,7,8,9,10,11],[0,1,4,5,8,9],'I3');
+new LibraryItem('OctatonicLP',12,[0,1,3,4,6,7,9,10],[0,4,7],'I4','I7');
 
 /**
  * Keeps hold of any synths.
@@ -1630,6 +1649,7 @@ document.addEventListener('DOMContentLoaded',() => {
     buildInput('Note Names','button','Toggle note names and PCs if applicable.');
     attachEventListeners();
     trackMouse();
+    //If ....URL isn't default, reload from URL.
 })
 
 //manualSelector(false,0,11,22,33,48,48+11,48+22,48+33,97,97+11,97+22,97+33,144,144+12,4);

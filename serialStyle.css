@@ -77,3 +77,10 @@ td {
 .both {
     background-color:rgb(168, 255, 185);
 }
+
+.positInvar {
+    border-color: black;
+    background-color:aqua;
+    font-style:italic;
+}
+

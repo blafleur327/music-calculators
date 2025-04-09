@@ -418,13 +418,13 @@ const PCSetTheory = {
         allSubs.forEach(subset => {
             if (subset.length > 1) {
                 let temp = PCSetTheory.primeForm(subset,universe);
-                if (!conc.includes(temp.join('.'))) {
+                if (!conc.includes(temp.join('.'))) {   //Check if item is in the list. 
                     conc.push(temp.join('.'));
-                    res[temp.length] == undefined? res[temp.length] = [] : res[temp.length].push(temp);
+                    res[temp.length] == undefined? res[temp.length] = [temp] : res[temp.length].push(temp);//Must instantiate and populate if object[card] is undefined.
                 }
             }
         })
-        //return res;
+        return res;
     }
 }
 
@@ -445,7 +445,6 @@ const fuzzy = (array1,array2,modulus = 12) => {
     //Filter
 }
 
-console.log(fuzzy([0,3,7],[0,4,8]));
 
 /**
  * Gets the prime form of an input binary number.
@@ -477,56 +476,52 @@ const binaryFun = (number) => {
 }
 
 
-// document.addEventListener('DOMContentLoaded',() => {
-//     console.log('LOADED');
-//     document.getElementById('card').addEventListener('keydown',(event) => {
-//         if (event.key == 'Enter') {
-//             console.time(`Size ${parseInt(document.getElementById('card').value)}:`);
-//             document.getElementById('result').innerHTML = '';
-//             let start = performance.now();
-//             let X = PCSetTheory.listSetClasses(parseInt(document.getElementById('card').value));
-//             for(let [key,value] of Object.entries(X)) {
-//                 let uhOh = document.createElement('div');
-//                 let info = document.createElement('div');
-//                 info.classList.add('labels');
-//                 uhOh.classList.add('semiCont')
-//                 let card = document.createElement('h3');
-//                 card.innerHTML = `Size: ${key}`;
-//                 let extra = document.createElement('p');
-//                 extra.innerHTML = `Entries: ${value.length}`;
-//                 info.append(card);
-//                 info.append(extra);
-//                 uhOh.append(info);
-//                 let list = document.createElement('ol');
-//                 value.forEach(sub => {
-//                     let duh = document.createElement('li');
-//                     duh.innerHTML = `(${sub})`;
-//                     duh.classList.add('hoverable');
-//                     list.appendChild(duh);
-//                 })
-//                 uhOh.append(list);
-//                 document.getElementById('result').append(uhOh);
-//             }
-//             let end = performance.now();
-//             document.getElementById('time').innerHTML = `Completed in ${(end-start).toFixed(2)} ms.`;
-//         }
-//     })
-//     document.addEventListener('mousedown',(event) => {
-//         if (event.target.classList[0] == 'hoverable') {
-//             let converted = event.target.innerHTML.match(/[0-9]+/ig).map(x => parseInt(x));
-//             alert(`Prime Form: (${converted})\bICV: <${PCSetTheory.intervalClassVector(converted,parseInt(document.getElementById('card').value))}>`);
-//         }
-//     })
-//     document.getElementsByTagName('strong')[0].addEventListener('mousedown',() => {
-//         alert('This process requires at least O(2^n) to generate the possible combinations, these are then all put into prime form, then filtered for uniqueness. These numbers get extremely big very quickly. ie 2^12 = 4096,...2^20 = 1,048,576. These do not represent the total calculations, but rather the total combinations to be placed into prime form, then filtered. For reference the list for 12 can be generated in under .2s, 20 takes about one minute, the process scales exponentionally, not linearly!')
-//     })
-// })
+document.addEventListener('DOMContentLoaded',() => {
+    console.log('LOADED');
+    document.getElementById('card').addEventListener('keydown',(event) => {
+        if (event.key == 'Enter') {
+            console.time(`Size ${parseInt(document.getElementById('card').value)}:`);
+            document.getElementById('result').innerHTML = '';
+            let start = performance.now();
+            let X = PCSetTheory.listSetClasses(parseInt(document.getElementById('card').value));
+            for(let [key,value] of Object.entries(X)) {
+                let uhOh = document.createElement('div');
+                let info = document.createElement('div');
+                info.classList.add('labels');
+                uhOh.classList.add('semiCont')
+                let card = document.createElement('h3');
+                card.innerHTML = `Size: ${key}`;
+                let extra = document.createElement('p');
+                extra.innerHTML = `Entries: ${value.length}`;
+                info.append(card);
+                info.append(extra);
+                uhOh.append(info);
+                let list = document.createElement('ol');
+                value.forEach(sub => {
+                    let duh = document.createElement('li');
+                    duh.innerHTML = `(${sub})`;
+                    duh.classList.add('hoverable');
+                    list.appendChild(duh);
+                })
+                uhOh.append(list);
+                document.getElementById('result').append(uhOh);
+            }
+            let end = performance.now();
+            document.getElementById('time').innerHTML = `Completed in ${(end-start).toFixed(2)} ms.`;
+        }
+    })
+    document.addEventListener('mousedown',(event) => {
+        if (event.target.classList[0] == 'hoverable') {
+            let converted = event.target.innerHTML.match(/[0-9]+/ig).map(x => parseInt(x));
+            alert(`Prime Form: (${converted})\rICV: <${PCSetTheory.intervalClassVector(converted,parseInt(document.getElementById('card').value))}>`);
+        }
+    })
+    document.getElementsByTagName('strong')[0].addEventListener('mousedown',() => {
+        alert('This process requires at least O(2^n) to generate the possible combinations, these are then all put into prime form, then filtered for uniqueness. These numbers get extremely big very quickly. ie 2^12 = 4096,...2^20 = 1,048,576. These do not represent the total calculations, but rather the total combinations to be placed into prime form, then filtered. For reference the list for 12 can be generated in under .2s, 20 takes about one minute, the process scales exponentionally, not linearly!')
+    })
+})
 
-
-
-
-
-// // //Modern Mandolin Quartet Album
+//Modern Mandolin Quartet Album
 
 
 
