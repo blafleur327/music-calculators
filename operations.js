@@ -1478,12 +1478,6 @@ function MyNode (x,y,data,parent,diameter = 30) {
      * @param {any} args
      */
     this.operation = () => {
-        /**
-         * Disable context menu.
-         */
-        this.self.addEventListener('contextmenu',(event) => {
-            event.preventDefault();
-        })
         this.self.addEventListener('mousedown',(event) => {
             /**
              * List of classes for node.
