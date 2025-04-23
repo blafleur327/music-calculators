@@ -188,4 +188,8 @@ polygon:hover {
     stroke-width:2px;
 }
 
+button {
+    background-color:rgb(225, 237, 255);
+}
+
 

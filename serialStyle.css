@@ -11,6 +11,10 @@ td {
     transition: 01.s ease-in-out;
 }
 
+table {
+    padding:1%;
+}
+
 .label {
     background-color:lightgrey;
     transform-origin:center;
@@ -49,7 +53,15 @@ td {
 }
 
 #matrix {
-    padding:2%;
+    display:flex;
+    flex-direction:row;
+}
+
+#showSearch {
+    padding:1%;
+    border-color:grey;
+    border-style:solid;
+    border-width:1px;
 }
 
 #lower {

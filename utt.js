@@ -540,3 +540,4 @@ document.addEventListener('DOMContentLoaded',() => {
     });
 })
 
+// N,L = <-,5,8>

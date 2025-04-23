@@ -831,10 +831,10 @@ const Serialism = {
         let data = {};
         opts.forEach(part => {
             let current = data[`${row.length/part.length}`] = {'set' : [],'levels' : {}}; 
-            for (let a = 1; a < part.length; a++) {
+            for (let a = 1; a <= part.length; a++) {
                 let setRep = new MySet(universe,...part[a-1]);
                 current['set'].push(setRep.prime_form());
-                current['levels'][`${a}-${a+1}`] = setRep.compare_set(part[a]);//TODO this line needs to change.
+                current['levels'][`${a}-${a+1}`]= setRep.compare_set(part[a]);//TODO this line needs to change.
             }
            current['set'] = ArrayMethods.unique_subarray(current['set']);
            if (current['set'].length !== 1) {
@@ -1258,6 +1258,17 @@ function myMatrix () {
         }
     }
     /**
+     * Rebuilds the matrix from an input rowform as the top row.
+     * @param {string} form 
+     */
+    this.reconstruct = (form) => {
+        currentData['Series'] = this.dictionaryForm[form];
+        this.arrayForm = Serialism.buildMatrix(currentData['Series'],currentData['Universe'],false,true);
+        document.querySelector('table').remove();
+        this.createMatrix();
+        this.updateMatrix();
+    }
+    /**
      * Updates the matrix according to currentData.
      */
     this.updateMatrix = () => {
@@ -1288,6 +1299,7 @@ function myMatrix () {
                 });
             })
         })
+        this.findAdjacent();//Search if update called.
         segmentationButtons();
         this.orderPosition();
         urlOperations('change');
@@ -1315,6 +1327,15 @@ function myMatrix () {
                 else {//Issue in here for matrix find...
                     let src = new MySet(currentData['Universe'],...search).prime_form();
                     let full = [];
+                    let shower = document.querySelector('#showSearch'); 
+                    if (shower) {//If exists, change value
+                        shower.innerHTML = `Searching Matrix for (${src})`; 
+                    }
+                    else {
+                        let sm = document.createElement('div');
+                        sm.id = `showSearch`;
+                        document.getElementById('matrix').append(sm);
+                    }
                     console.log(`Searching Matrix for (${src})`);
                     for (let a = 0; a < value.length; a++) {   //This loop condition might be an issue.
                         let pair = [a,a+(src.length)];

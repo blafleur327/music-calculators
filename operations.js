@@ -1102,16 +1102,6 @@ const attachEventListeners = () => {
         currentData['Play Option'] = !currentData['Play Option'];
         document.querySelector('#Play\\ Option > button').innerHTML = currentData['Play Option']? 'Rhythm' : 'Pitch';
     })
-    // document.querySelector('#Note\\ Names > button').addEventListener('mousedown',() => {
-    //     let self = document.querySelector('#Note\\ Names');
-    //     if (currentData['Modulus'] == 12 || currentData['Modulus'] == 31) {
-    //         self.classList.remove('void');
-    //         K.noteNames();
-    //     }
-    //     else {
-    //         self.classList.add('void');
-    //     }
-    // })
 }
 
 /**
@@ -1216,7 +1206,6 @@ function Drawing (parent = undefined,sizeX = 500,sizeY = 500) { //CHANGE TO 500!
      * Manages the transformations drawn and the button containers!
      */
     this.manageTransformations = () => {
-        //Make a clause to count the unique transformations of each.
         document.querySelectorAll('.trans').forEach(elem => {
             elem.remove();
         })
@@ -1616,6 +1605,7 @@ new LibraryItem('HexatonicPole',12,[0,1,4,5,8,9],[5,9,0],'I1');
 new LibraryItem('HexatonicHug',12,[0,1,2,3,4,5,6,7,8,9,10,11],[0,1,4,5,8,9],'I3');
 new LibraryItem('OctatonicLP',12,[0,1,3,4,6,7,9,10],[0,4,7],'I4','I7');
 
+
 /**
  * Keeps hold of any synths.
  */
@@ -1640,7 +1630,6 @@ document.addEventListener('DOMContentLoaded',() => {
     buildInput('Clear Superset','button','Deselect all elements from superset.','superset');
     buildInput('Clear Subset','button','Deselect all elements from subset.','subset');
     buildInput('Play Option','button','Toggle playback between pitch and rhythm.','play');
-    buildInput('Note Names','button','Toggle note names and PCs if applicable.');
     attachEventListeners();
     trackMouse();
     //If ....URL isn't default, reload from URL.
