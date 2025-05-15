@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator.v.5.0</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0/dist/svg.min.js"></script><!--Add svg.js-->
+    <script src="http://unpkg.com/tone"></script><!--Add Tone.js for oscillator-->
+    <script type="text/javascript" src="builder.js"></script>
+    <link rel="stylesheet" href="v5Style.css">
+</head>
+<body>
+    <h1>Set-Class Calculator</h1>
+    <h3>Use this calculator to discover various attributes of PC/BC sets.</h3>
+    <div id=inputs>
+        <div class="container">
+            <h4 class="label">Modular Universe</h4>
+            <input type="number" id="universe">
+        </div>
+        <div class="container">
+            <h4 class="label">Transposition</h4>
+            <select id="ts" class="drop"></select>
+            <p id="tContain">null</p>
+        </div>
+        <div class="container">
+            <h4 class="label">Inversion</h4>
+            <select id="is" class="drop"></select>
+            <p id="iContain">null</p>
+        </div>
+        <div class="container">
+            <h4 class="label">Superset Complement</h4>
+            <button class="but" id="superComp">...</button>
+        </div>
+        <div class="container">
+            <h4 class="label">Subset Complement</h4>
+            <button class="but" id="subComp">...</button>
+        </div>
+        <div class="container" id="noteToggle">
+            <h4 class="label">Note Names</h4>
+            <button class="but" id="noteNames">...</button>
+        </div>
+        <div class="container" id="symmetry">
+            <h4 class="label">Toggle Symmetry</h4>
+            <button class="but" id="symm">NONE</button>
+        </div>
+    </div>
+    <div id="tooltips">OOGA</div>
+    <div id="drawing" oncontextmenu="return false"></div> <!--Disable Context Menu on right-click-->
+    <div id="moreInfo"></div>
+</body>
+</html>

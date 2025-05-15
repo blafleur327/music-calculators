@@ -1,0 +1,193 @@
+#drawing {
+    border-style:solid;
+    border-color:grey;
+    border-width:1px;
+}
+
+.void {
+    visibility:hidden !important;
+}
+
+.MyNode {
+    cursor:pointer;
+}
+
+.MyNode:hover > circle {
+    stroke-width: 2px;
+    r: 24;
+}
+
+.small.MyNode:hover > circle {
+    stroke-width: 2px;
+    r:14;
+}
+
+.MyNode:hover > text {
+    font-weight:bolder;
+}
+
+.MyNode:hover > .noteNames {
+    transform:scale(1.2);
+}
+
+.inSub > circle {
+    fill: rgb(106, 106, 106) !important;
+}
+
+.inSub > text {
+    fill: white !important;
+}
+
+.inSub.small > text {
+    visibility:visible;
+    transform:scale(1.2);
+    fill:black !important;
+}
+
+.inSuper > circle {
+    fill: rgb(193, 193, 193);
+}
+
+.inSuper.small > text {
+    visibility:visible;
+    transform:scale(1.2);
+}
+
+#tooltips {
+    visibility:hidden;
+    background-color:rgb(221, 221, 221);
+    border-radius:1px;
+    border-color:grey;
+    border-style:solid;
+    position:absolute;
+}
+
+.supersetPolygon {
+    fill:rgb(198, 198, 198);
+}
+
+.supersetPolygon:hover {
+    fill:rgb(144, 144, 144);
+}
+
+.subsetPolygon {
+    fill:rgb(138, 138, 138)
+}
+
+.subsetPolygon:hover {
+    fill:rgb(87, 87, 87)
+}
+
+#moreInfo {
+    display:flex;
+    flex-direction:row;
+}
+
+polygon:hover {
+    cursor:pointer;
+}
+
+#moreInfo > div {
+    display:flex;
+    flex-direction:column;
+    border-radius:1px;
+    border-color:grey;
+    border-style:solid;
+    padding:4px;
+}
+
+.highlight:hover {
+    background-color:rgb(221, 221, 221);
+    cursor:pointer;
+}
+
+.transform {
+    border-radius: 1px;
+    border-color: rgb(75, 75, 75);
+    border-style:solid;
+    fill: rgba(155, 155, 165, 0.644);
+}
+
+.transform:hover {
+    fill: rgba(97, 97, 127, 0.644);
+}
+
+#inputs {
+    display:flex;
+    flex-direction: row;
+}
+
+#inputs > * {
+    padding-left: 2%;
+    padding-right:2%;
+    border-radius:1px;
+    border-style:inset;
+    border-color:grey;
+    text-align:center;
+}
+
+.but {
+    background-color: rgb(158, 158, 211);
+}
+
+.but:hover {
+    cursor:pointer;
+    transform:scale(1.1);
+}
+
+.drop {
+    cursor:pointer;
+}
+
+.drop:hover {
+    transform:scale(1.1);
+}
+
+.small > circle {
+    r: 7;
+}
+
+.small > text {
+    visibility:hidden;
+    transform-origin:initial;
+}
+
+.small:hover > text {
+    visibility:visible;
+    transform:scale(1.2);
+}
+
+.noteName {
+    /* visibility: hidden; */
+    transform-origin:initial;
+}
+
+#tContain {
+    visibility:hidden;
+}
+
+#iContain {
+    visibility:hidden;
+}
+
+.subSymmetryLine {
+    visibility: hidden;
+    stroke-width:2px;
+    stroke:blue;
+    stroke-dasharray: 3,3;
+}
+
+.superSymmetryLine {
+    visibility: hidden;
+    stroke-width:2px;
+    stroke:red;
+    stroke-dasharray: 3,3;
+}
+
+.subSymmetryLine:hover {
+    stroke-width: 3px;
+}
+
+.superSymmetryLine:hover {
+    stroke-width:3px;
+}
