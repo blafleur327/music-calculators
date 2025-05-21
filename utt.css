@@ -14,3 +14,12 @@ g:hover > text {
     display:flex;
     flex-direction:row;
 }
+
+#tooltips {
+    position:absolute;
+    visibility:hidden;
+    background-color:rgb(201, 201, 201);
+    border-radius:1px;
+    border-color:grey;
+    border-style:solid;
+}

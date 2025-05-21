@@ -388,6 +388,8 @@ function Drawing (parent) {
             elem.remove();
         })
     }
+    document.querySelector('#start')['data-tooltip'] = `Enter a starting triad in the format C+ or F- then press enter.`;
+    document.querySelector('#utts')['data-tooltip'] = `Enter a series of transformations in UTT format ie. <-,5,7> or in standard NRT format ie. L,R,P, etc.`
     this.drawCycle = (start,...utts) => {
         this.clear();
         let segmentLength = 200;
@@ -397,7 +399,7 @@ function Drawing (parent) {
         let points = getPoints([sizeX/2,sizeY/2],T.cycle_length,segmentLength);
         let offPoints = getPoints([sizeX/2,sizeY/2],(T.cycle_length)*2,segmentLength+50);
         for (let a = 0; a < points.length; a++) {
-            let b = new MyNode(this,T.result[a],...points[a]);
+            let b = new MyNode(this,T.result[a],...points[a]);//Add data-tooltip?
             let disp = T.utts[a%T.utts.length];
             for ([key,value] of Object.entries(NRTs)) {
                 if (disp == value.stringFormat) {
@@ -416,6 +418,44 @@ function Drawing (parent) {
         document.querySelector('#roots').innerHTML = `{${STORE.roots}}`;
         document.querySelector('#cycleLength').innerHTML = `${T.cycle_length}`;
     }
+}
+
+/**
+* Monitors the hovering of the cursor. Updates tooltip box.
+*/
+mouseTracking = () => {
+    let tt = document.querySelector(`#tooltips`);//
+    document.addEventListener('mouseover',(element) => {    //Whole document allows tooltips!
+        let message = undefined;
+        let position = [element.clientX,element.clientY];
+        tt.style.left = `${position[0]+10}px`;
+        tt.style.top = `${position[1]+10}px`;
+        if (element.target.parentNode.tagName !== 'g' && element.target.tagName == `tspan`) {    //Catch text
+            // console.log(element.target.parentNode.parentNode.tagName);
+            message = element.target.parentNode.parentNode['data-tooltip'];
+        }
+        else if (element.target.parentNode.tagName == 'g') {   
+            // console.log(element.target.parentNode.tagName); 
+            message = element.target.parentNode['data-tooltip'];
+        }
+        else {
+            // console.log(element.target.tagName);
+            message = element.target['data-tooltip'];
+        }
+        tt.style.visibility = message? 'visible' : 'hidden';
+        /**
+        * Node condition, determines the index of message to be displayed.
+        */
+        if (typeof message == 'object') {
+            let nodeNumber = parseInt(element.target.parentNode.childNodes[1].textContent);//Should work if noteNames are visible
+            let nodeState = Object.values(allNodes)[nodeNumber].state;
+            tt.innerHTML = `${message[nodeState]}`;
+        }
+        else if (message !== undefined) {
+            tt.innerHTML = `${message}`;
+        }
+
+    })
 }
 
 /**
@@ -538,6 +578,7 @@ document.addEventListener('DOMContentLoaded',() => {
             })
         }
     });
+    mouseTracking();
 })
 
 // N,L = <-,5,8>

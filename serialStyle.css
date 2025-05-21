@@ -90,9 +90,72 @@ table {
     background-color:rgb(168, 255, 185);
 }
 
+/* Positional invariance */
 .positInvar {
     border-color: black;
     background-color:aqua;
     font-style:italic;
 }
 
+#tooltips {
+    position:absolute;
+    visibility:hidden;
+    background-color:rgb(201, 201, 201);
+    border-radius:1px;
+    border-color:grey;
+    border-style:solid;
+    /* Max width...Overflow? */
+}
+
+button:hover {
+    transform:scale(1.2);
+    cursor:pointer;
+    font-weight:bolder;
+}
+
+#key {
+    display:flex;
+    flex-direction:column;;
+    align-self:center;
+    padding-left:5%;
+}
+
+.keyElement {
+    width: 30px;
+    height: 30px;
+    border-color:grey;
+    border-style:inset;
+    border-width:1px;
+    /* padding: 2px; */
+}
+
+.keyElement:hover {
+    transform:scale(1.2);
+    /* cursor:alias; */
+}
+
+.keyBox {
+    display:flex;
+    flex-direction:row;
+}
+
+.keyBox > p {
+    margin:0px;
+    padding-left: 2%;
+    padding-right:2px;
+}
+
+.dropdown {
+    min-height:fit-content;
+    max-height:35px;
+}
+
+#middle {
+    display:flex;
+    flex-direction:row;
+    padding:2%;
+}
+
+.keyTitle {
+    text-align:center;
+}

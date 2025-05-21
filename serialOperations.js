@@ -1018,6 +1018,7 @@ const makeTable = (array,parent = 'matrix') => {
             if (isLabel && invis == false) {
                 cell.classList.add('class','label');
                 cell.id = `${array[a][b]}`;
+                cell['data-tooltip'] = [`Click to select ${cell.id}`,`Click to deselect ${cell.id}`];
             }
             cell.innerHTML = `${array[a][b]}`;
             row.appendChild(cell);
@@ -1034,49 +1035,52 @@ const makeTable = (array,parent = 'matrix') => {
  */
 const labelListeners = () => {
     document.querySelectorAll('.label').forEach(cell => {
-        let row = cell.classList[0];
-        let col = cell.classList[1];
-        //This needs to be modified...
+        cell['data-status'] = 0;//Default state
         cell.addEventListener('mousedown',() => {  
             /**
              * Toggle selected status.
              */
             currentData['selected'].indexOf(cell.textContent) == -1? currentData['selected'].push(cell.textContent) : currentData['selected'] = currentData['selected'].filter(x => x !== cell.textContent);
+            cell['data-status'] = currentData['selected'].indexOf(cell.textContent) == -1? 0 : 1;
+            document.querySelector(`#tooltips`).innerHTML = cell['data-tooltip'][cell['data-status']];
             K.updateMatrix();
         });
+        document.querySelector(`#tooltips`).innerHTML = cell['data-tooltip'][0];
     });
 }
 
 /**
- * Creates segmentation buttons that can manipulate matrix
+ * Creates segmentation dropdown that draws partitions onto the matrix.
  * @param {int} size 
  */
 const segmentationButtons = (size = currentData['Series'].length) => {
-    let mini = document.querySelector('.buttonCont');
-    console.log(mini !== null);
-    if (mini !== null) {
-        document.querySelectorAll('.buttonCont > button').forEach(child => {
-            child.remove();
-        })
-    }
-    else {
-        mini = document.createElement('div');
-        mini.setAttribute('class','buttonCont');
-        document.querySelector('#upper').append(mini);
-    }
+    let contain = document.createElement('div');
+    contain.classList.add('dropContainer');
+    contain.classList.add('single');
+    document.querySelectorAll('.dropContainer').forEach(item => item.remove());
+    let text = document.createElement('h4');
+    text.innerHTML = 'Partition:';
+    let mini = document.createElement('select');
+    mini.setAttribute('class','dropdown');
+    contain.append(text);
+    contain.append(mini);
+    document.querySelector('#upper').append(contain);
+    mini['data-tooltip'] = 'Partition the matrix into discrete <em>n</em>-chords.';
     let facts = factors(size);
     facts = facts.slice(0,facts.length-1);
     currentData['partition'] = null;
+    let def = document.createElement('option')
+    def.innerHTML = 'NONE';
+    mini.append(def);
     for (let a = 0; a < facts.length; a++) {
-        let b = document.createElement('button');
-        b.addEventListener('mousedown',() => {
-            currentData['partition'] = facts[a];
-            K.checkerboard(currentData['partition']);
-            console.log(currentData['partition']);
-        })
+        let b = document.createElement('option');
         b.innerHTML = `${facts[a]}`;
         mini.append(b);
     }
+    mini.addEventListener('change',() => {
+        let val = currentData['partition'] = parseInt(mini.value);
+        K.checkerboard(val);
+    })
 }
 
 
@@ -1084,13 +1088,15 @@ const segmentationButtons = (size = currentData['Series'].length) => {
  * Creates a single input element.
  * @param {string} name 
  * @param {string} type 'number' || 'button' || 'text'
- * @param {string} parent element id 
+ * @param {string} parent element id
+ * @param {string} tooltip Information to be displayed on hover. 
  */
-const buildInput = (name,type,parent = 'upper') => {
+const buildInput = (name,type,parent = 'upper',tooltip) => {
     let par = document.getElementById(parent);
     let cont = document.createElement('div');
     cont.setAttribute('class','single');
     cont.setAttribute('id',`${name}`);
+    // par['data-tooltip'] = tooltip;
     let lab = document.createElement('h4');
     let inp;
     if (type == 'number') {
@@ -1110,10 +1116,10 @@ const buildInput = (name,type,parent = 'upper') => {
             }
         });
     }
-    else if (type == 'button') {
-        inp = document.createElement('button');
-        currentData[`${name}`] = false;
-    }
+    // else if (type == 'button') {
+    //     inp = document.createElement('button');
+    //     currentData[`${name}`] = false;
+    // }
     else if (type == 'text') {
         inp = document.createElement('input');
         inp.setAttribute('type','text');
@@ -1130,12 +1136,19 @@ const buildInput = (name,type,parent = 'upper') => {
                     currentData[`${name}`] = series;
                     val.innerHTML = currentData[`${name}`];
                     document.querySelector('#matrix').innerHTML = '';
+                    buildKey();
                     K = new myMatrix();
                     K.createMatrix();
                 }
                 else if (name == 'Search') {
-                    currentData['search'] = data.map(x => parseInt(x));
-                    K.findAdjacent(currentData['search']);
+                    if (data == null) {
+                        currentData['search'] = [];
+                        K.updateMatrix();
+                    }
+                    else {
+                        currentData['search'] = data.map(x => parseInt(x));
+                        K.findAdjacent(currentData['search']);
+                    }
                 }
             }
         }) 
@@ -1145,9 +1158,16 @@ const buildInput = (name,type,parent = 'upper') => {
     cont.appendChild(lab);
     cont.appendChild(inp);
     cont.appendChild(val);
-    par.appendChild(cont);  
+    par.appendChild(cont); 
+    document.querySelector(`#${name}`)['data-tooltip'] = tooltip; 
+    document.querySelector(`#${name}`).childNodes.forEach(child => {
+        child['data-tooltip'] = tooltip;
+    })
 }
 
+/**
+ * Create an instance of a matrix object, complete with methods for manipulating the matrix. Information taken from the currentData object.
+ */
 function myMatrix () {
     this.arrayForm = Serialism.buildMatrix(currentData['Series'],currentData['Universe'],false,true);
     this.dictionaryForm = Serialism.rowDictionary(currentData['Series'],currentData['Universe']);
@@ -1159,6 +1179,9 @@ function myMatrix () {
         this.arrayForm = Serialism.buildMatrix(currentData['Series'],currentData['Universe'],state,true);
         this.createMatrix();
     }
+    /**
+     * Creates a matrix from the currentData object.
+     */
     this.createMatrix = () => {
         currentData['matrix'] = this.arrayForm;
         this.nodeDictionary = makeTable(currentData['matrix']);
@@ -1182,7 +1205,7 @@ function myMatrix () {
                     console.log(v);
                     conc += conc == ''? `${v}` : `, ${v}`;
                 }
-                let ts = document.createElement('div')
+                let ts = document.createElement('div');
                 ts.innerHTML = `Level(s): ${conc}`;
                 item.append(i);
                 item.append(ts);
@@ -1199,7 +1222,7 @@ function myMatrix () {
      * Partitions the matrix into even n*n squares.
      * @param {int} size 
      */
-    this.checkerboard = (size = currentData['partition']) => {
+    this.checkerboard = (size = null) => { //currentData['partition']
         let cells = document.querySelectorAll('td:not(.label):not(.void)');
         for (let a = 0; a < cells.length; a++) {
             cells[a].classList.remove('dark');
@@ -1311,6 +1334,7 @@ function myMatrix () {
     this.findAdjacent = (search = currentData['search'],primeForms = currentData['pfSrch']) => {
         let found = {};
         let all = [];
+        console.log(`Searching for: ${search}...PF? ${primeForms}`);
         document.querySelectorAll('.find, .columnFind, .rowFind, .both').forEach(elem => {
             elem.classList.contains('find')? elem.classList.remove('find') : null;
             elem.classList.contains('rowFind')? elem.classList.remove('rowFind') : null;
@@ -1327,15 +1351,6 @@ function myMatrix () {
                 else {//Issue in here for matrix find...
                     let src = new MySet(currentData['Universe'],...search).prime_form();
                     let full = [];
-                    let shower = document.querySelector('#showSearch'); 
-                    if (shower) {//If exists, change value
-                        shower.innerHTML = `Searching Matrix for (${src})`; 
-                    }
-                    else {
-                        let sm = document.createElement('div');
-                        sm.id = `showSearch`;
-                        document.getElementById('matrix').append(sm);
-                    }
                     console.log(`Searching Matrix for (${src})`);
                     for (let a = 0; a < value.length; a++) {   //This loop condition might be an issue.
                         let pair = [a,a+(src.length)];
@@ -1398,6 +1413,7 @@ function myMatrix () {
                                 //console.log(cr[a][0]);
                                 let check = document.querySelector(`.${cr[a]}.${oppo[a]}${b+1}`);
                                 check.classList.add(cr[a][0] == 'r'? 'rowFind' : 'columnFind');
+
                             }
                         }
                     })
@@ -1449,7 +1465,7 @@ function RowLibraryItem (name,modulus,row,search,primeForm = false) {
  */
 let RowLibrary = {};
 
-let currentData = {};
+let currentData = {'search': []};
 let K;
 
 //
@@ -1468,14 +1484,82 @@ new RowLibraryItem('FigureHumainePoulenc',12,[1,4,9,0,11,3,8,10,9,2,7,4,6,5,2,4,
 
 //
 
+/**
+* Monitors the hovering of the cursor. Updates tooltip box.
+*/
+mouseTracking = () => {
+    let offset = 15;//Offset for tooltip box.
+    let tt = document.querySelector(`#tooltips`);//
+    document.addEventListener('mouseover',(element) => {    //Whole document allows tooltips!
+        let message = undefined;
+        let position = [element.clientX,element.clientY];
+        tt.style.left = `${position[0]+offset}px`;
+        tt.style.top = `${position[1]+offset}px`;
+        if (element.target.parentNode.tagName !== 'g' && element.target.tagName == `tspan`) {    //Catch text
+            // console.log(element.target.parentNode.parentNode.tagName);
+            message = element.target.parentNode.parentNode['data-tooltip'];
+        }
+        else if (element.target.parentNode.tagName == 'g') {   
+            // console.log(element.target.parentNode.tagName); 
+            message = element.target.parentNode['data-tooltip'];
+        }
+        else {
+            // console.log(element.target.tagName);
+            message = element.target['data-tooltip'];
+        }
+        tt.style.visibility = message? 'visible' : 'hidden';
+        if (typeof message == 'object' && Array.isArray(message)) {
+            tt.innerHTML = `${message[element.target['data-status']]}`;
+        }
+        else if (typeof message !== 'object') {
+            tt.innerHTML = message;
+        }
+    })
+}
+
+/**
+ * Builds a key to display color codes for the matrix.
+ */
+const buildKey = () => {
+    let parent = document.querySelector('#key');
+    console.log(`Found #key element? ${parent !== undefined}`);
+    /**
+     * @key {string} - The text to be displayed.
+     * @value {string} - The color badge.
+     */
+    let items = {
+        'Selected Row': 'lightblue',
+        'Literal Search Result': 'darkcyan', 
+        'Row Positional Invariant': 'aqua',
+        'Prime Form Vertical': 'rgb(155, 184, 238)',
+        'Prime Form Horizontal': 'rgb(255, 170, 139)',
+        'Prime Form Omnidirectional': 'rgb(168, 255, 185)',
+    }
+    let title = document.createElement('h4');
+    title.innerHTML = 'Key:';
+    title.classList.add('keyTitle');
+    parent.appendChild(title);
+    for (let [key,value] of Object.entries(items)) {
+        let mini = document.createElement('div');
+        mini.classList.add('keyBox');
+        let box = document.createElement('div');
+        let text = document.createElement('p');
+        text.innerHTML = key;
+        box.classList.add('keyElement');
+        box.style.backgroundColor = value;
+        mini.appendChild(box);
+        mini.appendChild(text);
+        parent.appendChild(mini);
+    }
+}
 
 document.addEventListener('DOMContentLoaded',() => {
     console.log('Loaded!');
     currentData['matrix'] = null;
     currentData['selected'] = [];
-    buildInput('Universe','number');
-    buildInput('Series','text');
-    buildInput('Search','text');
+    buildInput('Universe','number',undefined,'Enter an integer value for the chromatic universe then press enter.');
+    buildInput('Series','text',undefined,'Enter the elements of the series separated by commas. Ex: 0,4,5,7,... then press enter.');
+    buildInput('Search','text',undefined,'Enter elements to search for in the matrix separated by commas. Ex: 0,3,5,9,... then press enter.');
     //Include in build input if Name == Search?
     let tiny = document.createElement('p');
     tiny.innerHTML = `Set-Class:`;
@@ -1494,11 +1578,14 @@ document.addEventListener('DOMContentLoaded',() => {
     let box = document.getElementById('Search');
     box.appendChild(tiny);
     box.appendChild(check);
+    check['data-tooltip'] = 'Determine wheter the search is for literal elements or the prime form of the input.';
     let defaultURL = new URL(`file:///C:/Users/blafl/OneDrive/Desktop/Calculators%20v4/serialism.html`) == new URL(window.location);
     // if (defaultURL == false) {
     //     urlOperations('load');
     // }
     console.log(defaultURL)
+    mouseTracking();
+    // buildKey();
 })
 
 

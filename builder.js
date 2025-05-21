@@ -958,12 +958,13 @@ function DrawingManager (parent = 'drawing') {
      * Monitors the hovering of the cursor. Updates tooltip box.
      */
     this.mouseTracking = () => {
+        let offset = 15;//Offset for the tooltip.
         let tt = document.querySelector(`#tooltips`);
         document.addEventListener('mouseover',(element) => {    //Whole document allows tooltips!
             let message = undefined;
             let position = [element.clientX,element.clientY];
-            tt.style.left = `${position[0]+10}px`;
-            tt.style.top = `${position[1]+10}px`;
+            tt.style.left = `${position[0]+offset}px`;
+            tt.style.top = `${position[1]+offset}px`;
             if (element.target.parentNode.tagName !== 'g' && element.target.tagName == `tspan`) {    //Catch text
                 message = element.target.parentNode.parentNode['data-tooltip'];
             }
