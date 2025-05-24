@@ -1257,6 +1257,38 @@ function MyDrop (parent) {
     })
 }
 
+const mouseTracking = () => {
+        let offset = 15;//Offset for the tooltip.
+        let tt = document.querySelector(`#tooltips`);
+        document.addEventListener('mouseover',(element) => {    //Whole document allows tooltips!
+            let message = undefined;
+            let position = [element.clientX+window.scrollX,element.clientY+window.scrollY];
+            tt.style.left = `${position[0]+offset}px`;
+            tt.style.top = `${position[1]+offset}px`;
+            if (element.target.parentNode.tagName !== 'g' && element.target.tagName == `tspan`) {    //Catch text
+                message = element.target.parentNode.parentNode['data-tooltip'];
+            }
+            else if (element.target.parentNode.tagName == 'g') {    
+                message = element.target.parentNode['data-tooltip'];
+            }
+            else {
+                message = element.target['data-tooltip'];
+            }
+            tt.style.visibility = message? 'visible' : 'hidden';
+            /**
+             * Node condition, determines the index of message to be displayed.
+             */
+            if (typeof message == 'object') {
+                let nodeNumber = parseInt(element.target.parentNode.childNodes[1].textContent);//Should work if noteNames are visible
+                let nodeState = Object.values(allNodes)[nodeNumber].state;
+                tt.innerHTML = `${message[nodeState]}`;
+            }
+            else if (message !== undefined) {
+                tt.innerHTML = `${message}`;
+            }
+        })
+    }
+
 let currentData;
 let RAK;
 let Drop;
@@ -1271,8 +1303,9 @@ document.addEventListener('DOMContentLoaded',() => {
     })
     Drop = new MyDrop('d');
     RAK = new RA(RowLibrary.RequiemCanticles1);
-    document.querySelector(`#tr`).innerHTML = `<${Drop.row}>`
+    document.querySelector(`#tr`).innerHTML = `<${Drop.row}>`;
     let hor = document.getElementById('horiz');
+    hor['data-tooltip'] = 'Search both arrays for a melodic statement.';
     hor.addEventListener('keydown',(event) => {
         if (event.key == 'Enter') {
             let conv = hor.value.match(/[0-9]+/g).map(x => parseInt(x));
@@ -1280,6 +1313,7 @@ document.addEventListener('DOMContentLoaded',() => {
         }
     })
     let ver = document.getElementById('vertic');
+    ver['data-tooltip'] = 'Search both arrays for a given vertical.';
     ver.addEventListener('keydown',(event) => {
         if (event.key == 'Enter') {
             let conv = ver.value.match(/[0-9]+/g).map(x => parseInt(x));

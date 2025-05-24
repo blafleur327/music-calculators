@@ -475,9 +475,42 @@ const binaryFun = (number) => {
     return AdvancedArray.allIndexesOf(`${res}`,'1');
 }
 
+/**
+* Monitors the hovering of the cursor. Updates tooltip box.
+*/
+const mouseTracking = () => {
+    let offset = 15;//Offset for tooltip box.
+    let tt = document.querySelector(`#tooltips`);//
+    document.addEventListener('mouseover',(element) => {    //Whole document allows tooltips!
+        let message = undefined;
+        let position = [element.clientX+window.scrollX,element.clientY+window.scrollY];
+        tt.style.left = `${position[0]+offset}px`;
+        tt.style.top = `${position[1]+offset}px`;
+        if (element.target.parentNode.tagName !== 'g' && element.target.tagName == `tspan`) {    //Catch text
+            // console.log(element.target.parentNode.parentNode.tagName);
+            message = element.target.parentNode.parentNode['data-tooltip'];
+        }
+        else if (element.target.parentNode.tagName == 'g') {   
+            // console.log(element.target.parentNode.tagName); 
+            message = element.target.parentNode['data-tooltip'];
+        }
+        else {
+            // console.log(element.target.tagName);
+            message = element.target['data-tooltip'];
+        }
+        tt.style.visibility = message? 'visible' : 'hidden';
+        if (typeof message == 'object' && Array.isArray(message)) {
+            tt.innerHTML = `${message[element.target['data-status']]}`;
+        }
+        else if (typeof message !== 'object') {
+            tt.innerHTML = message;
+        }
+    })
+}
 
 document.addEventListener('DOMContentLoaded',() => {
     console.log('LOADED');
+    // document.querySelector('h1')['data-tooltip'] = 'AHAHAH';
     document.getElementById('card').addEventListener('keydown',(event) => {
         if (event.key == 'Enter') {
             console.time(`Size ${parseInt(document.getElementById('card').value)}:`);
@@ -501,6 +534,7 @@ document.addEventListener('DOMContentLoaded',() => {
                     let duh = document.createElement('li');
                     duh.innerHTML = `(${sub})`;
                     duh.classList.add('hoverable');
+                    duh['data-tooltip'] = `Prime Form: (${sub})\rICV: <${PCSetTheory.intervalClassVector(sub,parseInt(document.getElementById('card').value))}></$>`;
                     list.appendChild(duh);
                 })
                 uhOh.append(list);
@@ -510,15 +544,15 @@ document.addEventListener('DOMContentLoaded',() => {
             document.getElementById('time').innerHTML = `Completed in ${(end-start).toFixed(2)} ms.`;
         }
     })
-    document.addEventListener('mousedown',(event) => {
-        if (event.target.classList[0] == 'hoverable') {
-            let converted = event.target.innerHTML.match(/[0-9]+/ig).map(x => parseInt(x));
-            alert(`Prime Form: (${converted})\rICV: <${PCSetTheory.intervalClassVector(converted,parseInt(document.getElementById('card').value))}>`);
-        }
-    })
-    document.getElementsByTagName('strong')[0].addEventListener('mousedown',() => {
-        alert('This process requires at least O(2^n) to generate the possible combinations, these are then all put into prime form, then filtered for uniqueness. These numbers get extremely big very quickly. ie 2^12 = 4096,...2^20 = 1,048,576. These do not represent the total calculations, but rather the total combinations to be placed into prime form, then filtered. For reference the list for 12 can be generated in under .2s, 20 takes about one minute, the process scales exponentionally, not linearly!')
-    })
+    // document.addEventListener('mousedown',(event) => {
+    //     if (event.target.classList[0] == 'hoverable') {
+    //         let converted = event.target.innerHTML.match(/[0-9]+/ig).map(x => parseInt(x));
+    //         alert(`Prime Form: (${converted})\rICV: <${PCSetTheory.intervalClassVector(converted,parseInt(document.getElementById('card').value))}>`);
+    //     }
+    // })
+    let st = document.getElementsByTagName('strong')[0]
+    st['data-tooltip'] = 'This process requires at least O(2^n) to generate the possible combinations, these are then all put into prime form, then filtered for uniqueness. These numbers get extremely big very quickly. ie 2^12 = 4096,...2^20 = 1,048,576. These do not represent the total calculations, but rather the total combinations to be placed into prime form, then filtered. For reference the list for 12 can be generated in under .2s, 20 takes about one minute, the process scales exponentionally, not linearly!';
+    mouseTracking();
 })
 
 //Modern Mandolin Quartet Album

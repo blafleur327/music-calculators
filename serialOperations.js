@@ -829,12 +829,14 @@ const Serialism = {
     derivation: function (row,universe = 12) {
         let opts = Serialism.partition(row);
         let data = {};
+        let obj = {};//For Debugging.
         opts.forEach(part => {
             let current = data[`${row.length/part.length}`] = {'set' : [],'levels' : {}}; 
-            for (let a = 1; a <= part.length; a++) {
-                let setRep = new MySet(universe,...part[a-1]);
-                current['set'].push(setRep.prime_form());
-                current['levels'][`${a}-${a+1}`]= setRep.compare_set(part[a]);//TODO this line needs to change.
+            for (let a = 1; a <= part.length; a++) { //Irritating
+                let setRepA = new MySet(universe,...part[a-1]);
+                obj[`${universe/part.length}-chord ${a-1}`] = `(${setRepA.prime_form()})`;
+                current['set'].push(setRepA.prime_form());
+                a == part.length? null : current['levels'][`${a}-${a+1}`] = setRepA.compare_set(part[a]);
             }
            current['set'] = ArrayMethods.unique_subarray(current['set']);
            if (current['set'].length !== 1) {
@@ -842,6 +844,7 @@ const Serialism = {
                 current['levels'] = null;
            }
         })
+        // return obj;
         return data;
     },
     /**
@@ -1454,8 +1457,9 @@ function RowLibraryItem (name,modulus,row,search,primeForm = false) {
         currentData['pfSrch'] = pf;
         //console.table(currentData);
         K = new myMatrix();
-        K.createMatrix();
+        K.createMatrix();//This fails...
         K.findAdjacent(search,pf);
+        buildKey();
     }
     RowLibrary[this.name] = this;
 }
@@ -1481,13 +1485,14 @@ new RowLibraryItem('LaFleurHeptatonicRow',7,[4,1,6,0,2,3,5],[0,2,3],true);
 new RowLibraryItem('BachLittleFugueInGm7',7,[0, 4, 2, 1, 0, 2, 1, 0, 6, 1, 4, 0, 4, 1, 4, 2, 1, 0, 1, 4, 0, 4, 1, 4, 2, 1, 0, 1],[0,4,2],false);
 new RowLibraryItem('BachLittleFugueInGm12',12,[7,2,10,9,7,10,9,7,6,9,2,7,2,9,2,10,9,10,9,7,9,2,7,2,9,2,10,9,7,9],[0,3,7],true);
 new RowLibraryItem('FigureHumainePoulenc',12,[1,4,9,0,11,3,8,10,9,2,7,4,6,5,2,4,3,0,2,6,9,10]);
+new RowLibraryItem('WebernConcertoOp24',12,[0, 11, 3, 4, 8, 7, 9, 5, 6, 1, 2, 10],[0,11,3,4,8,7],false);
 
 //
 
 /**
 * Monitors the hovering of the cursor. Updates tooltip box.
 */
-mouseTracking = () => {
+const mouseTracking = () => {
     let offset = 15;//Offset for tooltip box.
     let tt = document.querySelector(`#tooltips`);//
     document.addEventListener('mouseover',(element) => {    //Whole document allows tooltips!

@@ -962,7 +962,7 @@ function DrawingManager (parent = 'drawing') {
         let tt = document.querySelector(`#tooltips`);
         document.addEventListener('mouseover',(element) => {    //Whole document allows tooltips!
             let message = undefined;
-            let position = [element.clientX,element.clientY];
+            let position = [element.clientX+window.scrollX,element.clientY+window.scrollY];
             tt.style.left = `${position[0]+offset}px`;
             tt.style.top = `${position[1]+offset}px`;
             if (element.target.parentNode.tagName !== 'g' && element.target.tagName == `tspan`) {    //Catch text
@@ -986,7 +986,6 @@ function DrawingManager (parent = 'drawing') {
             else if (message !== undefined) {
                 tt.innerHTML = `${message}`;
             }
-
         })
     }
     /**

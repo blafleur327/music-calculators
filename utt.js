@@ -423,11 +423,11 @@ function Drawing (parent) {
 /**
 * Monitors the hovering of the cursor. Updates tooltip box.
 */
-mouseTracking = () => {
+const mouseTracking = () => {
     let tt = document.querySelector(`#tooltips`);//
     document.addEventListener('mouseover',(element) => {    //Whole document allows tooltips!
         let message = undefined;
-        let position = [element.clientX,element.clientY];
+        let position = [element.clientX+window.scrollX,element.clientY+window.scrollY];
         tt.style.left = `${position[0]+10}px`;
         tt.style.top = `${position[1]+10}px`;
         if (element.target.parentNode.tagName !== 'g' && element.target.tagName == `tspan`) {    //Catch text
