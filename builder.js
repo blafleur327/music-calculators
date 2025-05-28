@@ -156,7 +156,6 @@ allContained: function (superset,query) {
         let conc = ArrayMethods.array_concat(array);
         return ArrayMethods.array_find(conc,ArrayMethods.array_concat(query));
     },
-
     /**
      * Returns either the unique subarrays or the number of instances of each unique subarray. 
      * @param {array} array 
@@ -263,6 +262,21 @@ const Combinatorics = {
 }
 
 /**
+ * Get the factors of n.
+ * @param {int} n
+ * @returns array 
+ */
+const factors = (n) => {
+    let result = [];
+    for (let a = 1; a <= Math.sqrt(n); a++) {
+        if (n%a == 0) {
+            result.push(a,n/a);
+        }
+    }
+    return Array.from(new Set(result)).sort((a,b) => a-b);
+}
+
+/**
  * Constructor of the MySet class. Contains methods for set theoretical computation.
  * @param {int} modulus 
  * @param  {...any} elements 
@@ -281,7 +295,7 @@ function MySet(modulus,...elements) {
     this.interval_class = (value,modulus = this.universe) => {
         let opts = [this.modulo(value,modulus),this.modulo(modulus-value,modulus)];
             return Math.min(...opts);
-        },
+    }
     /**
     * Returns the Adjacency Interval Series, or the intervals between consecutive elements in a given modular universe.
     * @param {array} array 
@@ -294,23 +308,48 @@ function MySet(modulus,...elements) {
             res.push(this.modulo(array[a]-array[a-1],modulus));
             }
         return res;
-        },
-    /**
-     * 
+    }
+      /**
+     * Transposes the input set by a given index.
+     * @param {array} array
+     * @param {int} modulus
      * @param {int} index 
      * @returns this.set -> t(n) mod this.universe.
      */
     this.transpose = function (array = this.set, modulus = this.universe, index = 0) {
         return array.map(x => this.modulo(x+index,modulus)); //O(n);
-    },
+    }
     /**
-     * 
+     * Inverts the input set around a given index.
+     * @param {array} array
+     * @param {int} modulus
      * @param {int} index 
      * @returns this.set -> t(n)I mod this.universe. 
      */
     this.invert = function (array = this.set,modulus = this.universe,index = 0) {
         return array.map(x => this.modulo(index-x,modulus)); //O(n);
-        },
+    }
+    /**
+     * Multiplies members of the input set by a given index. Traditionally defined as 5.
+     * @param {array} array 
+     * @param {int} modulus 
+     * @param {int} index 
+     * @returns this.set -> * index
+     */
+    this.multiply = function (array = this.set,modulus = this.universe,index = 5) {
+        console.table({
+            'set': `{${array}}`,
+            'modulus': modulus,
+            'index': index
+        })
+        let valid = factors(modulus).indexOf(index) == -1;
+        if (valid) {
+            return array.map(x => this.modulo(x*index,modulus));
+        }
+        else {
+            console.error(`${index} is not a valid value of n! Values of n must be coprime to ${modulus}.`);
+        }
+    }
     /**
     * Generates the powerset of an input using bitwise operands. Faster than array manipulation method. Useful for large sets. 
     * @param {array} array 
@@ -327,7 +366,7 @@ function MySet(modulus,...elements) {
             result = Combinatorics.subsets(array,cardinality);
         }
         return result;
-    },
+    }
     /**
      * There's a recursion depth issue here.
      * @param {array} array 
@@ -338,7 +377,7 @@ function MySet(modulus,...elements) {
         let start = this.literal_subsets(cardinality,array).filter(x => x.length > 2);
         let res = start.map(y => this.prime_form(y,mod)).sort((a,b) => a.length < b.length);
         return uniques? ArrayMethods.unique_subarray(res) : res;
-    },
+    }
     /**
      * Normal order function using the Straus-Rahn Algorithm. Iterative implementation.
      * @param {array} array this.set

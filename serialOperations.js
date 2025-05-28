@@ -110,7 +110,7 @@ const ArrayMethods = {
         else {
             let find = array.indexOf(item);
             result.push(find+(offset));
-            return AdvancedArray.allIndexesOf(array.slice(find+1),item,result,offset+find+1)
+            return ArrayMethods.allIndexesOf(array.slice(find+1),item,result,offset+find+1)
         }
     },
     /**
@@ -942,6 +942,61 @@ const Serialism = {
             }
         }
         return result;
+    },
+    /**
+     * Builds a T matrix from two input sets. See Robert Morris 2007. 
+     * @param {array} horizontal 
+     * @param {array} vertical 
+     * @param {int} universe 
+     * @returns 2D array
+     */
+    TMatrix: function (horizontal,vertical = horizontal,universe = 12) {
+        let result = [];
+        let inv = vertical.map(x => Serialism.modulo(x*-1,universe));
+        inv.forEach(elem => {
+            result.push(horizontal.map(x => Serialism.modulo(elem+x,universe)));
+        });
+        return result;
+    },
+    /**
+     * Builds an I matrix from two input sets.
+     * @param {array} horizontal 
+     * @param {array} vertical 
+     * @param {int} universe 
+     * @returns 2D array
+     */
+    IMatrix: function (horizontal,vertical = horizontal,universe = 12) {
+        let result = [];
+        vertical.forEach(elem => {
+            result.push(horizontal.map(x => Serialism.modulo(elem+x,universe)));
+        })
+        return result;
+    },
+    /**
+     * Sums the instances of invariant tones under the specified matrix.
+     * @param {array} horizontal 
+     * @param {array} vertical 
+     * @param {int} universe 
+     * @param {string} type T or I
+     * @returns Vector
+     */
+    IFunc: function (horizontal,vertical,universe = 12,type = 'T') {
+        let result = {};
+        let mat = null;
+        if (type == 'T') {
+            mat = Serialism.TMatrix(horizontal,vertical,universe);
+        }
+        else if (type == 'I') {
+            mat = Serialism.IMatrix(horizontal,vertical,universe);
+        }
+        else {
+            console.error('Type must be T or I.');
+        }
+        let str = mat.flat();
+        for (let a = 0; a < universe; a++) {
+            result[a] = ArrayMethods.allIndexesOf(str,a).length;
+        }
+        return result;
     }
 }
 
@@ -1119,10 +1174,6 @@ const buildInput = (name,type,parent = 'upper',tooltip) => {
             }
         });
     }
-    // else if (type == 'button') {
-    //     inp = document.createElement('button');
-    //     currentData[`${name}`] = false;
-    // }
     else if (type == 'text') {
         inp = document.createElement('input');
         inp.setAttribute('type','text');
@@ -1138,6 +1189,7 @@ const buildInput = (name,type,parent = 'upper',tooltip) => {
                     let series = data.map(x => parseInt(x));
                     currentData[`${name}`] = series;
                     val.innerHTML = currentData[`${name}`];
+                    currentData['selected'] = [];
                     document.querySelector('#matrix').innerHTML = '';
                     buildKey();
                     K = new myMatrix();
@@ -1443,6 +1495,7 @@ function myMatrix () {
  */
 function RowLibraryItem (name,modulus,row,search,primeForm = false) {
     this.name = name;
+    this.row = row;
     /**
      * Builds a matrix based on arguments.
      * @param {boolean} pf Change prime form search param.
@@ -1472,6 +1525,10 @@ let RowLibrary = {};
 let currentData = {'search': []};
 let K;
 
+const MOperation = (series,modulus = 12,index = 5) => {
+    return series.map(x => (x*index)%modulus);
+}
+
 //
 
 new RowLibraryItem('WebernVariationsOp27',12,[4,5,1,3,0,2,8,9,10,6,7,11],[0,1,4],true);
@@ -1497,7 +1554,7 @@ const mouseTracking = () => {
     let tt = document.querySelector(`#tooltips`);//
     document.addEventListener('mouseover',(element) => {    //Whole document allows tooltips!
         let message = undefined;
-        let position = [element.clientX,element.clientY];
+        let position = [element.clientX+window.scrollX,element.clientY+window.scrollY];
         tt.style.left = `${position[0]+offset}px`;
         tt.style.top = `${position[1]+offset}px`;
         if (element.target.parentNode.tagName !== 'g' && element.target.tagName == `tspan`) {    //Catch text
@@ -1528,6 +1585,7 @@ const mouseTracking = () => {
 const buildKey = () => {
     let parent = document.querySelector('#key');
     console.log(`Found #key element? ${parent !== undefined}`);
+    parent.textContent = '';
     /**
      * @key {string} - The text to be displayed.
      * @value {string} - The color badge.
