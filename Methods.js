@@ -521,7 +521,8 @@ document.addEventListener('DOMContentLoaded',() => {
                 let uhOh = document.createElement('div');
                 let info = document.createElement('div');
                 info.classList.add('labels');
-                uhOh.classList.add('semiCont')
+                uhOh.classList.add('semiCont');
+                uhOh.id = `${key}-chords`;
                 let card = document.createElement('h3');
                 card.innerHTML = `Size: ${key}`;
                 let extra = document.createElement('p');
@@ -532,9 +533,10 @@ document.addEventListener('DOMContentLoaded',() => {
                 let list = document.createElement('ol');
                 value.forEach(sub => {
                     let duh = document.createElement('li');
+                    let val = list.childNodes.length+1;
                     duh.innerHTML = `(${sub})`;
                     duh.classList.add('hoverable');
-                    duh['data-tooltip'] = `Prime Form: (${sub})\rICV: <${PCSetTheory.intervalClassVector(sub,parseInt(document.getElementById('card').value))}></$>`;
+                    duh['data-tooltip'] = `BE Number: ${key}-${val}<br>ICV: <${PCSetTheory.intervalClassVector(sub,parseInt(document.getElementById('card').value))}><br></$>`;
                     list.appendChild(duh);
                 })
                 uhOh.append(list);

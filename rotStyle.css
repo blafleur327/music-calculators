@@ -24,9 +24,10 @@ table {
 
 td:hover {
     border-width:2px;
-    border-color:black;
+    /* border-color:black; */
     font-weight:bolder;
     cursor:pointer;
+    transform:scale(1.1);
 }
 
 #inputs {

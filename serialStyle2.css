@@ -3,27 +3,16 @@
     flex-direction:row;
 }
 
-/* td {
-    border-width: 1px;
-    border-style: solid;
-    border-color:grey;
-    text-align:center;
-}
-
-table {
-    padding:1%;
-} */
-
 .label {
+    font-size:14px;
     background-color:lightgrey;
     transform-origin:center;
     border-color:white;
     border-width:1px;
     border-style:inset;
-    min-width: 35px;
-    max-width: 50px;
-    min-height: 35px;
-    max-height: 50px;
+    min-width:2.2em;
+    min-height:2.2em;
+    aspect-ratio:1/1;
     text-align:center;
     align-content:space-evenly;
 }
@@ -34,11 +23,11 @@ table {
 }
 
 .void {
+    font-size:14px;
     visibility:hidden;
-    min-width: 35px;
-    max-width: 50px;
-    min-height: 35px;
-    max-height: 50px;
+    min-width:2.2em;
+    min-height:2.2em;
+    aspect-ratio:1/1;
 }
 
 .select {
@@ -62,6 +51,7 @@ table {
     border-color:grey;
     border-style:solid;
     text-align:center;
+    padding: .7%;
 }
 
 #matrix {
@@ -78,7 +68,15 @@ table {
 
 #lower {
     display:flex;
-    flex-direction:column;
+    flex-direction:row;
+}
+
+#lower > * {
+    border-radius:1px;
+    border-style:inset;
+    border-color:grey;
+    padding:1%;
+    align-content:space-evenly;
 }
 
 .inline {
@@ -181,14 +179,14 @@ button:hover {
 }
 
 .cell {
+    font-size:14px;
     border-color:grey;
     border-style:inset;
     border-width:1px;
     text-align: center;
-    min-width: 35px;
-    max-width: 50px;
-    min-height: 35px;
-    max-height: 50px;
+    min-width:2.2em;
+    min-height:2.2em;
+    aspect-ratio:1/1;
     align-content:space-evenly;
 }
 
@@ -203,4 +201,27 @@ button:hover {
     background-color:lightgrey;
     font-weight:bolder;
     cursor: pointer;
+}
+
+.fakeRow {
+    display:flex;
+    flex-direction:row;
+    max-height:fit-content;
+    /* align-content:space-evenly; */
+}
+
+.fakeRow > * {
+    align-content:space-evenly;
+    min-width: 1.2em;
+    max-width:fit-content;
+}
+
+.wow:hover {
+    cursor:pointer;
+    transform:scale(1.1);
+    font-weight: bolder;
+}
+
+.phantom {
+    background-color:rgba(191, 208, 255, 0.7);
 }

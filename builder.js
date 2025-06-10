@@ -1025,6 +1025,15 @@ function DrawingManager (parent = 'drawing') {
             else if (message !== undefined) {
                 tt.innerHTML = `${message}`;
             }
+            let rect = tt.getBoundingClientRect();
+            const winWidth = window.innerWidth;
+            const winHeight = window.innerHeight;
+            if (rect.right > winWidth) {
+                tt.style.left = `${winWidth}px`;
+            }
+            if (rect.bottom > winHeight) {
+                tt.style.top = `${winHeight}px`;
+            }
         })
     }
     /**
@@ -1144,44 +1153,66 @@ function DrawingManager (parent = 'drawing') {
      */
     this.displayUpdate = () => {
         let context = document.querySelector(`#moreInfo`);
-        let A = Object.entries(SetInformation('superInfo','superset'));//Array Rep
-        let B = Object.entries(SetInformation('subInfo','subset'));//Array Rep
-        let test = document.querySelector('#superInfo');//Check if Child exists.
+        let BIG = [Object.entries(SetInformation('superInfo','superset')),Object.entries(SetInformation('subInfo','subset'))]//Formerly [A,B];
+        /**
+         * Clear
+         */
+        document.querySelectorAll('#moreInfo').forEach(entry => {
+            entry.innerHTML = '';
+        })
         //Make clauses for individual parentheses/brackets/etc
-        if (test == null) {
             let sup = document.createElement('div');
             let sub = document.createElement('div');
             sup.setAttribute('id',`superInfo`);
             sub.setAttribute('id','subInfo');
-            A.forEach(item => { //Loop over each subComponent
-                let t = document.createElement('div');
-                t.classList.add('highlight');
-                t.id = `super${item[0].match(/[A-Z]+/g).join('')}`;
-                t.innerHTML = `${item[0]} ${item[1]['info']}`;
-                t['data-tooltip'] = `${item[1]['definition']}`;//How does this work??
-                sup.appendChild(t);
-            })
-            B.forEach(item => {
-                let t = document.createElement('div');
-                t.classList.add('highlight');
-                t.id = `subs${item[0].match(/[A-Z]+/g).join('')}`;
-                t.innerHTML = `${item[0]} ${item[1]['info']}`;
-                t['data-tooltip'] = `${item[1]['definition']}`
-                sub.appendChild(t);
-            })
+            for (let a = 0; a < BIG.length; a++) {
+                BIG[a].forEach(item => { //Loop over each subComponent
+                    let t = document.createElement('div');
+                    t.classList.add('highlight');
+                    t.id = `${a == 0? 'super' : 'sub'}${item[0].match(/[A-Z]+/g).join('')}`;
+                    /**
+                    * Special case for IV and ICV
+                    */
+                    if (item[0] == 'Interval Class Vector' || item[0] == 'Index Vector') {
+                        let cont = document.createElement('div');
+                        cont.classList.add('row')//Something new;
+                        let temp = item[1]['info'].match(/[0-9]+/ig);
+                        let term = document.createElement('p');
+                        term['data-tooltip'] = `${item[1]['definition']}`;
+                        term.innerHTML = `${item[0]} :`;
+                        cont.append(term);
+                        for (let i = 0; i < temp.length+2; i++) {
+                            let mini = document.createElement('p');
+                            if (i == 0) {
+                                mini.innerHTML = ' <';
+                            }
+                            else if (i == temp.length+1) {
+                                mini.innerHTML = '>';
+                            }
+                            else {
+                                mini.classList.add('wow');
+                                mini.innerHTML = i == temp.length? `${temp[i-1]}` : `${temp[i-1]},`;
+                                /**
+                                 * Differentiate tooltip depending on if ICV or IV
+                                 */
+                                mini['data-tooltip'] = item[0] == 'Interval Class Vector'? `Invariant tones under T${i}/${Object.keys(allNodes).length-(i)}` : `Invariant tones under I${i-1}`;
+                            }
+                            cont.append(mini);
+                        }
+                        t.append(cont);
+                    }
+                    /**
+                     * Any other type of information
+                     */
+                    else {
+                        t.innerHTML = `${item[0]} ${item[1]['info']}`;
+                        t['data-tooltip'] = `${item[1]['definition']}`;//How does this work??
+                    }
+                    a == 0? sup.appendChild(t) : sub.appendChild(t);
+                })
+            }
             context.appendChild(sup);
             context.appendChild(sub);
-        }
-        else {
-            A.forEach(item => {
-                let t = document.querySelector(`#super${item[0].match(/[A-Z]+/g).join('')}`);
-                t.innerHTML = `${item[0]} ${item[1]['info']}`;
-            })
-            B.forEach(item => {
-                let t = document.querySelector(`#subs${item[0].match(/[A-Z]+/g).join('')}`);
-                t.innerHTML = `${item[0]} ${item[1]['info']}`;
-            })
-        }
     }
     /**
      * Manages and draws the superset/subset polygons
@@ -1289,6 +1320,33 @@ function DrawingManager (parent = 'drawing') {
         }
     }
     /**
+     * Removes elements of the specified type from the display. Updates information also.
+     * @param {string} type superset || subset || transformations 
+     */
+    this.clearElements = (type = 'superset') => {
+        let ref = Object.values(allNodes);
+        if (type == 'transformations') {
+            document.querySelectorAll('.drop').forEach(item => {
+            item.value == 'NONE';
+            })
+        }
+        else if (type == 'superset' || type == 'subset') {
+            ref.forEach(node => {
+                console.log(`${node.name} : ${node.state}`);
+                if (type == 'superset') {
+                    node.state = 0;
+                }
+                else {
+                    node.state = node.state == 2? 1 : node.state;
+                }
+            })
+        }
+        else {
+            console.error("ERROR: type must be 'superset', 'subset' or 'transformations'!");
+        }
+        this.updateNodeStates();
+    }
+    /**
      * Removes the specified transformation polygon if present in this.transforms object.
      * @param {string} transform T/I(n)
      */
@@ -1393,15 +1451,28 @@ function DrawingManager (parent = 'drawing') {
      */
     this.noteNames = () => {
         document.querySelectorAll('.MyNode').forEach(item => {
+            let textLabel = null;
             if (item.childNodes[2] !== undefined) {
+                /**
+                 * Switch to PCs
+                 */
                 if (item.childNodes[1].classList.contains('void')) {
                     item.childNodes[1].classList.remove('void');
                     item.childNodes[2].classList.add('void');
+                    textLabel = item.childNodes[1].textContent;
                 }
+                /**
+                 * Switch to Note names
+                 */
                 else if (item.childNodes[2].classList.contains('void')) {
                     item.childNodes[2].classList.remove('void');
                     item.childNodes[1].classList.add('void');
+                    textLabel = item.childNodes[2].textContent;
                 }
+                /**
+                 * Update tooltip with correct format.
+                 */
+                item['data-tooltip'] = [`Click to add ${textLabel} to superset.`,`Click to add ${textLabel} to subset.`,`Click to remove ${textLabel} from all sets.`];
             }
             else {
                 console.error('Notes not available!');
@@ -1497,7 +1568,10 @@ function MyNode (parent = D,textLabel,xPosition,yPosition) {
     this.self.add(text);
     this.self.center(xPosition,yPosition);
     this.self.addClass('MyNode');
-    this.self['node']['data-note'] = null;
+    this.self['node']['data-note'] = null;//Added by noteName() later
+    /**
+     * Find a way to show which of the texts are visible.
+     */
     this.self['node']['data-tooltip'] = [`Click to add ${textLabel} to superset.`,`Click to add ${textLabel} to subset.`,`Click to remove ${textLabel} from all sets.`];
     this.self['node'].id = `myNode${textLabel}`;//Set ID.
     /**
@@ -1683,7 +1757,6 @@ const attachListeners = () => {
         })
     });
 }
-
 
 document.addEventListener('DOMContentLoaded',() => {
     console.log('DOM Loaded!');

@@ -67,6 +67,22 @@ const Combinatorics = {
         return first.map(z => this.picker(superset,z));
     }
 }
+/**
+ * Randomly reorders an arrays elements without changing them.
+ * @param {array} array 
+ * @param {array} result 
+ * @returns Shuffled array
+ */
+const shuffle = (array,result = []) => {
+    if (array.length == 0) {
+        return result;
+    }
+    else {
+        let ind = Math.floor(Math.random()*array.length);
+        result.push(array[ind]);
+        return shuffle([...array.slice(0,ind),...array.slice(ind+1)],result);
+    }
+}
 
 /**
  * Series of methods useful for manipulating and dealing with arrays.
@@ -874,32 +890,49 @@ const Serialism = {
     combinatoriality: function (row,universe = 12) {
         let partition = [row.slice(0,universe/2),row.slice(universe/2)];
         let storage = [new MySet(universe,...partition[0]),new MySet(universe,...partition[1])];
-        let Combin = ArrayMethods.unique_subarray([storage[0].prime_form(),storage[1].prime_form()]).length == 1;
+        // let Combin = ArrayMethods.unique_subarray([storage[0].prime_form(),storage[1].prime_form()]).length == 1;//Consider removing
         let result = [];
-        if (Combin == true && universe%2 == 0) {
+        let element1 = row[0];
+        /**
+         * Check to see if the two halves are members of the same set-class.
+         */
+        if (universe%2 == 0) { //&& Combin == true?
             let vects = [storage[0].interval_class_vector(),storage[0].index_vector()];
             vects[0][vects[0].length-1]*=2;     //Double the value of the tritone
-            for (let a = 0; a < vects.length; a++) {
-                for (let b = 0; b < vects[a].length; b++) {
-                    if (vects[a][b] == 0 && a == 0) {
-                        result.push(`P${b+1}/${universe-(b+1)}`);
+            vects.forEach(vector => {
+                let icv = vector.length == currentData['Universe']/2;
+                for (let a = 0; a < vector.length; a++) {
+                    let iVal = universe-element1;//+a
+                    /**
+                     * P condition
+                     */
+                    if (icv == true && vector[a] == 0) {
+                        let adj = (element1+(a+1))%currentData['Universe'];
+                        result.push(a+1 == universe/2? `P${adj}` : `P${adj}/${universe-adj}`); 
                     }
-                    else if (vects[a][b] == 6 && a == 0) {
-                        result.push(`R${b}/${universe-(b+1)}`);
+                    /**
+                     * R condition
+                     */
+                    else if (icv == true && vector[a] == currentData['Universe']/2) {
+                        let adj = (element1+(a+1))%currentData['Universe'];
+                        result.push(a+1 == universe/2? `RP${adj}` : `RP${adj}/${universe-adj}`);
                     }
-                    else if (vects[a][b] == 0 && a == 1) {
-                        result.push(`I${b}`);
+                    /**
+                     * I condition
+                     */
+                    else if (icv == false && vector[a] == 0) {
+                        result.push(`I${(iVal+a)%universe}`);
                     }
-                    else if (vects[a][b] == 6 && a == 1) {
-                        result.push(`RI${b}`);
+                    /**
+                     * RI condition
+                     */
+                    else if (icv == false && vector[a] == currentData['Universe']/2) {
+                        result.push(`RI${(iVal+a)%universe}`);
                     }
                 }
-            }
+            })
         }
-        else {
-            result = 'Not Combinatorial.';
-        }
-        return result;
+        return result.length > 0? result : 'Not Combinatorial.';
     },
     /**
      * Determines whether the input series is or is not all interval.
@@ -1017,7 +1050,17 @@ const Serialism = {
             result[a] = ArrayMethods.allIndexesOf(str,a).length;
         }
         return result;
-    }
+    },
+    /**
+     * Multiplies the row elements by the given index. Technique of Boulez.
+     * @param {array} series 
+     * @param {int} index 
+     * @param {int} modulus 
+     * @returns 
+     */
+    multiply: function (series,index = 5, modulus = 12) {
+        return series.map(x => (x*index)%modulus);
+    } 
 }
 
 /**
@@ -1128,10 +1171,10 @@ const populate = (data,parent = 'matrix') => {
                 cell.classList.add('void');
             }
             cell.classList.add(isLabel? 'label' : 'cell');
-            cell.id = isLabel? `${data[a][b]}` : `r${a}c${b}`;
+            cell.id = `r${a}c${b}`;//Maybe needs new id for labels...
             cell.innerHTML = `${data[a][b]}`;
             cell['data-tooltip'] = isLabel? [`Select ${data[a][b]}`,`Deselect ${data[a][b]}`] : null;
-            cell.setAttribute('data-row',a);
+            cell.setAttribute('data-row',a); 
             cell.setAttribute('data-column',b);
             row.append(cell);
         }
@@ -1153,8 +1196,6 @@ const labelListeners = () => {
              */
             currentData['selected'].indexOf(cell.textContent) == -1? currentData['selected'].push(cell.textContent) : currentData['selected'] = currentData['selected'].filter(x => x !== cell.textContent);
             cell['data-status'] = currentData['selected'].indexOf(cell.textContent) == -1? 0 : 1;
-            // document.querySelector(`#tooltips`).innerHTML = cell['data-tooltip'][cell['data-status']];
-            // console.log(`Clicked ${cell.textContent}`);
             K.updateMatrix();
         });
         // document.querySelector(`#tooltips`).innerHTML = cell['data-tooltip'][0]
@@ -1194,7 +1235,6 @@ const segmentationButtons = (size = currentData['Series'].length) => {
         K.checkerboard(val);
     })
 }
-
 
 /**
  * Creates a single input element.
@@ -1281,7 +1321,7 @@ const special = () => {
     let validForms = currentData['matrix'].flat().filter(x => typeof x == 'string' && x !== ' ');
     let res = {};
     validForms.forEach(form => {
-        console.log(`${form} => <${Serialism.singleRowForm(currentData['Series'],form,currentData['Universe'])}>`);
+        // console.log(`${form} => <${Serialism.singleRowForm(currentData['Series'],form,currentData['Universe'])}>`);
         res[form] = Serialism.singleRowForm(currentData['Series'],form,currentData['Universe']);
     })
     return res;
@@ -1298,8 +1338,20 @@ function myMatrix () {
      */
     this.noteNames = (state = true) => {
         document.getElementById('matrix').innerHTML = '';
+        let size = 5;
         this.arrayForm = Serialism.buildMatrix(currentData['Series'],currentData['Universe'],state,true);
+        document.querySelectorAll('.void.cell.label').forEach(element => {
+            element.style.minWidth = `${size}em`;
+            element.style.minHeight = `${size}em`;
+        })
         this.createMatrix();
+    }
+    /**
+     * Removes all selected rows.
+     */
+    this.clearSelections = () => {
+        currentData['selected'] = [];
+        this.updateMatrix();
     }
     /**
      * Creates a matrix from the currentData object.
@@ -1309,9 +1361,63 @@ function myMatrix () {
         populate(currentData['matrix']);// :/
         document.getElementById('lower').innerHTML = '';
         let results = {
+            'Combinatoriality': Serialism.combinatoriality(currentData['Series'],currentData['Universe']),
             'Derivation': Serialism.derivation(currentData['Series'],currentData['Universe']),//This might need to change to currentData['Series'].length
             'AllInterval': Serialism.allInterval(currentData['Series'],currentData['Universe'])
         }
+        this.dictionaryForm = special();
+        let cont = document.createElement('div');
+        cont.classList.add('inline');
+        let lab = document.createElement('div');
+        lab.classList.add('hoverable');
+        lab.innerHTML = `${currentData['Universe']/2}-chordally Combinatorial:`;
+        lab['data-tooltip'] = `${currentData['Universe']/2}-chordal Combinatoriality refers to a row form whose first half can be completed by another row form's first half.`;
+        cont.appendChild(lab);
+        let row = document.createElement('div');
+        row.classList.add('fakeRow');
+        console.log(results['Combinatoriality']);
+        console.log(this.dictionaryForm);
+        if (typeof results['Combinatoriality'] == 'object') {
+            results['Combinatoriality'].forEach(entry => {
+            let single = document.createElement('p');
+            single.classList.add('wow');
+            single.innerHTML = `${entry}`;//Fix spacing within the div.
+            single.addEventListener('mousedown',() => {
+                console.log(entry);
+                console.log(`P${currentData['Series'][0]}`)
+                document.querySelectorAll('.cell').forEach(item => {
+                    item.classList.contains('find')? item.classList.remove('find') : null;
+                    item.classList.contains('phantom')? item.classList.remove('phantom') : null; 
+                })
+                document.querySelectorAll('.label').forEach(item => {
+                    if (item.innerHTML == `P${currentData['Series'][0]}` || item.innerHTML == entry) {
+                        item.classList.add('labelSelect');
+                    }
+                    else {
+                        item.classList.remove('labelSelect');
+                    }
+                })
+                let half = currentData['Universe']/2;
+                let prime = Array.from(this.rowFormAsCells(`P${currentData['Series'][0]}`).flat());
+                let src = Array.from(this.rowFormAsCells(entry).flat());
+                for (let b = 0; b < prime.length; b++) {
+                    if (b < half) {
+                        console.log(prime[b]);
+                        prime[b].classList.add('find');
+                        src[b].classList.add('phantom');
+                    }
+                    // else {
+                    //     prime[b].classList.add('phantom');
+                    //     src[b].classList.add('find');
+                    // }
+                }
+            })
+            single['data-tooltip'] = `P${currentData['Series'][0]}.1 = [${currentData['Series'].slice(0,currentData['Universe']/2)}] ∪ ${entry}.1 = [${this.dictionaryForm[entry].slice(0,currentData['Universe']/2)}] = ${currentData['Universe']}-tone aggregate`;
+            row.appendChild(single);
+            })
+        }
+        cont.appendChild(row);
+        document.querySelector('#lower').appendChild(cont);
         for (let [key,value] of Object.entries(results['Derivation'])) {
             //Check if entry is null.
             if (value['set'] !== null) {
@@ -1325,19 +1431,24 @@ function myMatrix () {
                 /**
                  * Consider changing. These are adjacent n-chords, it might be better to not do this?
                  */
-                let spelled = '';
-                for (let [k, v] of Object.entries(value['levels'])) {
-                    console.log(v);
-                    conc += conc == ''? `${v}` : `, ${v}`;
-                    let m = k.match(/[0-9]+/g);
-                    spelled+=`[${currentData['Series'].slice(parseInt((m[0])-1)*key,parseInt((m[1])-1)*key)}] => ${v} = [${currentData['Series'].slice(parseInt((m[0]))*key,parseInt((m[1]))*key)}]<br>`;
-                }
                 let ts = document.createElement('div');
                 ts.classList.add('hoverable');
-                ts['data-tooltip'] = spelled;
-                ts.innerHTML = `Relationship(s): ${conc}`;
-                item.append(i);
-                item.append(ts);
+                ts['data-tooltip'] = `The transformations that map the discrete ${key}-chords of P${currentData['Series'][0]} onto one another.`;
+                ts.innerHTML = `Relationship(s):`;
+                let r = document.createElement('div');
+                r.classList.add('fakeRow');
+                for (let [k, v] of Object.entries(value['levels'])) {
+                    let mini = document.createElement('p');
+                    mini.classList.add('wow');
+                    mini.innerHTML = conc == ''? `${v}` : `, ${v}`;
+                    let m = k.match(/[0-9]+/g);
+                    console.log(m);
+                    mini['data-tooltip'] = `${key}.${m[0]} = [${currentData['Series'].slice(parseInt((m[0])-1)*key,parseInt((m[1])-1)*key)}]<br> Under ${v}<br>${key}.${m[1]} = [${currentData['Series'].slice(parseInt((m[0]))*key,parseInt((m[1]))*key)}]<br>`;
+                    r.appendChild(mini);
+                }
+                item.append(i);//Derived at ...
+                item.append(ts);//Relationship(s):...
+                item.append(r);// Levels...
                 document.getElementById('lower').append(item);
             }
         }
@@ -1347,7 +1458,6 @@ function myMatrix () {
         ints['data-tooltip'] = `Tone row is ${results['AllInterval']? '' : 'not'} all-interval. Adjacency Inverval Series is <${Serialism.allInterval(currentData['Series'],currentData['Universe'],true)}>`;
         ints.innerHTML = `All Interval: ${results['AllInterval']}`;  
         document.getElementById('lower').append(ints);
-        this.dictionaryForm = special();
         urlOperations('change');
     }
     /**
@@ -1369,22 +1479,29 @@ function myMatrix () {
     /**
      * A node list of individual cells that belong to a single row form.
      * @param {string} row 
+     * @returns 2D array
      */
     this.rowFormAsCells = (row) => {
-        let result;
+        let result = [];
         let form = row.match(/[IRP]+/g)[0];
-        let labelButton = document.querySelector(`#${row}`);
-        let atts = labelButton.attributes;
-        if (form == 'RP' || form == 'P') {
-            // console.log('Found as P or RP');
-            let pinult = Array.from(document.querySelectorAll(`.cell[data-row="${atts['data-row'].value}"]`));
-            result = form == 'P'? pinult : pinult.reverse();
-        }
-        else {
-            // console.log('Found as I or RI');
-            let pinult = Array.from(document.querySelectorAll(`.cell[data-column="${atts['data-column'].value}"]`));
-            result = form == 'I'? pinult : pinult.reverse();
-        }
+        let labelButtons = document.querySelectorAll(`.label`);
+        labelButtons = Array.from(labelButtons).filter(x => x.textContent == row);
+        /**
+         * Loop over all label elements.
+         */
+        labelButtons.forEach(button => {
+            let atts = button.attributes;
+            if (form == 'RP' || form == 'P') {
+                // console.log('Found as P or RP');
+                let pinult = Array.from(document.querySelectorAll(`.cell[data-row="${atts['data-row'].value}"]`));
+                result.push(form == 'P'? pinult : pinult.reverse());
+            }
+            else {
+                // console.log('Found as I or RI');
+                let pinult = Array.from(document.querySelectorAll(`.cell[data-column="${atts['data-column'].value}"]`));
+                result.push(form == 'I'? pinult : pinult.reverse());
+            }
+        })
         return result;
     }
     /**
@@ -1392,7 +1509,7 @@ function myMatrix () {
      * @param  {array} forms 
      * @returns 
      */
-    this.orderPosition = (forms = currentData['selected']) => {
+    this.orderPosition = (forms = currentData['selected']) => {//????
         document.querySelectorAll('.positInvar').forEach(elem => {
             elem.classList.remove('positInvar');
         })
@@ -1403,11 +1520,16 @@ function myMatrix () {
                 forms.forEach(form => {
                     test.push(this.dictionaryForm[form][a]);
                     multiList.push(this.rowFormAsCells(`${form}`));
+                    console.log(this.dictionaryForm[form][a]);
+                    console.log(this.rowFormAsCells(`${form}`));
                 })
                 let pass = Array.from(new Set(test)).length == 1;
+                console.log(`element ${a} is invariant? ${pass}`);//test is same element as others
                 if (pass) {
                     multiList.forEach(row => {
-                        row[a].classList.add('positInvar');
+                        row.forEach(list => {
+                            list[a].classList.add('positInvar');
+                        })
                     })
                 }
             }
@@ -1433,16 +1555,28 @@ function myMatrix () {
             item.classList.remove('select');
             item.classList.remove('labelSelect');
         })
-        currentData['selected'].forEach(key => {
-            document.querySelector(`#${key}`).classList.add('labelSelect');
+        if (currentData['selected'].length > 0) {
+            currentData['selected'].forEach(key => {
+            let correct = document.querySelectorAll(`.label`);
+            correct = Array.from(correct).filter(x => x.textContent == key);
+            console.log(correct);
+            correct.forEach(elem => {
+                elem.classList.add('labelSelect');
+            })
+            // document.querySelector(`#${key}`).classList.add('labelSelect');//This querySelector probably needs to change to get textContent
             /**
              * for each entry in selected, call rowFormAsCells and add .find to each.
              */
-            this.rowFormAsCells(key).forEach(el => {
-                // console.log(el);
-                el.classList.add('select');
+            this.rowFormAsCells(key).forEach(sel => {
+                sel.forEach(cell => {
+                    cell.classList.add('select');
+                    })
+                })
             })
-        })
+        }
+        else {
+            console.log('No Search!')
+        }
         this.orderPosition();
         this.findAdjacent();//Search if update called.
         segmentationButtons();
@@ -1459,66 +1593,77 @@ function myMatrix () {
             elem.classList.contains('rowFind')? elem.classList.remove('rowFind') : null;
             elem.classList.contains('columnFind')? elem.classList.remove('columnFind') : null;
             elem.classList.contains('both')? elem.classList.remove('both') : null;
+            elem.classList.contains('phantom')? elem.classList.remove('phantom') : null;
         })
         Object.keys(this.dictionaryForm).forEach(form => {
-            console.log(`Row Form: ${form}`)
-            let cells = this.rowFormAsCells(form);
-            let pcs = [...cells.map(x => parseInt(x.textContent))];
-            if (primeForms == false) {
-                let fs = ArrayMethods.adjacentIndices(pcs,search);//Returns slicing indices.
+            // console.log(`Row Form: ${form}`);
+            let individual = this.rowFormAsCells(form);//Now a 2D array
+            individual.forEach(cell => {
+                let pcs = [...cell.map(x => parseInt(x.textContent))];
+                if (primeForms == false) {
+                    let fs = ArrayMethods.adjacentIndices(pcs,search);//Returns slicing indices.
+                    /**
+                    * Searching for more than one element
+                    */
+                    if (search.length > 0) {
+                        if (search.length > 1) {
+                            let showPhantom = true;
+                            fs.forEach(pair => {
+                                for (let a = pair[0]; a <= pair[1]; a++) {//Take slices and add find
+                                    cell[a].classList.add('find');
+                                }
+                                let oppo = cell.filter(x => x.classList.contains('find') == false);
+                                oppo.forEach(el => {
+                                    showPhantom? el.classList.add('phantom') : null;
+                                })
+                            })
+                        }
+                        /**
+                        * Searching for one element
+                        */
+                        else {
+                            cell[fs[0]].classList.add('find');
+                        }   
+                    }
+                }
                 /**
-                 * Searching for more than one element
-                 */
-                if (search.length > 1) {
-                    fs.forEach(pair => {
-                        for (let a = pair[0]; a <= pair[1]; a++) {
-                            cells[a].classList.add('find');
+                * Prime form search is true.
+                */
+                else {
+                    //prime form of search set.
+                    let srcPF = new MySet(currentData['Universe'],...search).prime_form();
+                    for (let a = 0; a < pcs.length-search.length; a++) {//This may need to be +1 for middle condition
+                        let test = new MySet(currentData['Universe'],...pcs.slice(a,a+search.length)).prime_form();
+                        let dup = pcs.slice(a,a+search.length);
+                        console.log(`SRC: ${srcPF} - TEST: ${test}`);
+                        if (srcPF.join('.') == test.join('.')) {
+                            // console.log(`${form} elems ${a+1}-${a+search.length}.... SRC: (${srcPF}) : current: {${dup}} => PF: (${test})? ${true}`);
+                            let regex = /[PRI]+/g;
+                            cell.slice(a,a+search.length).forEach(item => {
+                                if (form.match(regex) == 'P' || form.match(regex) == 'RP') {
+                                item.classList.add('rowFind');  
+                                }
+                                else if (form.match(regex) == 'I' || form.match(regex) == 'RI') {
+                                    item.classList.add('columnFind');
+                                }
+                            })
+                        }
+                        else {
+                            //  console.log(`${form} elems ${a+1}-${a+search.length}....SRC: (${srcPF}) current: {${dup}} => PF: (${test})? ${false}`);
+                        }
+                    }
+                    /**
+                     * Check if cells are both, then change class.
+                     */
+                    document.querySelectorAll('.cell').forEach(cell => {
+                        if (cell.classList.contains('rowFind') && cell.classList.contains('columnFind')) {
+                            cell.classList.remove('rowFind');
+                            cell.classList.remove('columnFind');
+                            cell.classList.add('both');
                         }
                     })
                 }
-                /**
-                 * Searching for one element
-                 */
-                else {
-                    cells[fs[0]].classList.add('find');
-                }
-            }
-            /**
-             * Prime form search is true.
-             */
-            else {
-                //prime form of search set.
-                let srcPF = new MySet(currentData['Universe'],...search).prime_form();
-                for (let a = 0; a < pcs.length-search.length; a++) {//This may need to be +1 for middle condition
-                    let test = new MySet(currentData['Universe'],...pcs.slice(a,a+search.length)).prime_form();
-                    let dup = pcs.slice(a,a+search.length);
-                    if (srcPF.join('.') == test.join('.')) {
-                        // console.log(`${form} elems ${a+1}-${a+search.length}.... SRC: (${srcPF}) : current: {${dup}} => PF: (${test})? ${true}`);
-                        let regex = /[PRI]+/g;
-                        cells.slice(a,a+search.length).forEach(item => {
-                            if (form.match(regex) == 'P' || form.match(regex) == 'RP') {
-                              item.classList.add('rowFind');  
-                            }
-                            else if (form.match(regex) == 'I' || form.match(regex) == 'RI') {
-                                item.classList.add('columnFind');
-                            }
-                        })
-                    }
-                    else {
-                        //  console.log(`${form} elems ${a+1}-${a+search.length}....SRC: (${srcPF}) current: {${dup}} => PF: (${test})? ${false}`);
-                    }
-                }
-                /**
-                 * Check if cells are both, then change class.
-                 */
-                document.querySelectorAll('.cell').forEach(cell => {
-                    if (cell.classList.contains('rowFind') && cell.classList.contains('columnFind')) {
-                        cell.classList.remove('rowFind');
-                        cell.classList.remove('columnFind');
-                        cell.classList.add('both');
-                    }
-                })
-            }
+            })
         })
         urlOperations('change');
     }
@@ -1546,13 +1691,27 @@ function RowLibraryItem (name,modulus,row,search,primeForm = false) {
         currentData['Series'] = row; 
         currentData['search'] = search;
         currentData['pfSrch'] = pf;
+        currentData['selected'] = [];
         //console.table(currentData);
         K = new myMatrix();
         K.createMatrix();//This fails...
-        K.findAdjacent(search,pf);
         buildKey();
+        K.findAdjacent(search,pf);
     }
     RowLibrary[this.name] = this;
+}
+
+/**
+* Creates a random matrix within the given universe.
+* @param {int} universe 
+*/
+const randomRow = (universe = currentData['Universe']? currentData['Universe'] : 12) => {
+    let uni = Array(universe).fill(0).map((a,b) => b+a);
+    currentData['Series'] = shuffle(uni);
+    currentData['Universe'] = universe;
+    K = new myMatrix();
+    K.createMatrix();
+    buildKey();
 }
 
 /**
@@ -1562,10 +1721,6 @@ let RowLibrary = {};
 
 let currentData = {'search': []};
 let K;
-
-const MOperation = (series,modulus = 12,index = 5) => {
-    return series.map(x => (x*index)%modulus);
-}
 
 //
 
@@ -1581,9 +1736,11 @@ new RowLibraryItem('BachLittleFugueInGm7',7,[0, 4, 2, 1, 0, 2, 1, 0, 6, 1, 4, 0,
 new RowLibraryItem('BachLittleFugueInGm12',12,[7,2,10,9,7,10,9,7,6,9,2,7,2,9,2,10,9,10,9,7,9,2,7,2,9,2,10,9,7,9],[0,3,7],true);
 new RowLibraryItem('FigureHumainePoulenc',12,[1,4,9,0,11,3,8,10,9,2,7,4,6,5,2,4,3,0,2,6,9,10]);
 new RowLibraryItem('WebernConcertoOp24',12,[0, 11, 3, 4, 8, 7, 9, 5, 6, 1, 2, 10],[0,11,3,4,8,7],false);
+new RowLibraryItem('CiurlionisFugue',12,[10,0,1,5,4,9,8,0,11,2,5,4,2,0,6,10,8,4,0,3,2,0]);
+new RowLibraryItem('Anomaly1',12,[5, 3, 0, 1, 11, 4, 9, 6, 2, 7, 8, 10],[5,3,0,1,11,4],false);
+new RowLibraryItem('Anomaly2',12,[4, 10, 0, 1, 5, 7, 8, 9, 2, 6, 11, 3],[4, 10, 0, 1, 5, 7],false);
 
 //
-
 /**
 * Monitors the hovering of the cursor. Updates tooltip box.
 */
@@ -1614,6 +1771,15 @@ const mouseTracking = () => {
         else if (typeof message !== 'object') {
             tt.innerHTML = message;
         }
+        let rect = tt.getBoundingClientRect();
+        const winWidth = window.innerWidth;
+        const winHeight = window.innerHeight;
+        if (rect.right > winWidth) {
+            tt.style.left = `${winWidth}px`;
+        }
+        if (rect.bottom > winHeight) {
+            tt.style.top = `${winHeight}px`;
+        }
     })
 }
 
@@ -1631,6 +1797,7 @@ const buildKey = () => {
     let items = {
         'Selected Row': 'lightblue',
         'Literal Search Result': 'darkcyan', 
+        'Literal Search Complement': 'rgba(191, 208, 255, 0.7)',
         'Row Positional Invariant': 'aqua',
         'Prime Form Vertical': 'rgb(155, 184, 238)',
         'Prime Form Horizontal': 'rgb(255, 170, 139)',
@@ -1661,7 +1828,6 @@ document.addEventListener('DOMContentLoaded',() => {
     buildInput('Universe','number',undefined,'Enter an integer value for the chromatic universe then press enter.');
     buildInput('Series','text',undefined,'Enter the elements of the series separated by commas. Ex: 0,4,5,7,... then press enter.');
     buildInput('Search','text',undefined,'Enter elements to search for in the matrix separated by commas. Ex: 0,3,5,9,... then press enter.');
-    //Include in build input if Name == Search?
     let tiny = document.createElement('p');
     tiny.innerHTML = `Set-Class:`;
     let check = document.createElement('select');
@@ -1686,36 +1852,26 @@ document.addEventListener('DOMContentLoaded',() => {
     // }
     console.log(defaultURL)
     mouseTracking();
-    // buildKey();
+    let sm = document.createElement('div');
+    sm.classList.add('single');
+    let la = document.createElement('h4');
+    la.innerHTML = ('Random');
+    let mess = `Generate a matrix from a random tonerow in the ${currentData['Universe']? currentData['Universe'] : 12}-tone universe.`;
+    let but = document.createElement('button');
+    sm['data-tooltip'] = mess;
+    la['data-tooltip'] = mess;
+    but['data-tooltip'] = mess;
+    but.innerHTML = '...';
+    but.setAttribute('onclick',`randomRow()`)//??
+    sm.appendChild(la);
+    sm.appendChild(but);
+    document.querySelector('#upper').appendChild(sm);
 })
 
-
-//Viennese trichord row!
-//[0,3,4,6,9,10,1,2,5,7,8,11]; 
-
-//Webern Row: 
-// [10,9,1,11,2,0,6,5,4,8,7,3];
-
-//  Little Fugue in G minor mod 12 
-// [7,2,10,9,7,10,9,7,6,9,2,7,2,9,2,10,9,10,9,7,9,2,7,2,9,2,10,9,7,9];
-
-//Little Fugue mod7 
-// [0, 4, 2, 1, 0, 2, 1, 0, 6, 1, 4, 0, 4, 1, 4, 2, 1, 0, 1, 4, 0, 4, 1, 4, 2, 1, 0, 1];
-
-// Berg Schliesse Meine
-// [5,4,0,9,7,2,8,1,3,6,10,11]
-
-//Dallapicolla treble row 
-// [7,8,0,3,5,11,10,2,4,9,6,1] No. 19 in anthology
 //Reach out to people about math/music
-
 
 //Angular or View for JS framework
 
 //felipe-tovar-henao Bach Puzzles
 
-// let r1 = Serialism.rowDictionary(RowLibrary.RequiemCanticles1,12);
-
 // console.log(r1)
-
-//Create order position invariance class/method.
