@@ -986,7 +986,8 @@ function DrawingManager (parent = 'drawing') {
      */
     this.setTracker = {
         'superset': [],
-        'subset': []
+        'subset': [],
+        'interval': 1
     }
     this.paritalClear = () => {
         this.setTracker['superset'] = [];
@@ -1216,16 +1217,19 @@ function DrawingManager (parent = 'drawing') {
     }
     /**
      * Manages and draws the superset/subset polygons
+     * @param {int} interval 
      */
     this.miniPolygons = () => {
         let superCoords = [];
         let subCoords = [];
-        //use clockwisePosition to get the order of the points.
-        this.setTracker.superset.forEach(element => {
-            superCoords.push(allNodes[element].coordinates);
+        this.setTracker['superset'].forEach(element => {
+            let cPos = allNodes[`n${element}`].clockwisePosition;
+            superCoords.push(allNodes[`n${element}`].coordinates);
+            // console.log(`EL: ${element} POS: ${cPos}`);
         })
-        this.setTracker.subset.forEach(element => {
-            subCoords.push(allNodes[element].coordinates);
+        this.setTracker['subset'].forEach(element => {
+            let cPos = allNodes[`n${element}`].clockwisePosition;
+            subCoords.push(allNodes[`n${element}`].coordinates);
         })
         this.polygonA.plot(superCoords);
         this.polygonA['node']['data-tooltip'] = `Superset: [${new MySet(Object.keys(allNodes).length,...this.setTracker['superset']).normal_order()}]`;
@@ -1281,16 +1285,20 @@ function DrawingManager (parent = 'drawing') {
         this.updateNodeStates();//Does this update allNodes?
     }
     /**
-     * Restructures the order of nodes via the input interval.
+     * Restructures the order of nodes via the input interval. Can be used to illustrate well-formedness.
      * @param {int} interval OPCI 
      */
     this.restructure = (interval = 7) => {
         let coords = Object.values(allNodes).map(x => x.coordinates);
+        this.setTracker['interval'] = interval;
         let wf = ScaleTheory.generate(0,interval,coords.length,coords.length);
         for (let a = 0; a < coords.length; a++) {
-            allNodes[wf[a]].move(...coords[a]);
-            allNodes[wf[a]].clockwisePosition = a;
+            allNodes[`n${wf[a]}`].move(...coords[a]);
+            allNodes[`n${wf[a]}`].clockwisePosition = a;
         }
+        let s = Object.entries(allNodes).sort((a,b) => a[1].clockwisePosition - b[1].clockwisePosition);
+        allNodes = Object.fromEntries(s);
+        this.updateNodeStates();//!!
     }
     /**
      * Draw a transformation Polygon
@@ -1389,8 +1397,8 @@ function DrawingManager (parent = 'drawing') {
         let combin = [...superset,...subset];
         combin.forEach(item => {
             let filt = combin.filter(x => x == item);
-            allNodes[item].state = filt.length;//Check the length of instances, will be state
-            console.log(`Element ${item} status? ${allNodes[item].state}`);
+            allNodes[`n${item}`].state = filt.length;//Check the length of instances, will be state
+            console.log(`Element ${item} status? ${allNodes[`n${item}`].state}`);
         })
         this.updateNodeStates();
     }
@@ -1501,18 +1509,20 @@ function DrawingManager (parent = 'drawing') {
         if (event.target.parentNode.tagName == 'g') {//Gets circle
             currNode = event.target.parentNode;
             index = currNode.childNodes[1].textContent;
-            inst = allNodes[index];
-            console.log(`Condition 1 Triggered //Line 1105`);
+            inst = allNodes[`n${index}`];
+            // console.log(`Condition 1 Triggered //Line 1105`);
             this.setTracker['subset'] = [];
             this.setTracker['superset'] = [];
+            console.log(`Clicked Node: ${index}!`);
         }
         else if (event.target.parentNode.parentNode.tagName == 'g') {//Gets TSpan
             currNode = event.target.parentNode.parentNode;
             index = currNode.childNodes[1].textContent  //Only works for number node names
-            inst = allNodes[index];
-            console.log(`Condition 2 Triggered //Line 1111`);
+            inst = allNodes[`n${index}`];
+            // console.log(`Condition 2 Triggered //Line 1111`);
             this.setTracker['subset'] = [];
             this.setTracker['superset'] = [];
+            console.log(`Clicked Node: ${index}!`);
         }
         else {
             console.log('No Node clicked!');
@@ -1586,7 +1596,7 @@ function MyNode (parent = D,textLabel,xPosition,yPosition) {
     /**
      * Store object reference in allNodes object.
      */
-    allNodes[textLabel] = this;
+    allNodes[`n${textLabel}`] = this;
 }
 
 /**
@@ -1772,3 +1782,59 @@ document.addEventListener('DOMContentLoaded',() => {
 
 
 //TODO: Electron //Make this a real app!
+
+/**
+ * Creates a preset set with the given parameters.
+ * @param {int} modulus 
+ * @param {array} superset 
+ * @param {array} subset 
+ */
+function Preset(modulus,superset,subset) {
+    this.universe = modulus;
+    this.superset = superset;
+    this.subset = subset;
+    /**
+     * Renders the preset selection.
+     */
+    this.render = () => {
+        D.manualSelection(this.universe,this.superset,this.subset);
+    }
+}
+
+/**
+ * Combines the arrays in an object into a single array.
+ * @param {object} obj 
+ * @returns set of all elements.
+ */
+const combine = (obj = Carrillo) => {
+    let tot = [];
+    Object.values(obj).forEach(arr => {
+        tot.push(...arr);
+    })
+    return Array.from(new Set(tot));
+}
+
+/**
+ * Contains the pitch class content within the Prelude a Colon
+ */
+const Carrillo = {
+    'Flauta': [32,88,32,36,28,24],
+    'Violin': [32,36,28,24,20,16,12,8,4,0,92,88,84,80,76,72,68,64,60,56,52,48,44,40],
+    'Octavina': [32,34,36,38,32,52,72,92,72],//M3
+    'Soprano': [32,36,28,24,20,16,12,8,4,0,92,88,84,80,84,76,72,68,64,60,56,52,48,44,40,36,32],
+    'Guitarra': [32,52,72,92,72,32,64,36,68,40,72],
+    'Arpa': []
+}
+
+/**
+ * A collection of presets that can be easily drawn.
+ * @type {Object}
+ */
+const Library = {
+    'DiatonicTriad': new Preset(12,[0,2,4,5,7,9,11],[0,4,7]),
+    'Carrillo96': new Preset(96,combine(),[32,64]),
+    'Carrillo48': new Preset(48,combine().map(x => x/2),[32,64].map(x => x/2))
+}
+
+//To page 4....2nd of score
+

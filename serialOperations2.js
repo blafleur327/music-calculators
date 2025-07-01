@@ -850,10 +850,12 @@ const Serialism = {
         let data = {};
         let obj = {};//For Debugging.
         opts.forEach(part => {
+            console.log(`Partition size: ${part.length}`);
             let current = data[`${row.length/part.length}`] = {'set' : [],'levels' : {}}; 
             for (let a = 1; a <= part.length; a++) { //Irritating
                 let setRepA = new MySet(universe,...part[a-1]);
-                obj[`${universe/part.length}-chord ${a-1}`] = `(${setRepA.prime_form()})`;
+                // obj[`${universe/part.length}-chord ${a-1}`] = `(${setRepA.prime_form()})`;  //This is the OG
+                obj[`${part.length}-chord ${a-1}`] = `(${setRepA.prime_form()})`;//I think this works.
                 current['set'].push(setRepA.prime_form());
                 a == part.length? null : current['levels'][`${a}-${a+1}`] = setRepA.compare_set(part[a]);
             }
@@ -888,7 +890,7 @@ const Serialism = {
      * @returns Combinatorial Levels.
      */
     combinatoriality: function (row,universe = 12) {
-        let partition = [row.slice(0,universe/2),row.slice(universe/2)];
+        let partition = [row.slice(0,universe/2),row.slice(universe/2)];//changed to row length
         let storage = [new MySet(universe,...partition[0]),new MySet(universe,...partition[1])];
         // let Combin = ArrayMethods.unique_subarray([storage[0].prime_form(),storage[1].prime_form()]).length == 1;//Consider removing
         let result = [];
@@ -896,26 +898,26 @@ const Serialism = {
         /**
          * Check to see if the two halves are members of the same set-class.
          */
-        if (universe%2 == 0) { //&& Combin == true?
+        if (row.length%2 == 0) { //&& Combin == true?
             let vects = [storage[0].interval_class_vector(),storage[0].index_vector()];
             vects[0][vects[0].length-1]*=2;     //Double the value of the tritone
             vects.forEach(vector => {
-                let icv = vector.length == currentData['Universe']/2;
+                let icv = vector.length == universe/2;
                 for (let a = 0; a < vector.length; a++) {
                     let iVal = universe-element1;//+a
                     /**
                      * P condition
                      */
                     if (icv == true && vector[a] == 0) {
-                        let adj = (element1+(a+1))%currentData['Universe'];
-                        result.push(a+1 == universe/2? `P${adj}` : `P${adj}/${universe-adj}`); 
+                        let adj = (element1+(a+1))%universe;
+                        result.push(`P${adj}`);
                     }
                     /**
                      * R condition
                      */
-                    else if (icv == true && vector[a] == currentData['Universe']/2) {
-                        let adj = (element1+(a+1))%currentData['Universe'];
-                        result.push(a+1 == universe/2? `RP${adj}` : `RP${adj}/${universe-adj}`);
+                    else if (icv == true && vector[a] == universe/2) {
+                        let adj = (element1+(a+1))%universe;
+                        result.push(`RP${adj}`);
                     }
                     /**
                      * I condition
@@ -926,7 +928,7 @@ const Serialism = {
                     /**
                      * RI condition
                      */
-                    else if (icv == false && vector[a] == currentData['Universe']/2) {
+                    else if (icv == false && vector[a] == universe/2) {
                         result.push(`RI${(iVal+a)%universe}`);
                     }
                 }
@@ -979,6 +981,18 @@ const Serialism = {
             }
         }
         return result;
+    },
+    /**
+     * Returns the Adjacency Interval Series of a row.
+     * @param {array} row 
+     * @param {int} universe 
+     */
+    ais: function (row,universe = 12) {
+        let res = [];
+        for (let a = 1; a < row.length; a++) {
+            res.push(Serialism.modulo(row[a]-row[a-1],universe));
+        }
+        return res;
     },
     /**
      * Creates the T-matrix as described by Robert Morris. 
@@ -1332,6 +1346,7 @@ const special = () => {
  */
 function myMatrix () {
     this.arrayForm = Serialism.buildMatrix(currentData['Series'],currentData['Universe'],false,true);
+    this.seriesLength = currentData['Series'].length; //Use this for derivation purposes.
     this.dictionaryForm = null;
     /**
      * Converts the arrayForm property into note names.
@@ -1361,10 +1376,12 @@ function myMatrix () {
         populate(currentData['matrix']);// :/
         document.getElementById('lower').innerHTML = '';
         let results = {
-            'Combinatoriality': Serialism.combinatoriality(currentData['Series'],currentData['Universe']),
+            'Combinatoriality': Serialism.combinatoriality(currentData['Series'],currentData['Universe']),//Keys ['RI3']
+            //Combinatoriality returns a slash string for P/RP combinatoriality...Fix this.
             'Derivation': Serialism.derivation(currentData['Series'],currentData['Universe']),//This might need to change to currentData['Series'].length
             'AllInterval': Serialism.allInterval(currentData['Series'],currentData['Universe'])
         }
+        console.table(results);
         this.dictionaryForm = special();
         let cont = document.createElement('div');
         cont.classList.add('inline');
@@ -1384,7 +1401,7 @@ function myMatrix () {
             single.innerHTML = `${entry}`;//Fix spacing within the div.
             single.addEventListener('mousedown',() => {
                 console.log(entry);
-                console.log(`P${currentData['Series'][0]}`)
+                console.log(`P${currentData['Series'][0]}`);
                 document.querySelectorAll('.cell').forEach(item => {
                     item.classList.contains('find')? item.classList.remove('find') : null;
                     item.classList.contains('phantom')? item.classList.remove('phantom') : null; 
@@ -1406,15 +1423,15 @@ function myMatrix () {
                         prime[b].classList.add('find');
                         src[b].classList.add('phantom');
                     }
-                    // else {
-                    //     prime[b].classList.add('phantom');
-                    //     src[b].classList.add('find');
-                    // }
                 }
             })
+            // console.log(this.dictionaryForm[entry])
             single['data-tooltip'] = `P${currentData['Series'][0]}.1 = [${currentData['Series'].slice(0,currentData['Universe']/2)}] ∪ ${entry}.1 = [${this.dictionaryForm[entry].slice(0,currentData['Universe']/2)}] = ${currentData['Universe']}-tone aggregate`;
             row.appendChild(single);
             })
+        }
+        else {
+            // Add void to something...
         }
         cont.appendChild(row);
         document.querySelector('#lower').appendChild(cont);
@@ -1442,7 +1459,7 @@ function myMatrix () {
                     mini.classList.add('wow');
                     mini.innerHTML = conc == ''? `${v}` : `, ${v}`;
                     let m = k.match(/[0-9]+/g);
-                    console.log(m);
+                    // console.log(m);
                     mini['data-tooltip'] = `${key}.${m[0]} = [${currentData['Series'].slice(parseInt((m[0])-1)*key,parseInt((m[1])-1)*key)}]<br> Under ${v}<br>${key}.${m[1]} = [${currentData['Series'].slice(parseInt((m[0]))*key,parseInt((m[1]))*key)}]<br>`;
                     r.appendChild(mini);
                 }
@@ -1739,11 +1756,20 @@ new RowLibraryItem('WebernConcertoOp24',12,[0, 11, 3, 4, 8, 7, 9, 5, 6, 1, 2, 10
 new RowLibraryItem('CiurlionisFugue',12,[10,0,1,5,4,9,8,0,11,2,5,4,2,0,6,10,8,4,0,3,2,0]);
 new RowLibraryItem('Anomaly1',12,[5, 3, 0, 1, 11, 4, 9, 6, 2, 7, 8, 10],[5,3,0,1,11,4],false);
 new RowLibraryItem('Anomaly2',12,[4, 10, 0, 1, 5, 7, 8, 9, 2, 6, 11, 3],[4, 10, 0, 1, 5, 7],false);
-
+new RowLibraryItem('WT',12,[0,2,4,6,8,10,11,9,7,5,3,1],[],false);
+/**
+ * Corresponds to the violin part mm 3-5. Line spacing too!
+ */
+new RowLibraryItem('Carrillo1',96,[32,36,32,28,24,28,32,36,32,28,24,28,32,36,32,28,24,28,/*br*/32,36,32,28,32,28,24,28,24,20,24,20,16,20,16,12,16,12,8,12,8,4,8,4,0,4,0,92,0,92,88,/*br*/92,88,84,88,84,80,84,80,76,80,76,72,76,72,68,72,68,64,68,64,60,64,60,56,60,56,52,56,52,48,52,48,44,48,44,40,44,40,36,40,36,32],[],false);
+/**
+ * Guitarra & Octavina mm 33
+ */
+new RowLibraryItem('Carrillo2',96,[32,44,56,68,80,92,8,20,32,30,8,92,80,68,56,44],[],false);
 //
 /**
 * Monitors the hovering of the cursor. Updates tooltip box.
 */
+
 const mouseTracking = () => {
     let offset = 15;//Offset for tooltip box.
     let tt = document.querySelector(`#tooltips`);//

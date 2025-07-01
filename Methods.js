@@ -536,7 +536,7 @@ document.addEventListener('DOMContentLoaded',() => {
                     let val = list.childNodes.length+1;
                     duh.innerHTML = `(${sub})`;
                     duh.classList.add('hoverable');
-                    duh['data-tooltip'] = `BE Number: ${key}-${val}<br>ICV: <${PCSetTheory.intervalClassVector(sub,parseInt(document.getElementById('card').value))}><br></$>`;
+                    duh['data-tooltip'] = `BE Number: ${key}-${val}<br>ICV: <${PCSetTheory.intervalClassVector(sub,parseInt(document.getElementById('card').value))}><br>IV*: <${PCSetTheory.indexVector(sub,parseInt(document.getElementById('card').value))}></>`;
                     list.appendChild(duh);
                 })
                 uhOh.append(list);
