@@ -201,3 +201,16 @@ polygon:hover {
     transform:scale(1.1);
     font-weight:bolder;
 }
+
+.centDis {
+    fill:darkgrey;
+    stroke:black;
+    stroke-width:1px;
+}
+
+.centDis:hover {
+    cursor:pointer;
+    r: 10;
+    fill:lightcoral;
+    stroke:darkgrey;
+}

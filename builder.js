@@ -885,6 +885,115 @@ const PitchSystems = {
 }
 
 /**
+ * Stores cET of various intervals.
+ * @type {Object.<string,number>}
+ */
+const intervalLookup = {
+    '12-tET': {
+        'P1': 0,
+        'm2': 100,
+        'M2': 200,
+        'm3': 300,
+        'M3': 400,
+        'A4/d5': 600,
+        'P5': 700,
+        'm6': 800,
+        'M6': 900,
+        'm7': 1000,
+        'M7': 1100,
+        'P8': 1200,
+    },
+    'Pythagorean (3-Limit JI)': {
+        'm2': Math.log2(256/243)*1200,
+        'm3': Math.log2(32/27)*1200,
+        'M3': Math.log2(81/64)*1200,
+        'M6': Math.log2(27/16)*1200,
+        'm7': Math.log2(16/9)*1200,
+        'M7': Math.log2(243/128)*1200,
+    },
+    '5-Limit JI': {
+        'Syntonic Comma': Math.log2(81/80)*1200,
+        'd2': Math.log2(128/125)*1200,//Diesis
+        'minor semitone': Math.log2(25/24)*1200,
+        'major semitone': Math.log2(16/15)*1200,
+        'M2': Math.log2(9/8)*1200,
+        'm3': Math.log2(6/5)*1200,
+        'M3': Math.log2(5/4)*1200,
+        'P4': Math.log2(4/3)*1200,
+        'A4': Math.log2(45/32)*1200,
+        'd5': Math.log2(64/45)*1200,
+        'P5': Math.log2(3/2)*1200,
+        'm6': Math.log2(8/5)*1200,
+        'M6': Math.log2(5/3)*1200,
+        'm7': Math.log2(9/5)*1200,
+        'M7': Math.log2(15/8)*1200,
+    },
+    '7-Limit JI': {
+        'Harmonic m7': Math.log2(7/4)*1200,
+    },
+    /**
+     * Incomplete 31-EDO list!
+     */
+    '31-EDO': {
+        'Lesser Diesis': 1200/31,
+        'Chromatic Semitone': (1200/31)*2,
+        'm2': (1200/31)*3,
+        'Neutral 2nd': (1200/31)*4,
+        'M2': (1200/31)*5,
+        'Septimal Tone': (1200/31)*6,
+        'Septimal m3': (1200/31)*7,
+        'm3': (1200/31)*8,
+        'Neutral 3rd': (1200/31)*9,
+        'M3': (1200/31)*10,
+        'd4': (1200/31)*11,
+        'Half-diminished 4th': (1200/31)*12,
+        'P4': (1200/31)*13,
+        'A4': (1200/31)*15,
+        'P5': (1200/31)*18,
+        'm6': (1200/31)*21,
+        'Harmonic 7th': (1200/31)*25,
+        'm7':(1200/31)*26,
+    },
+    '24-tET': {
+        '1/4th Tone': 50,
+        'Neutral 2nd': 150,
+        'Septimal Tone': 250,
+        'Neutral 3rd': 350,
+        'Tridecimal M3': 450,
+        'Major 4th': 550,
+        'Minor 5th': 650,
+        'Subminor 6th': 750,
+        'Neutral 6th': 850,
+        'Subminor 7th': 950,
+        'Neutral 7th': 1050,
+        'Supermajor 7th': 1150,
+    }
+}
+
+/**
+ * Uses intervalLookup to find the nearest interval.
+ * @param {float} c 
+ */
+const findIntervals = (c = 100) => {
+    let total = [];
+    let obj = Object.entries(intervalLookup);
+    let win = [null,null,1300]; 
+    for (let [key,value] of obj) {
+        let t = Object.entries(value);
+        for (let [k,v] of t) {
+            let diff = Math.abs(v-c);
+            if (diff < Math.abs(win[2])) {
+                win[0] = key;
+                win[1] = k;
+                win[2] = (c-v).toFixed(2);
+                Math.abs(win[2]) < 70? total.unshift(`${win[2]}\&cent from ${win[0]} ${win[1]} (${v.toFixed(2)}\&cent)<br>`) : null;
+            }
+        }
+    }
+    return total;
+}
+
+/**
  * Prototype for data displayed by calculator, can be modified, to change all children.
  * @param {string} name 
  * @param {any} information
@@ -926,6 +1035,15 @@ const urlOperations = (operation = 'change') => {
     else {
         console.error("Operation must be 'change' or 'load'");
     }
+}
+
+/**
+ * Returns the midpoint of two coordinates.
+ * @param {array} arr1 [x,y]
+ * @param {array} arr2 [x,y]
+ */
+const midpoint = (arr1,arr2) => {
+    return [arr1[0]+arr2[0],arr1[1]+arr2[1]].map(x => x/2);
 }
 
 /**
@@ -1007,19 +1125,22 @@ function DrawingManager (parent = 'drawing') {
             tt.style.top = `${position[1]+offset}px`;
             if (element.target.parentNode.tagName !== 'g' && element.target.tagName == `tspan`) {    //Catch text
                 message = element.target.parentNode.parentNode['data-tooltip'];
+                console.log('Trigger Option 1');
             }
             else if (element.target.parentNode.tagName == 'g') {    
                 message = element.target.parentNode['data-tooltip'];
+                console.log('Trigger Option 2');
             }
             else {
                 message = element.target['data-tooltip'];
+                console.log('Trigger Option 4');
             }
             tt.style.visibility = message? 'visible' : 'hidden';
             /**
              * Node condition, determines the index of message to be displayed.
              */
             if (typeof message == 'object') {
-                let nodeNumber = parseInt(element.target.parentNode.childNodes[1].textContent);//Should work if noteNames are visible
+                let nodeNumber = parseInt(element.target.parentNode.childNodes[1].textContent);//Works regardless of note name display.
                 let nodeState = Object.values(allNodes)[nodeNumber].state;
                 tt.innerHTML = `${message[nodeState]}`;
             }
@@ -1047,7 +1168,7 @@ function DrawingManager (parent = 'drawing') {
         })
         //Place nodes at 2x modular universe positions.
         numPoints = (Object.keys(allNodes).length)*2;
-        let allAngles = 360/numPoints;      //(180*(numPoints-2))/numPoints is really interesting!
+        let allAngles = 360/numPoints; 
         let vertices = [];
         for (let a = 0; a < numPoints; a++) {
             let angle = ((a*allAngles) -90) * Math.PI/180;  //-90 sets top element to 0;
@@ -1073,6 +1194,62 @@ function DrawingManager (parent = 'drawing') {
             s.plot(...vertices[modified[0]],...vertices[modified[1]]);
             s['node']['data-tooltip'] = `Subset symmetrical about the ${line[0]}-${line[1]} axis.`;
         })
+    }
+    /**
+     * A method to show the number of cET between selected nodes.
+     */
+    this.showCents = (state = 0) => {
+        let arrRep = Object.values(allNodes);
+        let centStep = 1200/arrRep.length;//Check this math.
+        let par = document.querySelector('#cents');
+        let selection = null;
+        switch (state) {
+            /**
+             * Show None
+             */
+            case 0:
+                par.innerHTML = 'Superset';
+                selection = this.setTracker['superset'];
+                break;
+            /**
+             * Show Superset
+             */
+            case 1:
+                par.innerHTML = 'Subset';
+                selection = this.setTracker['subset'];
+                break;
+            /**
+             * Show Subset
+             */
+            case 2:
+                par.innerHTML = 'NONE';
+                selection = null;
+                break;
+        }
+        document.querySelectorAll('.centDis').forEach(elem => {
+            elem.remove();
+        });
+        let pairs = {};
+        for (let a = 0; a < selection.length; a++) {
+            if (a == 0) {
+                pairs[`${arrRep[selection[selection.length-1]].name}-${arrRep[selection[a]].name}`] = {
+                    'cents': (((arrRep[selection[a]].name)-arrRep[selection[selection.length-1]].name)*centStep+1200).toFixed(2),
+                    'coords': midpoint(arrRep[selection[a]].coordinates,arrRep[selection[selection.length-1]].coordinates)
+                }
+            }
+            else {
+                pairs[`${arrRep[selection[a-1]].name}-${arrRep[selection[a]].name}`] = {
+                'cents': ((arrRep[selection[a]].name-arrRep[selection[a-1]].name)*centStep).toFixed(2),
+                'coords': midpoint(arrRep[selection[a-1]].coordinates,arrRep[selection[a]].coordinates)
+                }
+            }
+        }
+        for (let [key,value] of Object.entries(pairs)) {
+            let t = this.draw.circle(7);
+            t.addClass('centDis');
+            t.center(...value['coords']);
+            t['node']['data-tooltip'] = `Distance between ${key} = ${value['cents']}cET<br>${findIntervals(value['cents'])}`;
+        }
     }
     /**
     * Computes positions of verticies for an equilateral shape with n points. 
@@ -1451,7 +1628,8 @@ function DrawingManager (parent = 'drawing') {
         }
         this.displayUpdate();
         this.miniPolygons();
-        this.symmetry();//So far so good here!
+        this.symmetry();//So far so good here
+        this.showCents(parseInt(document.querySelector('#cents')['data-state']));
         populateDrops();
     }
     /**
@@ -1631,6 +1809,9 @@ const getLabelClass = () => {
                 break;
             case 'Toggle Symmetry':
                 message = `Toggle the visibility of symmetry lines.`;
+                break; 
+            case 'Show Cents':
+                message = `Show cents (cET) between select nodes.`;
                 break;
         }
         elem['data-tooltip'] = message; //Currently adds to the container. Add to all children?
@@ -1748,23 +1929,37 @@ const attachListeners = () => {
                     D.noteNames();
                     break;
                 case 'symm':
-                    let state = null;
+                    let symmState = null;
                     if (item.innerHTML == 'NONE') {
-                        state = 1;
+                        symmState = 1;
                     }
                     else if (item.innerHTML == 'Superset') {
-                        state = 2;
+                        symmState = 2;
                     }
                     else if (item.innerHTML == 'Subset') {
-                        state = 3;
+                        symmState = 3;
                     }
                     else {
+                        symmState = 0;
+                    }
+                    D.symmetryVisibility(symmState);
+                    break;
+                case 'cents':
+                    let state = null;
+                    if (item.innerHTML == 'NONE') {
                         state = 0;
                     }
-                    D.symmetryVisibility(state);
+                    else if (item.innerHTML == 'Superset') {
+                        state = 1;
+                    }
+                    else if (item.innerHTML == 'Subset') {
+                        state = 2;
+                    }
+                    item['data-state'] = state;
+                    D.showCents(state);
                     break;
-            }
-        })
+                }
+            })
     });
 }
 
@@ -1815,15 +2010,15 @@ const combine = (obj = Carrillo) => {
 }
 
 /**
- * Contains the pitch class content within the Prelude a Colon
+ * Contains the pitch class content within the Prelude a Colon mm 1-
  */
 const Carrillo = {
-    'Flauta': [32,88,32,36,28,24],
+    'Flauta': [32,88,32,36,28,24,40,8,0,4],
     'Violin': [32,36,28,24,20,16,12,8,4,0,92,88,84,80,76,72,68,64,60,56,52,48,44,40],
     'Octavina': [32,34,36,38,32,52,72,92,72],//M3
     'Soprano': [32,36,28,24,20,16,12,8,4,0,92,88,84,80,84,76,72,68,64,60,56,52,48,44,40,36,32],
     'Guitarra': [32,52,72,92,72,32,64,36,68,40,72],
-    'Arpa': []
+    'Arpa': [32,48,72,16,36,40]
 }
 
 /**

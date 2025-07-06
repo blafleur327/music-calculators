@@ -359,7 +359,7 @@ function MySet(modulus,...elements) {
         return res;
         },
     /**
-     * 
+     * Transposes an input array by a given index.
      * @param {int} index 
      * @returns this.set -> t(n) mod this.universe.
      */
@@ -1757,6 +1757,8 @@ new RowLibraryItem('CiurlionisFugue',12,[10,0,1,5,4,9,8,0,11,2,5,4,2,0,6,10,8,4,
 new RowLibraryItem('Anomaly1',12,[5, 3, 0, 1, 11, 4, 9, 6, 2, 7, 8, 10],[5,3,0,1,11,4],false);
 new RowLibraryItem('Anomaly2',12,[4, 10, 0, 1, 5, 7, 8, 9, 2, 6, 11, 3],[4, 10, 0, 1, 5, 7],false);
 new RowLibraryItem('WT',12,[0,2,4,6,8,10,11,9,7,5,3,1],[],false);
+new RowLibraryItem('BabbittPedagogy',12,[0,4,5,2,7,9,3,1,8,11,10,6],[],false);//h1 = voice...h2 = bells
+
 /**
  * Corresponds to the violin part mm 3-5. Line spacing too!
  */
