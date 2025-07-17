@@ -12,6 +12,12 @@
     cursor:pointer;
 }
 
+.bord > circle {
+    stroke-dasharray: 4,2;
+    stroke-width:2px;
+    /* fill:rgb(18, 18, 203) !important; */
+}
+
 .MyNode:hover > circle {
     stroke-width: 2px;
     r: 24;
@@ -80,7 +86,12 @@
 
 #moreInfo {
     display:flex;
+    min-width:95%;
     flex-direction:row;
+}
+
+#moreInfo > div {
+    max-width:25%;
 }
 
 polygon:hover {
@@ -95,20 +106,20 @@ polygon:hover {
     border-style:solid;
 }
 
-.highlight:hover {
-    background-color:rgb(221, 221, 221);
-    cursor:pointer;
-}
-
 .transform {
-    border-radius: 1px;
-    border-color: rgb(75, 75, 75);
-    border-style:solid;
-    fill: rgba(155, 155, 165, 0.644);
+    stroke-width:1px;
+    stroke:rgb(87, 87, 87);
+    fill: rgba(147, 147, 216, 0.458);
 }
 
 .transform:hover {
-    fill: rgba(97, 97, 127, 0.644);
+    fill: rgba(65, 65, 197, 0.644);
+}
+
+.highlight:hover {
+    cursor:pointer;
+    background-color:lightblue;
+    font-weight:bolder;
 }
 
 #inputs {
@@ -194,12 +205,18 @@ polygon:hover {
 .row {
     display:flex;
     flex-direction:row;
-    /* height:1%; */
+}
+
+.row:hover > * {
+    /* font-weight:bolder; 
+    background-color:lightblue;  */
+    cursor:pointer;
 }
 
 .wow:hover {
     transform:scale(1.1);
     font-weight:bolder;
+    cursor:pointer;
 }
 
 .centDis {
@@ -213,4 +230,27 @@ polygon:hover {
     r: 10;
     fill:lightcoral;
     stroke:darkgrey;
+}
+
+#superInfo, #subInfo {
+    display:flex;
+    flex-direction:row !important;
+}
+
+.col {
+    display:flex;
+    flex-direction: column;
+    border-width:1px;
+    border-color:grey;
+    border-style:solid;
+}
+
+#SupCol2,#SubCol2 {
+    /* max-width: 45%; */
+    /* Theres an issue with max width!! */
+    overflow:scroll;
+}
+
+#SupCol1, #SubCol1 {
+    min-width:fit-content;
 }

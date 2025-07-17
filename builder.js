@@ -248,16 +248,29 @@ const Combinatorics = {
     picker: function (array, bin) {
         return array.filter((item, index) => bin[index] === '1');
     },
-
     /**
      * Returns all subsets of a given cardinality.
-     * @param {array} superset 
+     * @param {array} array 
      * @param {int} cardinality 
      * @returns Array
      */
-    subsets: function (superset,cardinality) {
-        let first = this.binary_representation(superset.length,cardinality);
-        return first.map(z => this.picker(superset,z));
+    subsets: function (array,cardinality = undefined) {
+        let result = [];
+        for (let a = 0; a < (1 << array.length); a++) {
+            let sub = [];
+            for (let b = 0; b < array.length; b++) {
+                if (a & (1 << b)) {
+                    sub.push(array[b]);
+                }
+            }
+            if (cardinality == undefined) {
+                result.push(sub);
+            }
+            else if (sub.length == cardinality) {
+                result.push(sub);
+            }
+        }
+        return result;
     }
 }
 
@@ -904,6 +917,7 @@ const intervalLookup = {
         'P8': 1200,
     },
     'Pythagorean (3-Limit JI)': {
+        'Pythagorean Comma': Math.log2(((9/8)**6)/2)*1200,
         'm2': Math.log2(256/243)*1200,
         'm3': Math.log2(32/27)*1200,
         'M3': Math.log2(81/64)*1200,
@@ -950,6 +964,7 @@ const intervalLookup = {
         'P4': (1200/31)*13,
         'A4': (1200/31)*15,
         'P5': (1200/31)*18,
+        'A5': (1200/31)*20,
         'm6': (1200/31)*21,
         'Harmonic 7th': (1200/31)*25,
         'm7':(1200/31)*26,
@@ -967,30 +982,48 @@ const intervalLookup = {
         'Subminor 7th': 950,
         'Neutral 7th': 1050,
         'Supermajor 7th': 1150,
+    },
+    /**
+     * Incomplete...
+     */
+    'Generic JI': {
+        'Lesser Diesis': Math.log2(128/125)*1200,
+        'Undecimal Diesis': Math.log2(45/44)*1200,
+        'Septimal Diesis': Math.log2(49/48)*1200,
+        'Chromatic Semitone': Math.log2(25/24)*1200,
+        'Septimal Chromatic Semitone': Math.log2(21/20)*1200,
+        'Diatonic Semitone': Math.log2(16/15)*1200,
+        'Greater M2': Math.log2(9/8)*1200,
+        'Lesser M2': Math.log2(10/9)*1200,
+        'Septimal Diatonic Semitone': Math.log2(15/14)*1200,
+    },
+    'Quarter-Comma Meantone': {
+        'P5': Math.log2((3/2)/((81/80)**(1/4)))*1200,//
+        'Wolf 5th': null,//
     }
 }
 
 /**
- * Uses intervalLookup to find the nearest interval.
- * @param {float} c 
+ * Uses intervalLookup to find the nearest interval in cET.
+ * @param {float} cents 
  */
-const findIntervals = (c = 100) => {
+const findIntervals = (cents = 100) => {
     let total = [];
     let obj = Object.entries(intervalLookup);
     let win = [null,null,1300]; 
     for (let [key,value] of obj) {
         let t = Object.entries(value);
         for (let [k,v] of t) {
-            let diff = Math.abs(v-c);
+            let diff = Math.abs(v-cents);
             if (diff < Math.abs(win[2])) {
                 win[0] = key;
                 win[1] = k;
-                win[2] = (c-v).toFixed(2);
+                win[2] = (cents-v).toFixed(2);
                 Math.abs(win[2]) < 70? total.unshift(`${win[2]}\&cent from ${win[0]} ${win[1]} (${v.toFixed(2)}\&cent)<br>`) : null;
             }
         }
     }
-    return total;
+    return total.slice(0,3);
 }
 
 /**
@@ -1055,12 +1088,12 @@ const midpoint = (arr1,arr2) => {
 function SetInformation(name,set) {
     let info = D.setTracker[`${set}`];
     let setRep = new MySet(Object.keys(allNodes).length,...info);
-    let subRef = new MySet(Object.values(allNodes).filter(x => x.state >= 1).length,...info);
+    // let subRef = new MySet(Object.values(allNodes).filter(x => x.state >= 1).length,...info);
     // console.table(subRef.exportable())
     D.setTracker[`${name}`] = {
         'Normal Order': new DataEntry('Normal Order',`: [${setRep.normal_order()}]`,'Normal Order is the tightest rotation of the numerical ordered PCs.'), //
         'Prime Form': new DataEntry('Prime Form',`: (${setRep.prime_form()})`,"Prime Form is the leftwise 'tightest packing' between the Normal Form or its inversion. The result is then transposed to 0."),
-        'Interval Class Vector': new DataEntry('Prime Form',`: <${setRep.interval_class_vector()}>`,'The interval-class vector is the sum of interval content for a set.'),
+        'Interval Class Vector': new DataEntry('Prime Form',`: <${setRep.interval_class_vector()}>`,'The interval-class vector is the total interval content for a set. It can be used to determine the number of invariant tones under a given transpositional index.'),
         'Index Vector': new DataEntry('Index Vector',`: <${setRep.index_vector()}>`,'The index vector shows invariant tones under a given inversional index.'),
         // 'Maximally Even': new DataEntry('Maximally Even',`: ${set == 'superset'? setRep.exportable()['Maximally Even'] : subRef.exportable()['Maximally Even']}`),//Something's weird in the second part
         }
@@ -1105,7 +1138,8 @@ function DrawingManager (parent = 'drawing') {
     this.setTracker = {
         'superset': [],
         'subset': [],
-        'interval': 1
+        'interval': 1,
+        'tempered-int': 2,
     }
     this.paritalClear = () => {
         this.setTracker['superset'] = [];
@@ -1176,31 +1210,30 @@ function DrawingManager (parent = 'drawing') {
             let y = this.center[1] + 200 * Math.sin(angle);
             vertices.push([x, y]);
         }
-        //Get set representations of both sets and their symmetry.
-        let supers = new MySet(numPoints/2,...this.setTracker['superset']).symmetry();
-        let subs = new MySet(numPoints/2,...this.setTracker['subset']).symmetry();
+        //Get set representations of both sets and their symmetry. Stored in object to facilitate looping.
+        let obj = {
+            'supers': new MySet(numPoints/2,...this.setTracker['superset']).symmetry(),
+            'subs': new MySet(numPoints/2,...this.setTracker['subset']).symmetry(),
+        }
         //Points from symmetry x2, to align with double mod points.
-        supers.forEach(line => {
-            let s = this.draw.line();
-            s.addClass('superSymmetryLine');
-            let modified = line.map(x => x*2);
-            s.plot(...vertices[modified[0]],...vertices[modified[1]]);
-            s['node']['data-tooltip'] = `Superset symmetrical about the ${line[0]}-${line[1]} axis.`;
-        })
-        subs.forEach(line => {
-            let s = this.draw.line();
-            s.addClass('subSymmetryLine');
-            let modified = line.map(x => x*2);
-            s.plot(...vertices[modified[0]],...vertices[modified[1]]);
-            s['node']['data-tooltip'] = `Subset symmetrical about the ${line[0]}-${line[1]} axis.`;
-        })
+        for (let [key,value] of Object.entries(obj)){
+            value.forEach(line => {
+                let s = this.draw.line();
+                s.addClass(key == 'supers'? 'superSymmetryLine' : 'subSymmetryLine');
+                let modified = line.map(x => x*2);
+                s.plot(...vertices[modified[0]],...vertices[modified[1]]);
+                s['node']['data-tooltip'] = `${key == 'supers'? 'Superset' : 'Subset'} symmetrical about the ${line[0]}-${line[1]} axis.`;
+            })
+        }
     }
     /**
      * A method to show the number of cET between selected nodes.
      */
     this.showCents = (state = 0) => {
         let arrRep = Object.values(allNodes);
-        let centStep = 1200/arrRep.length;//Check this math.
+        let three60 = Math.log2(this.setTracker['tempered-int'])*1200;//Size of full rotation.
+        let centStep = three60/arrRep.length;//Size of adjacent elements
+        console.log(centStep);
         let par = document.querySelector('#cents');
         let selection = null;
         switch (state) {
@@ -1231,9 +1264,12 @@ function DrawingManager (parent = 'drawing') {
         });
         let pairs = {};
         for (let a = 0; a < selection.length; a++) {
+            /**
+             * Element 0 has special case to fix negative distance and show full modulus upon unison element 0.
+             */
             if (a == 0) {
                 pairs[`${arrRep[selection[selection.length-1]].name}-${arrRep[selection[a]].name}`] = {
-                    'cents': (((arrRep[selection[a]].name)-arrRep[selection[selection.length-1]].name)*centStep+1200).toFixed(2),
+                    'cents': ((arrRep[selection[a]].name)-arrRep[selection[selection.length-1]].name*centStep+three60).toFixed(2),
                     'coords': midpoint(arrRep[selection[a]].coordinates,arrRep[selection[selection.length-1]].coordinates)
                 }
             }
@@ -1344,9 +1380,30 @@ function DrawingManager (parent = 'drawing') {
             sup.setAttribute('id',`superInfo`);
             sub.setAttribute('id','subInfo');
             for (let a = 0; a < BIG.length; a++) {
+                let col1 = document.createElement('div');
+                col1.classList.add('col');
+                let col2 = document.createElement('div');
+                col2.classList.add('col');
+                let disp = document.createElement('h4');
+                disp.classList.add('frozen');
+                if (a == 0) {
+                    disp.textContent = `Superset:`;
+                    sup.append(col1);
+                    col1.id = 'SupCol1';
+                    sup.append(col2);
+                    col2.id = 'SupCol2';
+                }
+                else {
+                    disp.textContent = 'Subset:'
+                    sub.append(col1);
+                    col1.id = 'SubCol1';
+                    sub.append(col2);
+                    col2.id = 'SubCol2';
+                }
+                // col1.append(disp);
                 BIG[a].forEach(item => { //Loop over each subComponent
                     let t = document.createElement('div');
-                    t.classList.add('highlight');
+                    t.classList.add('row'); //previously highlight...
                     t.id = `${a == 0? 'super' : 'sub'}${item[0].match(/[A-Z]+/g).join('')}`;
                     /**
                     * Special case for IV and ICV
@@ -1356,9 +1413,10 @@ function DrawingManager (parent = 'drawing') {
                         cont.classList.add('row')//Something new;
                         let temp = item[1]['info'].match(/[0-9]+/ig);
                         let term = document.createElement('p');
+                        term.classList.add('frozen');
                         term['data-tooltip'] = `${item[1]['definition']}`;
-                        term.innerHTML = `${item[0]} :`;
-                        cont.append(term);
+                        term.innerHTML = `${item[0]}:`;
+                        col1.append(term);
                         for (let i = 0; i < temp.length+2; i++) {
                             let mini = document.createElement('p');
                             if (i == 0) {
@@ -1373,20 +1431,27 @@ function DrawingManager (parent = 'drawing') {
                                 /**
                                  * Differentiate tooltip depending on if ICV or IV
                                  */
-                                mini['data-tooltip'] = item[0] == 'Interval Class Vector'? `Invariant tones under T${i}/${Object.keys(allNodes).length-(i)}` : `Invariant tones under I${i-1}`;
+                                mini['data-tooltip'] = item[0] == 'Interval Class Vector'? `Invariant tones under T<sub>${i}/${Object.keys(allNodes).length-(i)}</sub>` : `Invariant tones under T<sub>${i-1}</sub>I`;
                             }
                             cont.append(mini);
                         }
-                        t.append(cont);
+                        col2.append(cont);
                     }
                     /**
                      * Any other type of information
                      */
                     else {
-                        t.innerHTML = `${item[0]} ${item[1]['info']}`;
-                        t['data-tooltip'] = `${item[1]['definition']}`;//How does this work??
+                        let box = document.createElement('p');
+                        box.classList.add('frozen');
+                        box.innerHTML = `${item[0]}:`;
+                        let dis = document.createElement('p');
+                        dis.classList.add('highlight');
+                        dis.innerHTML = `${item[1]['info'].slice(1)}`;
+                        box['data-tooltip'] = `${item[1]['definition']}`;
+                        dis['data-tooltip'] = `${item[1]['definition']}`;
+                        col1.append(box);
+                        col2.append(dis);
                     }
-                    a == 0? sup.appendChild(t) : sub.appendChild(t);
                 })
             }
             context.appendChild(sup);
@@ -1492,17 +1557,27 @@ function DrawingManager (parent = 'drawing') {
             tr.addClass('transform');
             let selCoords = [];
             Object.values(allNodes).forEach(point => {
-                selection.indexOf(point.number) !== -1? selCoords.push(point.coordinates) : null;
-                // console.log(point.coordinates);
+                point.borderChange = false;//Change by default.
+                if (selection.indexOf(point.number) !== -1) {
+                    selCoords.push(point.coordinates);
+                    point.borderChange = true;//Consider adding additional classes
+                    point.self['node'].classList.add('bord');
+                }
+                else {
+                    point.borderChange = false;
+                    point.self['node'].classList.remove('bord');
+                }
+                console.log(`LINE 1570 --- ${point.self['node'].classList}`);
             })
             tr.plot(selCoords);
             tr['node'].id = `${transform}`;
-            tr['node']['data-tooltip'] = `[${setRep.normal_order()}] under ${transform} = [${selection}]`;
+            tr['node']['data-tooltip'] = `[${setRep.normal_order()}] under ${transform[0]}<sub>${transform[1]}</sub> = [${selection}]`;
             this.transforms[transform] = tr;
         }
         else {
             console.error(`{${selection}} is not contained within the prevailing superset!`);
         }
+        // this.updateNodeStates();//TODO...
     }
     /**
      * Removes elements of the specified type from the display. Updates information also.
@@ -1625,11 +1700,12 @@ function DrawingManager (parent = 'drawing') {
             else {
                 value.self['node'].classList.contains('small')? value.self['node'].classList.remove('small') : null;
             }
+            value.self['node'].classList.remove('bord');//TODO
         }
         this.displayUpdate();
         this.miniPolygons();
+        this.showCents(parseInt(document.querySelector('#cents')['data-state']));//This placement fixes the old issue.
         this.symmetry();//So far so good here
-        this.showCents(parseInt(document.querySelector('#cents')['data-state']));
         populateDrops();
     }
     /**
@@ -1666,7 +1742,7 @@ function DrawingManager (parent = 'drawing') {
         })
     }
     /**
-     * One Event listener for the entire drawing. Maybe strange, but it prevents the need for adding and destroying listeners!
+     * Primary Event Listener for the entire drawing. Maybe strange, but it prevents the need for re-adding and destroying listeners!
      */
     this.parentNode.addEventListener('mousedown',(event) => {
         /**
@@ -1739,6 +1815,7 @@ function MyNode (parent = D,textLabel,xPosition,yPosition) {
     this.state = 0;
     this.self = parent.draw.group();
     this.name = textLabel;
+    this.borderChange = false;
     this.clockwisePosition = null;
     /**
      * PC number
@@ -1876,6 +1953,11 @@ const populateDrops = () => {
                 if (elem.value && elem.value !== 'NONE') {
                     D.transforms = {};
                     D.transformation(elem.value);
+                }
+                else {
+                    document.querySelectorAll('.bord').forEach(item => {
+                        item.classList.remove('bord');
+                    })
                 }
             })
         }

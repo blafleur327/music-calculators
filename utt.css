@@ -10,6 +10,14 @@ g:hover > text {
     font-weight: bolder;
 }
 
+g:hover > circle {
+    r: 22;
+}
+
+.transform {
+    font-style:italic;
+}
+
 #upper {
     display:flex;
     flex-direction:row;

@@ -245,9 +245,10 @@ function Cycle (start,...utts) {
  * Create a Uniform Triadic Transformation or UTT object.
  * @param {string} parody +/-
  * @param {int} majorInt 
- * @param {int} minorInt 
+ * @param {int} minorInt
+ * @param {string} tooltip to display upon hover
  */
-function UTT (parody,majorInt,minorInt) {
+function UTT (parody,majorInt,minorInt,tooltip) {
     this.quality = parody;
     this.majorInt = findOPCI(majorInt);
     this.minorInt = findOPCI(minorInt);
@@ -267,6 +268,7 @@ function UTT (parody,majorInt,minorInt) {
      * Perform this transformation on an input triad.
      * @param {any} triad 
      */
+    this.tooltip = tooltip;
     this.execute = (triad) => {
         let temp = triad;
         if (typeof triad == 'object') {
@@ -306,12 +308,12 @@ function UTT (parody,majorInt,minorInt) {
  * An object containing a variety of the standard Neo Riemannian Transformations already instances of UTT object.
  */
 const NRTs = {
-    L: new UTT('-',4,8),
-    R: new UTT('-',9,3),
-    P: new UTT('-',0,0),
-    N: new UTT('-',5,7),
-    H: new UTT('-',8,4),
-    S: new UTT('-',1,11)
+    L: new UTT('-',4,8,'Leittonwechsel or Leading-Tone.'),
+    R: new UTT('-',9,3,'Relative.'),
+    P: new UTT('-',0,0,'Parallel.'),
+    N: new UTT('-',5,7,'Nebenverwandt or Neighbor-Related'),
+    H: new UTT('-',8,4,'Hexatonic Pole'),
+    S: new UTT('-',1,11,'Slide')
 }
 
 /**
@@ -401,12 +403,17 @@ function Drawing (parent) {
         for (let a = 0; a < points.length; a++) {
             let b = new MyNode(this,T.result[a],...points[a]);//Add data-tooltip?
             let disp = T.utts[a%T.utts.length];
+            let ref = null;
             for ([key,value] of Object.entries(NRTs)) {
                 if (disp == value.stringFormat) {
                     disp = `${key}`;
+                    ref = value;
                 }
             }
-            this.draw.text(disp).center(...offPoints[(a*2)+1]);
+            let x = this.draw.text(disp);
+            x.addClass('transform');
+            x.center(...offPoints[(a*2)+1]);//Add tooltip?
+            // x['node'].childNodes[0]['data-tooltip'] = ref.tooltip;
             let spelled = PC.toPC(PC.buildTriad(T.result[a]));//
             (/[+]/g).test(b.info)? b.self.addClass('major') : b.self.addClass('minor');
             STORE.sumNotes.push(...spelled);
@@ -431,14 +438,16 @@ const mouseTracking = () => {
         tt.style.left = `${position[0]+10}px`;
         tt.style.top = `${position[1]+10}px`;
         if (element.target.parentNode.tagName !== 'g' && element.target.tagName == `tspan`) {    //Catch text
-            // console.log(element.target.parentNode.parentNode.tagName);
+            console.log('Trigger Condition 1.');
             message = element.target.parentNode.parentNode['data-tooltip'];
         }
         else if (element.target.parentNode.tagName == 'g') {   
+            console.log('Trigger Condition 2.');
             // console.log(element.target.parentNode.tagName); 
             message = element.target.parentNode['data-tooltip'];
         }
         else {
+            console.log('Trigger Condition 3.');
             // console.log(element.target.tagName);
             message = element.target['data-tooltip'];
         }

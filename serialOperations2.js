@@ -55,16 +55,29 @@ const Combinatorics = {
     picker: function (array, bin) {
         return array.filter((item, index) => bin[index] === '1');
     },
-
     /**
      * Returns all subsets of a given cardinality.
-     * @param {array} superset 
+     * @param {array} array 
      * @param {int} cardinality 
      * @returns Array
      */
-    subsets: function (superset,cardinality) {
-        let first = this.binary_representation(superset.length,cardinality);
-        return first.map(z => this.picker(superset,z));
+    subsets: function (array,cardinality = undefined) {
+        let result = [];
+        for (let a = 0; a < (1 << array.length); a++) {
+            let sub = [];
+            for (let b = 0; b < array.length; b++) {
+                if (a & (1 << b)) {
+                    sub.push(array[b]);
+                }
+            }
+            if (cardinality == undefined) {
+                result.push(sub);
+            }
+            else if (sub.length == cardinality) {
+                result.push(sub);
+            }
+        }
+        return result;
     }
 }
 /**
@@ -1335,7 +1348,7 @@ const special = () => {
     let validForms = currentData['matrix'].flat().filter(x => typeof x == 'string' && x !== ' ');
     let res = {};
     validForms.forEach(form => {
-        // console.log(`${form} => <${Serialism.singleRowForm(currentData['Series'],form,currentData['Universe'])}>`);
+        console.log(`${form} => <${Serialism.singleRowForm(currentData['Series'],form,currentData['Universe'])}>`);
         res[form] = Serialism.singleRowForm(currentData['Series'],form,currentData['Universe']);
     })
     return res;
@@ -1368,6 +1381,9 @@ function myMatrix () {
         currentData['selected'] = [];
         this.updateMatrix();
     }
+    this.counts = {
+        'Search Finds': 0,
+    }
     /**
      * Creates a matrix from the currentData object.
      */
@@ -1377,7 +1393,6 @@ function myMatrix () {
         document.getElementById('lower').innerHTML = '';
         let results = {
             'Combinatoriality': Serialism.combinatoriality(currentData['Series'],currentData['Universe']),//Keys ['RI3']
-            //Combinatoriality returns a slash string for P/RP combinatoriality...Fix this.
             'Derivation': Serialism.derivation(currentData['Series'],currentData['Universe']),//This might need to change to currentData['Series'].length
             'AllInterval': Serialism.allInterval(currentData['Series'],currentData['Universe'])
         }
@@ -1613,34 +1628,44 @@ function myMatrix () {
             elem.classList.contains('phantom')? elem.classList.remove('phantom') : null;
         })
         Object.keys(this.dictionaryForm).forEach(form => {
-            // console.log(`Row Form: ${form}`);
+            console.log(`LINE 1629: Row Form: ${form}`);
             let individual = this.rowFormAsCells(form);//Now a 2D array
             individual.forEach(cell => {
                 let pcs = [...cell.map(x => parseInt(x.textContent))];
                 if (primeForms == false) {
                     let fs = ArrayMethods.adjacentIndices(pcs,search);//Returns slicing indices.
+                    console.log(`[${search}] in ${form}? ${fs.length > 0}...${fs.length} times`);
+                    this.counts['Search Finds']+=(fs.length);
                     /**
                     * Searching for more than one element
                     */
                     if (search.length > 0) {
-                        if (search.length > 1) {
-                            let showPhantom = true;
+                        if (search.length >= 1) {
+                            /**
+                             * Use this to turn on phantom.
+                             */
+                            let showPhantom = false;
                             fs.forEach(pair => {
-                                for (let a = pair[0]; a <= pair[1]; a++) {//Take slices and add find
-                                    cell[a].classList.add('find');
+                                /**
+                                 * Search for multiple elements
+                                 */
+                                if (pair.length > 1) {
+                                    for (let a = pair[0]; a <= pair[1]; a++) {//Take slices and add find
+                                        cell[a].classList.add('find');
+                                    }
+                                    let oppo = cell.filter(x => x.classList.contains('find') == false);
+                                    oppo.forEach(el => {
+                                        showPhantom? el.classList.add('phantom') : null;
+                                    })
                                 }
-                                let oppo = cell.filter(x => x.classList.contains('find') == false);
-                                oppo.forEach(el => {
-                                    showPhantom? el.classList.add('phantom') : null;
-                                })
+                                /**
+                                 * Single Element clause
+                                 */
+                                else {
+                                    cell[pair].classList.add('find');
+                                }
                             })
-                        }
-                        /**
-                        * Searching for one element
-                        */
-                        else {
-                            cell[fs[0]].classList.add('find');
-                        }   
+                        } 
                     }
                 }
                 /**
@@ -1726,9 +1751,23 @@ const randomRow = (universe = currentData['Universe']? currentData['Universe'] :
     let uni = Array(universe).fill(0).map((a,b) => b+a);
     currentData['Series'] = shuffle(uni);
     currentData['Universe'] = universe;
+    currentData['Search'] = [];
+    currentData['selected'] = [];
+    currentData['partition'] = null;
     K = new myMatrix();
     K.createMatrix();
     buildKey();
+}
+
+/**
+ * Clears the currentData Object.
+ */
+const clearCurrentData = () => {
+    currentData['Series'] = [];
+    currentData['Search'] = [];
+    currentData['Universe'] = null;
+    currentData['selected'] = [];
+    currentData['partition'] = null;
 }
 
 /**
