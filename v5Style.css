@@ -154,12 +154,12 @@ polygon:hover {
 }
 
 .small > circle {
-    r: 7;
+    r: 6;
 }
 
 .small > text {
     visibility:hidden;
-    transform-origin:initial;
+    transform-origin:center;
 }
 
 .small:hover > text {
