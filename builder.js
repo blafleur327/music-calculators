@@ -1704,9 +1704,9 @@ function DrawingManager (parent = 'drawing') {
         }
         this.displayUpdate();
         this.miniPolygons();
+        populateDrops();
         this.showCents(parseInt(document.querySelector('#cents')['data-state']));//This placement fixes the old issue.
         this.symmetry();//So far so good here
-        populateDrops();
     }
     /**
      * Changes visibility of note names.
