@@ -1,4 +1,111 @@
 /**
+ * Builds a custrom dropdown menu. Be sure to include CSS.
+ * @param {string} parent id of parent element
+ * @param {string} name Dropdown name to be displayed
+ * @param {function} method functon to call upon selection
+ * @param {...any} args arguments for callback function
+ */
+function MyDropdown(parent,name,method) {
+    this.parent = parent;
+    this.name = name;
+    this.options = {};
+    this.value = null;
+    this.entangled = [];
+    // this.arguments = [...args];
+    /**
+     * Adds option to the dropdown menu. Options are stored in this.options object.
+     * @param {string} text 
+     * @param {any} value 
+     * @param {string} tooltip 
+     */
+    this.addOption = (text,value,tooltip) => {
+        this.options[`${text}`] = {
+            'value': value,
+            'tooltip':tooltip,
+            'selected': false,
+            'self': null
+        };
+    }
+    /**
+     * Clears the dropdown element and removes options.
+     */
+    this.removeOptions = () => {
+        this.options = {};
+        this.value = null;
+        this.construct();
+    }
+    /**
+     * Deselects options, does not remove options from dropdown.
+     */
+    this.deselect = () => {
+        this.value = null;
+        Object.entries(this.options).forEach(([key,value]) => {
+            if (value.self.classList.contains('ddownSelect')) {
+                value.self.classList.remove('ddownSelect');
+                value.selected = false;
+            }
+        })
+    }
+    /**
+     * Builds the dropdown menu based on the current options.
+     * @param {...Object} twins Instance(s) of MyDropdown to entangle.
+     */
+    this.construct = (...twins) => {
+        this.entangled = twins;
+        let par = document.querySelector(`#${this.parent}`);
+        par.classList.add('parent');
+        if (document.querySelector(`#${this.name}`)) {
+            document.querySelector(`#${this.name}`).remove();
+        }
+        let pad = document.createElement('div');
+        pad.id = `${this.name}`;
+        pad.classList.add('primary');
+        pad.innerHTML = `${name}`;
+        let drawer = document.createElement('div');
+        drawer.classList.add('stor');
+        let decon = Object.entries(this.options);
+        if (decon.length !== 0) {
+            for (let [key,value] of decon) {
+                let single = document.createElement('div');
+                single.classList.add('myOption');
+                single.innerHTML = key;
+                // single.setAttribute('data-tooltip',value.tooltip);
+                single['data-tooltip'] = value.tooltip;
+                drawer.appendChild(single);
+                value.self = single;
+            }
+            drawer.addEventListener('mousedown',(event) => {
+                /**
+                 * Deselect previously selected option
+                 */
+                let find = event.target.closest('.myOption');   
+                this.deselect();  
+                let sel = this.options[find.innerHTML];
+                /**
+                 * If entangled elements exist, set their value to the newly selected value.
+                 */
+                if (this.entangled.length > 0) {
+                    this.entangled.forEach(twin => {
+                        twin.deselect();
+                        twin.value = sel.value;
+                    })
+                }
+                sel.selected = true;
+                this.value = sel.value;
+                sel.self.classList.add('ddownSelect');
+                method? method(this.value) : null;
+            })
+            pad.appendChild(drawer);
+            par.appendChild(pad);
+            console.log(`Dropdown ${this.name} constructed!`);
+        }
+        else {
+            console.warn('No options!');
+        }
+    }
+}
+
+/**
  * Class filled with methods for combinatorics calculation.
  */
 const Combinatorics = {

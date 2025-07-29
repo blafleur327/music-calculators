@@ -268,7 +268,7 @@ function UTT (parody,majorInt,minorInt,tooltip) {
      * Perform this transformation on an input triad.
      * @param {any} triad 
      */
-    this.tooltip = tooltip;
+    this.tooltip = tooltip? tooltip : this.stringFormat;
     this.execute = (triad) => {
         let temp = triad;
         if (typeof triad == 'object') {
@@ -413,7 +413,8 @@ function Drawing (parent) {
             let x = this.draw.text(disp);
             x.addClass('transform');
             x.center(...offPoints[(a*2)+1]);//Add tooltip?
-            // x['node'].childNodes[0]['data-tooltip'] = ref.tooltip;
+            // console.log(ref.tooltip);
+            // x['node']['data-tooltip'] = ref.tooltip;
             let spelled = PC.toPC(PC.buildTriad(T.result[a]));//
             (/[+]/g).test(b.info)? b.self.addClass('major') : b.self.addClass('minor');
             STORE.sumNotes.push(...spelled);
@@ -439,11 +440,11 @@ const mouseTracking = () => {
         tt.style.top = `${position[1]+10}px`;
         if (element.target.parentNode.tagName !== 'g' && element.target.tagName == `tspan`) {    //Catch text
             console.log('Trigger Condition 1.');
-            message = element.target.parentNode.parentNode['data-tooltip'];
+            message = element.target.parentNode.closest('.MyNode')['data-tooltip'];
+            // console.log(element.target.closest('.transform')['data-tooltip']);
         }
         else if (element.target.parentNode.tagName == 'g') {   
             console.log('Trigger Condition 2.');
-            // console.log(element.target.parentNode.tagName); 
             message = element.target.parentNode['data-tooltip'];
         }
         else {
@@ -591,3 +592,5 @@ document.addEventListener('DOMContentLoaded',() => {
 })
 
 // N,L = <-,5,8>
+
+//TODO REMOVE TOOLTIPS

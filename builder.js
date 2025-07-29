@@ -1,4 +1,17 @@
 /**
+ * Determines if the input values are coprime with one another.
+ * @param  {...any} nums 
+ * @returns Boolean
+ */
+const coprime = (...nums) => {
+    let res = [];
+    nums.forEach(elem => {
+        res.push(...factors(elem).slice(1));
+    })
+    return res.length == Array.from(new Set(res)).length;
+}
+
+/**
  * Series of methods useful for manipulating and dealing with arrays.
  */
 const ArrayMethods = {
@@ -188,6 +201,20 @@ allContained: function (superset,query) {
     symmetrical_removal: function (array1,array2) {
         let start = ArrayMethods.unique_subarray(array1,undefined,undefined,true);
         return ArrayMethods.indexer(array2,start);
+    },
+    /**
+     * Returns coinciding elements of the input array.
+     * @param  {...array} arrays
+     */
+    union: function (...arrays) {
+        let comp = [...arrays].flat().sort((a,b) => a-b);
+        let uns = Array.from(new Set(comp));
+        let res = [];
+        uns.forEach(entry => {
+            let temp = ArrayMethods.array_find(comp,entry).length;
+            temp == arrays.length? res.push(entry) : null;
+        })
+        return res;
     }
 }
 
@@ -355,12 +382,13 @@ function MySet(modulus,...elements) {
             'modulus': modulus,
             'index': index
         })
-        let valid = factors(modulus).indexOf(index) == -1;
+        let valid = coprime(index,modulus);
         if (valid) {
             return array.map(x => this.modulo(x*index,modulus));
         }
         else {
             console.error(`${index} is not a valid value of n! Values of n must be coprime to ${modulus}.`);
+            return false;
         }
     }
     /**
@@ -486,16 +514,38 @@ function MySet(modulus,...elements) {
         return vector;
     }
     /**
-     * Returns all transpositions and inversions of a given set as an object literal.
+     * Returns what I refer to as the m-vector of a set. This vector shows the number of invariant tones under a given multiplication operand.
+     * @param {array} array 
+     * @param {int} mod
+     * @returns Object 
+     */
+    this.m_vector = (array = this.set,mod = this.universe) => {
+        let atM = {};
+        for (let a = 0; a < mod; a++) {
+            let temp = array.map(x => this.modulo(x*a,mod))
+            atM[`M${a}`] = {
+                'Cardinality': Array.from(new Set(temp)).length,
+                'Invariant Tones': ArrayMethods.union(temp,array).length,
+                'Result': Array.from(new Set(temp))
+            };
+        }
+        return atM;        
+    }
+    /**
+     * Returns all transpositions and inversions and optionally the M operation of a given set as an object literal.
      * @param {array} array 
      * @param {int} modulus 
+     * @param {boolean} eliminateDuplicates 
+     * @param {boolean} includeMOperand
      * @returns Set Class
      */
-    this.set_class = (array = this.set,modulus = this.universe,eliminateDuplicates = false) => {
+    this.set_class = (array = this.set,modulus = this.universe,eliminateDuplicates = false,includeMOperand = false) => {
         let result = {};
         for (let a = 0; a < modulus; a++) {
             result['T'+a] = this.normal_order(array.map(x => this.modulo(x+a,modulus)),modulus);
             result['I'+a] = this.normal_order(array.map(y => this.modulo(a-y,modulus)),modulus);
+            let attempt = a > 0? this.multiply(array,modulus,a) : null;
+            attempt? result['M'+a] = this.normal_order(attempt,modulus) : null;
         }
         if (eliminateDuplicates == true) {
             result = ArrayMethods.unique_subarray(result);
@@ -946,7 +996,7 @@ const intervalLookup = {
         'Harmonic m7': Math.log2(7/4)*1200,
     },
     /**
-     * Incomplete 31-EDO list!
+     * Incomplete 31-EDO
      */
     '31-EDO': {
         'Lesser Diesis': 1200/31,
@@ -999,7 +1049,7 @@ const intervalLookup = {
     },
     'Quarter-Comma Meantone': {
         'P5': Math.log2((3/2)/((81/80)**(1/4)))*1200,//
-        'Wolf 5th': null,//
+        'Wolf 5th': null,//Not quite able to calculate
     }
 }
 
@@ -1010,7 +1060,7 @@ const intervalLookup = {
 const findIntervals = (cents = 100) => {
     let total = [];
     let obj = Object.entries(intervalLookup);
-    let win = [null,null,1300]; 
+    let win = [null,null,1300]; //0 = Tuning System, 1 = Interval, 2 = Difference in cents.
     for (let [key,value] of obj) {
         let t = Object.entries(value);
         for (let [k,v] of t) {
@@ -1024,6 +1074,126 @@ const findIntervals = (cents = 100) => {
         }
     }
     return total.slice(0,3);
+}
+
+/**
+ * Builds a custrom dropdown menu. Be sure to include CSS.
+ * @param {string} parent id of parent element
+ * @param {string} name Dropdown name to be displayed
+ * @param {function} method functon to call upon selection
+ * @param {...any} args arguments for callback function
+ */
+function MyDropdown(parent,name,method) {
+    this.parent = parent;
+    this.name = name;
+    this.options = {};
+    this.value = null;
+    this.entangled = [];
+    // this.arguments = [...args];
+    /**
+     * Adds option to the dropdown menu. Options are stored in this.options object.
+     * @param {string} text 
+     * @param {any} value 
+     * @param {string} tooltip 
+     */
+    this.addOption = (text,value,tooltip) => {
+        this.options[`${text}`] = {
+            'value': value,
+            'tooltip':tooltip,
+            'selected': false,
+            'self': null
+        };
+    }
+    /**
+     * Clears the dropdown element and removes options.
+     */
+    this.removeOptions = () => {
+        this.options = {};
+        this.value = null;
+        this.construct();
+    }
+    /**
+     * Deselects options, does not remove options from dropdown.
+     */
+    this.deselect = () => {
+        this.value = null;
+        Object.entries(this.options).forEach(([key,value]) => {
+            if (value.self.classList.contains('ddownSelect')) {
+                value.self.classList.remove('ddownSelect');
+                value.selected = false;
+            }
+        })
+    }
+    /**
+     * Builds the dropdown menu based on the current options.
+     * @param {...Object} twins Instance(s) of MyDropdown to entangle.
+     */
+    this.construct = (...twins) => {
+        this.entangled = twins;
+        let par = document.querySelector(`#${this.parent}`);
+        par.classList.add('parent');
+        if (document.querySelector(`#${this.name}`)) {
+            document.querySelector(`#${this.name}`).remove();
+        }
+        let pad = document.createElement('div');
+        pad.id = `${this.name}`;
+        pad.classList.add('primary');
+        pad.innerHTML = `${name}`;
+        let drawer = document.createElement('div');
+        drawer.classList.add('stor');
+        let decon = Object.entries(this.options);
+        if (decon.length !== 0) {
+            for (let [key,value] of decon) {
+                let single = document.createElement('div');
+                single.classList.add('myOption');
+                single.innerHTML = key;
+                // single.setAttribute('data-tooltip',value.tooltip);
+                single['data-tooltip'] = value.tooltip;
+                drawer.appendChild(single);
+                value.self = single;
+            }
+            let disp = null;
+            if (name == 'TRANSPOSITION') {
+                disp = document.querySelector('#tContain');
+            }
+            else if (name == 'INVERSION') {
+                disp = document.querySelector('#iContain');
+            }
+            else if (name == 'MULTIPLICATION') {
+                disp = document.querySelector('#mContain');
+            }
+            console.log(disp);
+            // disp.innerHTML = `${decon.length}`; Works but is slow. 
+            // disp.style.visibility = 'visible';
+            drawer.addEventListener('mousedown',(event) => {
+                /**
+                 * Deselect previously selected option
+                 */
+                let find = event.target.closest('.myOption');   
+                this.deselect();  
+                let sel = this.options[find.innerHTML];
+                /**
+                 * If entangled elements exist, set their value to the newly selected value.
+                 */
+                if (this.entangled.length > 0) {
+                    this.entangled.forEach(twin => {
+                        twin.deselect();
+                        twin.value = sel.value;
+                    })
+                }
+                sel.selected = true;
+                this.value = sel.value;
+                sel.self.classList.add('ddownSelect');
+                method? method(this.value) : null;
+            })
+            pad.appendChild(drawer);
+            par.appendChild(pad);
+            console.log(`Dropdown ${this.name} constructed!`);
+        }
+        else {
+            console.warn('No options!');
+        }
+    }
 }
 
 /**
@@ -1086,18 +1256,16 @@ const midpoint = (arr1,arr2) => {
  * @returns Object
  */
 function SetInformation(name,set) {
-    let info = D.setTracker[`${set}`];
+    let info = D.drawingData[`${set}`];
     let setRep = new MySet(Object.keys(allNodes).length,...info);
-    // let subRef = new MySet(Object.values(allNodes).filter(x => x.state >= 1).length,...info);
-    // console.table(subRef.exportable())
-    D.setTracker[`${name}`] = {
+    D.drawingData[`${name}`] = {
         'Normal Order': new DataEntry('Normal Order',`: [${setRep.normal_order()}]`,'Normal Order is the tightest rotation of the numerical ordered PCs.'), //
         'Prime Form': new DataEntry('Prime Form',`: (${setRep.prime_form()})`,"Prime Form is the leftwise 'tightest packing' between the Normal Form or its inversion. The result is then transposed to 0."),
         'Interval Class Vector': new DataEntry('Prime Form',`: <${setRep.interval_class_vector()}>`,'The interval-class vector is the total interval content for a set. It can be used to determine the number of invariant tones under a given transpositional index.'),
         'Index Vector': new DataEntry('Index Vector',`: <${setRep.index_vector()}>`,'The index vector shows invariant tones under a given inversional index.'),
         // 'Maximally Even': new DataEntry('Maximally Even',`: ${set == 'superset'? setRep.exportable()['Maximally Even'] : subRef.exportable()['Maximally Even']}`),//Something's weird in the second part
         }
-        return D.setTracker[`${name}`];
+        return D.drawingData[`${name}`];
     }
 
 /**
@@ -1132,19 +1300,16 @@ function DrawingManager (parent = 'drawing') {
     this.polygonB.center(this.center);
     this.polygonB.stroke({width: '1px',color: 'black'}).fill('none');
     this.polygonB.addClass('subsetPolygon');
+    this.tDrop = null;
+    this.iDrop = null;
     /**
-     * Contains the selected elements in both super and subsets.
+     * Contains various attributes of the current drawing/set information.
      */
-    this.setTracker = {
+    this.drawingData = {
         'superset': [],
         'subset': [],
         'interval': 1,
         'tempered-int': 2,
-    }
-    this.paritalClear = () => {
-        this.setTracker['superset'] = [];
-        this.setTracker['subset'] = [];
-        this.updateNodeStates();
     }
     /**
      * Monitors the hovering of the cursor. Updates tooltip box.
@@ -1164,6 +1329,10 @@ function DrawingManager (parent = 'drawing') {
             else if (element.target.parentNode.tagName == 'g') {    
                 message = element.target.parentNode['data-tooltip'];
                 console.log('Trigger Option 2');
+            }
+            else if (element.target.tagName == 'select') {//Will need to change this.
+                console.log('Trigger Option 3');
+                console.log(element.target.options[element.target.selectedIndex]);
             }
             else {
                 message = element.target['data-tooltip'];
@@ -1212,8 +1381,8 @@ function DrawingManager (parent = 'drawing') {
         }
         //Get set representations of both sets and their symmetry. Stored in object to facilitate looping.
         let obj = {
-            'supers': new MySet(numPoints/2,...this.setTracker['superset']).symmetry(),
-            'subs': new MySet(numPoints/2,...this.setTracker['subset']).symmetry(),
+            'supers': new MySet(numPoints/2,...this.drawingData['superset']).symmetry(),
+            'subs': new MySet(numPoints/2,...this.drawingData['subset']).symmetry(),
         }
         //Points from symmetry x2, to align with double mod points.
         for (let [key,value] of Object.entries(obj)){
@@ -1222,6 +1391,7 @@ function DrawingManager (parent = 'drawing') {
                 s.addClass(key == 'supers'? 'superSymmetryLine' : 'subSymmetryLine');
                 let modified = line.map(x => x*2);
                 s.plot(...vertices[modified[0]],...vertices[modified[1]]);
+                console.log(`${line[0]}-${line[1]} plotted!`);
                 s['node']['data-tooltip'] = `${key == 'supers'? 'Superset' : 'Subset'} symmetrical about the ${line[0]}-${line[1]} axis.`;
             })
         }
@@ -1229,11 +1399,12 @@ function DrawingManager (parent = 'drawing') {
     /**
      * A method to show the number of cET between selected nodes.
      */
-    this.showCents = (state = 0) => {
+    this.showCents = (state = this.drawingData['cent-state']) => {
         let arrRep = Object.values(allNodes);
-        let three60 = Math.log2(this.setTracker['tempered-int'])*1200;//Size of full rotation.
+        let three60 = Math.log2(this.drawingData['tempered-int'])*1200;//Size of full rotation.
         let centStep = three60/arrRep.length;//Size of adjacent elements
-        console.log(centStep);
+        // console.log(centStep);
+        let htmls = ['<li>','</li>'];
         let par = document.querySelector('#cents');
         let selection = null;
         switch (state) {
@@ -1242,14 +1413,14 @@ function DrawingManager (parent = 'drawing') {
              */
             case 0:
                 par.innerHTML = 'Superset';
-                selection = this.setTracker['superset'];
+                selection = this.drawingData['superset'];
                 break;
             /**
              * Show Superset
              */
             case 1:
                 par.innerHTML = 'Subset';
-                selection = this.setTracker['subset'];
+                selection = this.drawingData['subset'];
                 break;
             /**
              * Show Subset
@@ -1284,7 +1455,7 @@ function DrawingManager (parent = 'drawing') {
             let t = this.draw.circle(7);
             t.addClass('centDis');
             t.center(...value['coords']);
-            t['node']['data-tooltip'] = `Distance between ${key} = ${value['cents']}cET<br>${findIntervals(value['cents'])}`;
+            t['node']['data-tooltip'] = `Distance between ${key} = ${value['cents']}cET<br>${htmls[0]}${findIntervals(value['cents']).join(`${htmls[0]}`)}${htmls[1]}`;
         }
     }
     /**
@@ -1309,7 +1480,7 @@ function DrawingManager (parent = 'drawing') {
      * Manages the visibility of symmetry lines.
      * @param {int} state % 4
      */
-    this.symmetryVisibility = (state = 0) => {
+    this.symmetryVisibility = (state = this.drawingData['symmetry-state']) => {
         switch (state) {
             /**
              * Hide all symmetry lines.
@@ -1464,19 +1635,19 @@ function DrawingManager (parent = 'drawing') {
     this.miniPolygons = () => {
         let superCoords = [];
         let subCoords = [];
-        this.setTracker['superset'].forEach(element => {
+        this.drawingData['superset'].forEach(element => {
             let cPos = allNodes[`n${element}`].clockwisePosition;
             superCoords.push(allNodes[`n${element}`].coordinates);
             // console.log(`EL: ${element} POS: ${cPos}`);
         })
-        this.setTracker['subset'].forEach(element => {
+        this.drawingData['subset'].forEach(element => {
             let cPos = allNodes[`n${element}`].clockwisePosition;
             subCoords.push(allNodes[`n${element}`].coordinates);
         })
         this.polygonA.plot(superCoords);
-        this.polygonA['node']['data-tooltip'] = `Superset: [${new MySet(Object.keys(allNodes).length,...this.setTracker['superset']).normal_order()}]`;
+        this.polygonA['node']['data-tooltip'] = `Superset: [${new MySet(Object.keys(allNodes).length,...this.drawingData['superset']).normal_order()}]`;
         this.polygonB.plot(subCoords);
-        this.polygonB['node']['data-tooltip'] = `Subset: [${new MySet(Object.keys(allNodes).length,...this.setTracker['subset']).normal_order()}]`;
+        this.polygonB['node']['data-tooltip'] = `Subset: [${new MySet(Object.keys(allNodes).length,...this.drawingData['subset']).normal_order()}]`;
     } 
     /**
      * Clear the parent's drawing element, leaves SVGElement in tact.
@@ -1498,7 +1669,7 @@ function DrawingManager (parent = 'drawing') {
      * @param {string} setType 
      */
     this.complement = (setType = 'superset') => {
-        console.log(`Complement ${setType} triggered!`)
+        console.log(`Complement ${setType} triggered!`);
         let asArray = Object.values(allNodes);
         if (setType == 'superset') {
             asArray.forEach(item => {
@@ -1509,7 +1680,6 @@ function DrawingManager (parent = 'drawing') {
                     item.state = 0;
                 }
             })
-
         }
         else if (setType == 'subset') {
             asArray.forEach(item => {
@@ -1524,7 +1694,7 @@ function DrawingManager (parent = 'drawing') {
         else {
             console.error(`'${setType}' is not a valid argument!`);
         }
-        this.updateNodeStates();//Does this update allNodes?
+        this.updateNodeStates();
     }
     /**
      * Restructures the order of nodes via the input interval. Can be used to illustrate well-formedness.
@@ -1532,7 +1702,7 @@ function DrawingManager (parent = 'drawing') {
      */
     this.restructure = (interval = 7) => {
         let coords = Object.values(allNodes).map(x => x.coordinates);
-        this.setTracker['interval'] = interval;
+        this.drawingData['interval'] = interval;
         let wf = ScaleTheory.generate(0,interval,coords.length,coords.length);
         for (let a = 0; a < coords.length; a++) {
             allNodes[`n${wf[a]}`].move(...coords[a]);
@@ -1547,11 +1717,12 @@ function DrawingManager (parent = 'drawing') {
      * @param {string} transform T/I(n)
      */
     this.transformation = (transform) => {
-        console.log(D.setTracker);
-        let setRep = new MySet(Object.keys(allNodes).length,...this.setTracker['subset']);
+        console.log(D.drawingData);
+        this.removeTransformation();
+        let setRep = new MySet(Object.keys(allNodes).length,...this.drawingData['subset']);
         let selection = setRep.set_class()[transform];
-        let test = ArrayMethods.allContained(this.setTracker['superset'],selection);
-        console.log(`[${this.setTracker['superset']}] contains [${selection}]?? : ${test}`);
+        let test = ArrayMethods.allContained(this.drawingData['superset'],selection);
+        console.log(`[${this.drawingData['superset']}] contains [${selection}]?? : ${test}`);
         if (test) {
             let tr = this.draw.polygon();
             tr.addClass('transform');
@@ -1571,7 +1742,7 @@ function DrawingManager (parent = 'drawing') {
             })
             tr.plot(selCoords);
             tr['node'].id = `${transform}`;
-            tr['node']['data-tooltip'] = `[${setRep.normal_order()}] under ${transform[0]}<sub>${transform[1]}</sub> = [${selection}]`;
+            tr['node']['data-tooltip'] = `[${setRep.normal_order()}] under ${transform[0]}<sub>${transform.slice(1)}</sub> = [${selection}]`;
             this.transforms[transform] = tr;
         }
         else {
@@ -1644,8 +1815,8 @@ function DrawingManager (parent = 'drawing') {
             this.clearDrawing();
             this.mainPolygon(this.center,modulus,160);
         }
-        this.setTracker['superset'] = superset;
-        this.setTracker['subset'] = subset;
+        this.drawingData['superset'] = superset;
+        this.drawingData['subset'] = subset;
         let combin = [...superset,...subset];
         combin.forEach(item => {
             let filt = combin.filter(x => x == item);
@@ -1658,9 +1829,12 @@ function DrawingManager (parent = 'drawing') {
      * Checks the state of each node in allNodes object and updates their visual accordingly.
      */
     this.updateNodeStates = () => {
-        this.setTracker['superset'] = [];
-        this.setTracker['subset'] = [];
+        this.drawingData['superset'] = [];
+        this.drawingData['subset'] = [];
         this.removeTransformation();
+        document.querySelectorAll('.centDis, .subSymmetryLine, .superSymmetryLine').forEach(elem => {
+            elem.remove();
+        });
         const Notes = PitchSystems[Object.keys(allNodes).length];
         for (let [key,value] of Object.entries(allNodes)) {
             if (Notes !== undefined) {
@@ -1679,12 +1853,12 @@ function DrawingManager (parent = 'drawing') {
                     break;
                 case 1: value.self['node'].classList.add('inSuper');
                         value.self['node'].classList.contains('inSub')? value.self['node'].classList.remove('inSub') : null;
-                        this.setTracker['superset'].push(value.name);
+                        this.drawingData['superset'].push(value.name);
                     break;
                 case 2: value.self['node'].classList.add('inSub');
                         value.self['node'].classList.contains('inSuper')? null : value.self['node'].classList.add('inSuper');//Special case for autoSelection 
-                        this.setTracker['subset'].push(value.name);
-                        this.setTracker['superset'].push(value.name);
+                        this.drawingData['subset'].push(value.name);
+                        this.drawingData['superset'].push(value.name);
                     break;
             }
             /**
@@ -1705,8 +1879,8 @@ function DrawingManager (parent = 'drawing') {
         this.displayUpdate();
         this.miniPolygons();
         populateDrops();
-        this.showCents(parseInt(document.querySelector('#cents')['data-state']));//This placement fixes the old issue.
         this.symmetry();//So far so good here
+        this.showCents(this.drawingData['cent-state']);//Issues with method calls...Timing, elements not clearing etc.
     }
     /**
      * Changes visibility of note names.
@@ -1765,8 +1939,8 @@ function DrawingManager (parent = 'drawing') {
             index = currNode.childNodes[1].textContent;
             inst = allNodes[`n${index}`];
             // console.log(`Condition 1 Triggered //Line 1105`);
-            this.setTracker['subset'] = [];
-            this.setTracker['superset'] = [];
+            this.drawingData['subset'] = [];
+            this.drawingData['superset'] = [];
             console.log(`Clicked Node: ${index}!`);
         }
         else if (event.target.parentNode.parentNode.tagName == 'g') {//Gets TSpan
@@ -1774,8 +1948,8 @@ function DrawingManager (parent = 'drawing') {
             index = currNode.childNodes[1].textContent  //Only works for number node names
             inst = allNodes[`n${index}`];
             // console.log(`Condition 2 Triggered //Line 1111`);
-            this.setTracker['subset'] = [];
-            this.setTracker['superset'] = [];
+            this.drawingData['subset'] = [];
+            this.drawingData['superset'] = [];
             console.log(`Clicked Node: ${index}!`);
         }
         else {
@@ -1890,6 +2064,9 @@ const getLabelClass = () => {
             case 'Show Cents':
                 message = `Show cents (cET) between select nodes.`;
                 break;
+            case 'M-Operation':
+                message = `Multiply elements of the set by an index coprime to the universe cardinality if the result is contained within the prevailing superset.`
+                break;
         }
         elem['data-tooltip'] = message; //Currently adds to the container. Add to all children?
         elem.childNodes.forEach(item => {
@@ -1900,83 +2077,49 @@ const getLabelClass = () => {
 
 let D;
 
+let A;
+let B;
+let C;
+
 /**
  * Populates the two drop down menus on the input.
  */
 const populateDrops = () => {
+    A = new MyDropdown('ts','TRANSPOSITION',D.transformation);
+    B = new MyDropdown('is','INVERSION',D.transformation);
+    C = new MyDropdown('moperation','MULTIPLICATION',D.transformation);
+    A.removeOptions();
+    B.removeOptions();
+    C.removeOptions();
     console.log('Populate Drops Triggered!');
-    let big = D.setTracker['superset'];
-    let setClass = new MySet(Object.keys(allNodes).length,...D.setTracker['subset']).set_class();
-    console.log(D.setTracker);
-    let contained = {
-        'T': [],
-        'I': []
-    };
-    let cont = 0;
-    if (setClass['T0'] == undefined) {
-        clearDrops();
-        document.querySelector(`tContain`).innerHTML = 0;
-        document.querySelector('iContain').innerHTML = 0;
-    }
-    else {
-        for (let [key, value] of Object.entries(setClass)) {
-            if (ArrayMethods.allContained(big,value)) {
-                key[0] == 'T'? contained['T'].push(key) : contained['I'].push(key);
+    let big = D.drawingData['superset'];
+    let setRep = new MySet(Object.keys(allNodes).length,...D.drawingData['subset'],) 
+    let setClass = setRep.set_class(undefined,undefined,undefined,true);
+    console.table(setClass);
+    // console.log(setClass);
+    let ti = [0,0,0];
+    Object.entries(setClass).forEach(([key,value]) => {
+        if (ArrayMethods.allContained(big,value) == true) {
+            let current = null;
+            if (key[0] == 'T') {
+                current = A;
+                ti[0]++;
             }
+            else if (key[0] == 'I') {
+                current = B;
+                ti[1]++;
+            }
+            else {
+                current = C;
+                ti[2]++;
+            }
+            current.addOption(key,key,`[${setClass['T0']}] under ${key} => [${value}] ${key[0] == 'M'? `SC: (${new MySet(Object.keys(allNodes).length,...value).prime_form()})` : ''}`);
         }
-        clearDrops();
-        for (let [key,value] of Object.entries(contained)) {
-            cont++;
-            let elem = null;
-            document.querySelector(`#tContain`).style.visibility = 'visible';
-            document.querySelector(`#iContain`).style.visibility = 'visible';
-            if (key == 'T') {
-                elem = document.querySelector('#ts');
-            }
-            else if (key == 'I') {
-                elem = document.querySelector('#is');
-            }
-            /**
-             * Add null case
-             */
-            for (let a = 0; a < value.length+1; a++) {
-                let opt = document.createElement('option');
-                a == 0? opt.innerHTML = 'NONE' : opt.innerHTML = `${value[a-1]}`;
-                elem.appendChild(opt);
-                opt.classList.add('trans');
-            }
-            document.querySelector(`#tContain`).innerHTML = `${document.querySelector('#ts').length-1}`;
-            document.querySelector(`#iContain`).innerHTML = `${document.querySelector('#is').length-1}`;
-            elem.addEventListener('change',() => {
-                console.log(`Selected: ${elem.value}`);
-                D.removeTransformation();
-                if (elem.value && elem.value !== 'NONE') {
-                    D.transforms = {};
-                    D.transformation(elem.value);
-                }
-                else {
-                    document.querySelectorAll('.bord').forEach(item => {
-                        item.classList.remove('bord');
-                    })
-                }
-            })
-        }
-    }
-    return cont;//Total number of elements contained.
+    });
+    A.construct(B,C);
+    B.construct(A,C);
+    C.construct(A,B); 
 } 
-
-/**
- * Clears each dropdown element.
- */
-const clearDrops = () => {
-    let ds = document.querySelectorAll('.drop');
-    ds.forEach(sel => {
-        for (let a = sel.options.length-1; a >= 0; a--) {
-            sel.remove(a);
-        }
-        console.log(`Cleared ${sel.id}: ${sel.childNodes.length == 0}`);
-    })
-}
 
 /**
  * Adds pertinent event listeners.
@@ -2011,34 +2154,34 @@ const attachListeners = () => {
                     D.noteNames();
                     break;
                 case 'symm':
-                    let symmState = null;
+                    D.drawingData['symmetry-state'];
                     if (item.innerHTML == 'NONE') {
-                        symmState = 1;
+                        D.drawingData['symmetry-state'] = 1;
                     }
                     else if (item.innerHTML == 'Superset') {
-                        symmState = 2;
+                        D.drawingData['symmetry-state'] = 2;
                     }
                     else if (item.innerHTML == 'Subset') {
-                        symmState = 3;
+                        D.drawingData['symmetry-state'] = 3;
                     }
                     else {
-                        symmState = 0;
+                        D.drawingData['symmetry-state'] = 0;
                     }
-                    D.symmetryVisibility(symmState);
+                    D.symmetryVisibility(D.drawingData['symmetry-state']);
                     break;
                 case 'cents':
-                    let state = null;
+                    D.drawingData['cent-state'] = 0;
                     if (item.innerHTML == 'NONE') {
-                        state = 0;
+                        D.drawingData['cent-state'] = 0;
                     }
                     else if (item.innerHTML == 'Superset') {
-                        state = 1;
+                        D.drawingData['cent-state'] = 1;
                     }
                     else if (item.innerHTML == 'Subset') {
-                        state = 2;
+                        D.drawingData['cent-state'] = 2;
                     }
-                    item['data-state'] = state;
-                    D.showCents(state);
+                    // item['data-state'] = state;
+                    D.showCents(D.drawingData['cent-state']);
                     break;
                 }
             })
@@ -2110,7 +2253,8 @@ const Carrillo = {
 const Library = {
     'DiatonicTriad': new Preset(12,[0,2,4,5,7,9,11],[0,4,7]),
     'Carrillo96': new Preset(96,combine(),[32,64]),
-    'Carrillo48': new Preset(48,combine().map(x => x/2),[32,64].map(x => x/2))
+    'Carrillo48': new Preset(48,combine().map(x => x/2),[32,64].map(x => x/2)),
+    'OctatonicPR': new Preset(12,[0,1,3,4,6,7,9,10],[0,4,7])
 }
 
 //To page 4....2nd of score

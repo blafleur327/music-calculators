@@ -553,7 +553,7 @@ document.addEventListener('DOMContentLoaded',() => {
     //     }
     // })
     let st = document.getElementsByTagName('strong')[0]
-    st['data-tooltip'] = 'This process requires at least O(2^n) to generate the possible combinations, these are then all put into prime form, then filtered for uniqueness. These numbers get extremely big very quickly. ie 2^12 = 4096,...2^20 = 1,048,576. These do not represent the total calculations, but rather the total combinations to be placed into prime form, then filtered. For reference the list for 12 can be generated in under .2s, 20 takes about one minute, the process scales exponentionally, not linearly!';
+    st['data-tooltip'] = 'This process requires at least O(2<sup><em>n</em></sup>) to generate the possible combinations, these are then all put into prime form, then filtered for uniqueness. These numbers get extremely big very quickly. ie 2<sup><em>12</em></sup> = 4096,...2<sup><em>20</em></sup> = 1,048,576. These do not represent the total calculations, but rather the total combinations to be placed into prime form, then filtered. For reference the list for 12 can be generated in under .2s, 20 takes about one minute, the process scales exponentionally, not linearly!';
     mouseTracking();
 })
 
