@@ -220,8 +220,8 @@ polygon:hover {
 
 .small > text {
     visibility:hidden;
-    transform-origin:center; /*Previously initial*/
-    -webkit-transform-origin: center;
+    transform-origin:center center; /*Previously initial*/
+    -webkit-transform-origin: center center;
 }
 
 .small:hover > text {
@@ -232,8 +232,8 @@ polygon:hover {
 
 .noteName {
     /* visibility: hidden; */
-    transform-origin:initial;
-    -webkit-transform-origin:initial;
+    transform-origin:initial initial;
+    -webkit-transform-origin:initial initial;
 }
 
 #tContain, #iContain, #mContain {
@@ -315,4 +315,5 @@ polygon:hover {
 
 #SupCol1, #SubCol1 {
     min-width:fit-content;
+
 }
