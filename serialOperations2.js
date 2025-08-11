@@ -1730,7 +1730,7 @@ function RowLibraryItem (name,modulus,row,search,primeForm = false) {
             elem.remove();
         })
         currentData['Universe'] = modulus;
-        currentData['Series'] = row; 
+        currentData['Series'] = this.row; 
         currentData['search'] = search;
         currentData['pfSrch'] = pf;
         currentData['selected'] = [];
@@ -1741,6 +1741,16 @@ function RowLibraryItem (name,modulus,row,search,primeForm = false) {
         K.findAdjacent(search,pf);
     }
     RowLibrary[this.name] = this;
+    /**
+     * Multiplies the row by a given index.
+     * @param {int} index 
+     */
+    this.multiply = (index = 7) => {
+        let og = this.row;
+        this.row = row.map(x => Serialism.modulo(x*index,modulus));
+        this.render();
+        return `<${og}> = M${index} => <${this.row}>`;
+    }
 }
 
 /**
@@ -1797,6 +1807,9 @@ new RowLibraryItem('Anomaly1',12,[5, 3, 0, 1, 11, 4, 9, 6, 2, 7, 8, 10],[5,3,0,1
 new RowLibraryItem('Anomaly2',12,[4, 10, 0, 1, 5, 7, 8, 9, 2, 6, 11, 3],[4, 10, 0, 1, 5, 7],false);
 new RowLibraryItem('WT',12,[0,2,4,6,8,10,11,9,7,5,3,1],[],false);
 new RowLibraryItem('BabbittPedagogy',12,[0,4,5,2,7,9,3,1,8,11,10,6],[],false);//h1 = voice...h2 = bells
+new RowLibraryItem('WebernConcertoOp24',12,[11,10,2,3,7,6,8,4,5,0,1,9],[],false);
+new RowLibraryItem('BerioNones',12,[11,2,10,7,4,3,8,1,0,9,6,2,5],[0,1,4],true);//13 tone row, still derived at the trichord (ish)
+
 
 /**
  * Corresponds to the violin part mm 3-5. Line spacing too!

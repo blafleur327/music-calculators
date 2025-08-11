@@ -377,11 +377,11 @@ function MySet(modulus,...elements) {
      * @returns this.set -> * index
      */
     this.multiply = function (array = this.set,modulus = this.universe,index = 5) {
-        console.table({
-            'set': `{${array}}`,
-            'modulus': modulus,
-            'index': index
-        })
+        // console.table({
+        //     'set': `{${array}}`,
+        //     'modulus': modulus,
+        //     'index': index
+        // })
         let valid = coprime(index,modulus);
         if (valid) {
             return array.map(x => this.modulo(x*index,modulus));
@@ -579,7 +579,7 @@ function MySet(modulus,...elements) {
                     res = 'No Relationship.';
                 }
             }
-            return res;
+            return res =='M1' || res == `M${modulus-1}`? 'SAME SET' : res;
         }
         else {      //Not same cardinality. Maybe Move this up?
             let sizes = [no1,no2].sort((a,b) => a.length - b.length); //sizes[0] = short sizes[1] = long;
@@ -1808,7 +1808,8 @@ function DrawingManager (parent = 'drawing') {
      * Manually generate a diagram from arguments.
      * @param {int} modulus
      * @param {array} superset 
-     * @param {array} subset 
+     * @param {array} subset
+     * @param {bool} clear
      */
     this.manualSelection = (modulus = 12,superset,subset,clear = true) => {
         if (clear == true) {
@@ -1819,9 +1820,8 @@ function DrawingManager (parent = 'drawing') {
         this.drawingData['subset'] = subset;
         let combin = [...superset,...subset];
         combin.forEach(item => {
-            let filt = combin.filter(x => x == item);
-            allNodes[`n${item}`].state = filt.length;//Check the length of instances, will be state
-            console.log(`Element ${item} status? ${allNodes[`n${item}`].state}`);
+            // let filt = combin.filter(x => x == item);
+            allNodes[`n${item}`]['state']++;//Check the length of instances, will be state CONFUSING
         })
         this.updateNodeStates();
     }
@@ -2217,7 +2217,7 @@ function Preset(modulus,superset,subset) {
      * Renders the preset selection.
      */
     this.render = () => {
-        D.manualSelection(this.universe,this.superset,this.subset);
+        D.manualSelection(this.universe,this.superset,this.subset,true);
     }
 }
 
@@ -2254,8 +2254,114 @@ const Library = {
     'DiatonicTriad': new Preset(12,[0,2,4,5,7,9,11],[0,4,7]),
     'Carrillo96': new Preset(96,combine(),[32,64]),
     'Carrillo48': new Preset(48,combine().map(x => x/2),[32,64].map(x => x/2)),
-    'OctatonicPR': new Preset(12,[0,1,3,4,6,7,9,10],[0,4,7])
+    'OctatonicPR': new Preset(12,[0,1,3,4,6,7,9,10],[0,4,7]),
+    // 'PareidoliaA': new Preset(31,[0, 5, 6, 10, 14, 18, 22, 23, 27],[0, 5, 18, 23]),
 }
 
 //To page 4....2nd of score
 
+
+/**
+ * Define a chord group. Useful for analysis.
+ * @param {int} modulus 
+ * @param  {...Array} chords 
+ */
+function ChordGroup (modulus = 12,...chords) {
+    this.modulus = modulus;
+    this.chords = [...chords];
+    this.full_data = {};
+    for (let a = 0; a < this.chords.length; a++) {
+        let z = new MySet(this.modulus,...this.chords[a]);
+        let t = z.normal_order();
+        this.full_data[a] = {
+            'Set Rep': z,
+            'Normal Form': t,
+            'Prime Form': z.prime_form(),
+            'Interval Class Vector': z.interval_class_vector(),
+            'Index Vector': z.index_vector(),
+            'Note Names': null,
+            'Transforms': [],
+        }
+        let curr = this.full_data[a];
+        if (`${this.modulus}` in PitchSystems) {
+            let sys = PitchSystems[`${this.modulus}`];
+            curr['Note Names'] = t.map(x => sys[x]);
+        }
+        else {
+            curr['Note Names'] = 'UNAVAILABLE';
+        }
+    }
+    /**
+     * Determines if there is a relationship between two chords.
+     * @param {int} chord1 
+     * @param {int} chord2 
+     * @returns 
+     */
+    this.relationship = (chord1,chord2) => {
+        if (this.chords[chord1] && this.chords[chord2]) {
+            let s1 = new MySet(this.modulus,...this.chords[chord1]).compare_set(this.chords[chord2]);
+            return s1;
+        }
+        else {
+            console.error(`Valid indices include 0-${this.chords.length}!`);
+        }
+    }
+    /**
+     * Returns a specific request from the organized property.
+     * @param {...string} keys {Normal Form, Prime Form, Interval Class Vector, Index Vector}
+     * @returns 
+     */
+    this.query = (...keys) => {
+        let result = {};
+        let disp = {};
+        let arr = Object.entries(this.full_data);
+        for (let a = 0; a < arr.length; a++) {
+            let temp = {};
+            let conc = {};
+            if (keys.length > 1) {
+                keys.forEach(k => {
+                temp[k] = arr[a][1][k];
+                conc[k] = `[${arr[a][1][k]}]`;
+                })
+                result[a] = temp;
+                disp[a] = conc;
+            }
+            else {
+                result[a] = arr[a][1][keys];
+                disp[a] = `[${arr[a][1][keys]}]`;
+            }
+        }
+        console.table(disp);
+        return result;
+    }
+    /**
+     * The complete pitch content from the input chords.
+     */
+    this.superset = Array.from(new Set(Object.values(this.query('Normal Form')).flat()));
+    /**
+     * Draws a given chord within the parent Superset.
+     * @param {int} chord 
+     */
+    this.specialRender = (chord = 0) => {
+        let wow;
+        if (chord >= 0 && chord < this.chords.length) {
+            wow = new Preset(this.modulus,this.superset,this.chords[chord]);
+            console.log(wow)
+            wow.render();
+        }
+        else {
+            return `ERROR: ${this.chords.length} Chords in group, index ${chord} is out of bounds!`;
+        }
+    }
+}
+
+/**
+ * Mm 1-12
+ */
+const PareidoliaA = new ChordGroup(31,[0,5,18,23],[10,14,22,27],[0,5,14,18],[18,22,0,6],[10,18,22,0],[22,27,5,10],[6,10,18,22],[5,10,18,23],[18,22,27,6]);
+/**
+ * Mm 21-
+ */
+const PareidoliaB = new ChordGroup(31,[22,27,4,9],[14,18,27,0],[4,9,18,22],[10,14,22,26]);
+
+//A - B superset is related by T27

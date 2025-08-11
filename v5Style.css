@@ -76,12 +76,12 @@
 
 .MyNode:hover > circle {
     stroke-width: 2px;
-    r: 24;
+    r: 1.4em;
 }
 
 .small.MyNode:hover > circle {
     stroke-width: 2px;
-    r:14;
+    r:0.5em;
 }
 
 .MyNode:hover > text {
@@ -90,6 +90,7 @@
 
 .MyNode:hover > .noteNames {
     transform:scale(1.2);
+    -webkit-transform:scale(1.2);
 }
 
 .inSub > circle {
@@ -103,6 +104,7 @@
 .inSub.small > text {
     visibility:visible;
     transform:scale(1.2);
+    -webkit-transform:scale(1.2);
     fill:black !important;
 }
 
@@ -113,6 +115,7 @@
 .inSuper.small > text {
     visibility:visible;
     transform:scale(1.2);
+    -webkit-transform:scale(1.2);
 }
 
 #tooltips {
@@ -199,6 +202,7 @@ polygon:hover {
 .but:hover {
     cursor:pointer;
     transform:scale(1.1);
+    -webkit-transform:scale(1.1);
 }
 
 .drop {
@@ -206,26 +210,30 @@ polygon:hover {
 }
 
 .drop:hover {
-    transform:scale(1.1);
+    transform:scale(1.2);
+    -webkit-transform:scale(1.2);
 }
 
 .small > circle {
-    r: 6;
+    r: .32em;
 }
 
 .small > text {
     visibility:hidden;
     transform-origin:center; /*Previously initial*/
+    -webkit-transform-origin: center;
 }
 
 .small:hover > text {
     visibility:visible;
     transform:scale(1.2);
+    -webkit-transform:scale(1.2);
 }
 
 .noteName {
     /* visibility: hidden; */
     transform-origin:initial;
+    -webkit-transform-origin:initial;
 }
 
 #tContain, #iContain, #mContain {
@@ -267,6 +275,7 @@ polygon:hover {
 
 .wow:hover {
     transform:scale(1.1);
+    -webkit-transform:scale(1.1);
     font-weight:bolder;
     cursor:pointer;
 }
@@ -279,7 +288,8 @@ polygon:hover {
 
 .centDis:hover {
     cursor:pointer;
-    r: 10;
+    /* r: 10; */
+    r:3.2em;
     fill:rgb(1, 0, 83);
     stroke:darkgrey;
 }
