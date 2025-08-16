@@ -4,11 +4,12 @@
 }
 
 .label {
-    font-size:14px;
+    /* font-size:14px; */
+    font-size:1em;
     background-color:lightgrey;
     transform-origin:center;
     border-color:white;
-    border-width:1px;
+    border-width:0.08em;
     border-style:inset;
     min-width:2.2em;
     min-height:2.2em;
@@ -23,7 +24,8 @@
 }
 
 .void {
-    font-size:14px;
+    /* font-size:14px; */
+    font-size:1.2em;
     visibility:hidden;
     min-width:2.2em;
     min-height:2.2em;
@@ -47,7 +49,7 @@
 }
 
 .single {
-    border-width:1px;
+    border-width:0.08em;
     border-color:grey;
     border-style:solid;
     text-align:center;
@@ -63,7 +65,7 @@
     padding:1%;
     border-color:grey;
     border-style:solid;
-    border-width:1px;
+    border-width:0.08em;
 }
 
 #lower {
@@ -72,7 +74,7 @@
 }
 
 #lower > * {
-    border-radius:1px;
+    border-radius:0.1em;
     border-style:inset;
     border-color:grey;
     padding:1%;
@@ -111,7 +113,7 @@
     position:absolute;
     visibility:hidden;
     background-color:rgb(201, 201, 201);
-    border-radius:1px;
+    border-radius:0.1em;
     border-color:grey;
     border-style:solid;
     /* Max width...Overflow? */
@@ -125,17 +127,19 @@ button:hover {
 
 #key {
     display:flex;
-    flex-direction:column;;
+    flex-direction:column;
     align-self:center;
     padding-left:5%;
 }
 
 .keyElement {
-    width: 30px;
-    height: 30px;
+    /* width: 30px;
+    height: 30px; */
+    width:2em;
+    height:2em;
     border-color:grey;
     border-style:inset;
-    border-width:1px;
+    border-width: 0.08em;
     /* padding: 2px; */
 }
 
@@ -155,10 +159,10 @@ button:hover {
     padding-right:2px;
 }
 
-.dropdown {
+/* .dropdown {      /*Does anything use this?
     min-height:fit-content;
     max-height:35px;
-}
+} */
 
 #middle {
     display:flex;
@@ -179,15 +183,20 @@ button:hover {
 }
 
 .cell {
-    font-size:14px;
+    font-size:1em;
     border-color:grey;
     border-style:inset;
-    border-width:1px;
+    border-width:0.08em;;
     text-align: center;
     min-width:2.2em;
     min-height:2.2em;
     aspect-ratio:1/1;
     align-content:space-evenly;
+}
+
+.cell:hover {
+    transform:scale(1.1);
+    cursor:crosshair;
 }
 
 .row {

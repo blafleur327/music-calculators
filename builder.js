@@ -639,7 +639,7 @@ function MySet(modulus,...elements) {
      * @param {int} modulus 
      * @returns Axes of Symmetry
      */
-    this.symmetry = (array = this.set,modulus = this.universe) => {
+    this.symmetryPoints = (array = this.set,modulus = this.universe) => {
         let res = [];
         let test = array.length > 0? array.sort((r,s) => r-s).reduce((f,k) => f+'|'+k) : null;
         for (let a = 0; a < modulus; a++) {
@@ -919,15 +919,7 @@ const Accidentals = {
  * Object that stores a variety of accidental settings.
  */
 const PitchSystems = {
-    7: [
-        `\uEF00`,
-        `\uEF01`,
-        `\uEF02`,
-        `\uEF03`,
-        `\uEF04`,
-        `\uEF05`,
-        `\uEF06`
-    ],
+    7: ['1','2','3','4','5','6','7'],
     12: [
         'C',`C${Accidentals.sharp}/D${Accidentals.flat}`,
         `D`,`D${Accidentals.sharp}/E${Accidentals.flat}`,
@@ -945,13 +937,13 @@ const PitchSystems = {
         `A${Accidentals.flat}`,`A${Accidentals.halfFlat}`,'A',`A${Accidentals.halfSharp}`,`A${Accidentals.sharp}`,
         `B${Accidentals.flat}`,`B${Accidentals.halfFlat}`,`B`,`C${Accidentals.flat}`,`C${Accidentals.halfFlat}`
     ]
-}
+} 
 
 /**
  * Stores cET of various intervals.
  * @type {Object.<string,number>}
  */
-const intervalLookup = {
+const IntervalLookup = {
     '12-tET': {
         'P1': 0,
         'm2': 100,
@@ -968,6 +960,7 @@ const intervalLookup = {
     },
     'Pythagorean (3-Limit JI)': {
         'Pythagorean Comma': Math.log2(((9/8)**6)/2)*1200,
+        'Pythagorean Limma': Math.log2(256/243)*1200,
         'm2': Math.log2(256/243)*1200,
         'm3': Math.log2(32/27)*1200,
         'M3': Math.log2(81/64)*1200,
@@ -977,54 +970,42 @@ const intervalLookup = {
     },
     '5-Limit JI': {
         'Syntonic Comma': Math.log2(81/80)*1200,
-        'd2': Math.log2(128/125)*1200,//Diesis
+        'Lesser Diesis': Math.log2(128/125)*1200,
         'minor semitone': Math.log2(25/24)*1200,
         'major semitone': Math.log2(16/15)*1200,
-        'M2': Math.log2(9/8)*1200,
+        'Acute m2': Math.log2(27/25)*1200,
+        'Greater M2': Math.log2(9/8)*1200,
+        'Lesser M2': Math.log2(10/9)*1200,
+        'A2': Math.log2(75/64)*1200,
         'm3': Math.log2(6/5)*1200,
         'M3': Math.log2(5/4)*1200,
         'P4': Math.log2(4/3)*1200,
+        'Acute 4th': Math.log2(27/20)*1200,
         'A4': Math.log2(45/32)*1200,
         'd5': Math.log2(64/45)*1200,
         'P5': Math.log2(3/2)*1200,
         'm6': Math.log2(8/5)*1200,
         'M6': Math.log2(5/3)*1200,
+        'A6': Math.log2(225/128)*1200,
+        'D7': Math.log2(128/75)*1200,
         'm7': Math.log2(9/5)*1200,
         'M7': Math.log2(15/8)*1200,
+        'D8': Math.log2(48/25)*1200,
+        'A7': Math.log2(125/64)*1200,
     },
     '7-Limit JI': {
+        'Diesis': Math.log2(49/48)*1200,
+        'Diatonic Semitone': Math.log2(15/14)*1200,
+        'Supermajor 3rd': Math.log2(9/7)*1200,
+        'Chromatic Semitone': Math.log2(21/20)*1200,
         'Harmonic m7': Math.log2(7/4)*1200,
-    },
-    /**
-     * Incomplete 31-EDO
-     */
-    '31-EDO': {
-        'Lesser Diesis': 1200/31,
-        'Chromatic Semitone': (1200/31)*2,
-        'm2': (1200/31)*3,
-        'Neutral 2nd': (1200/31)*4,
-        'M2': (1200/31)*5,
-        'Septimal Tone': (1200/31)*6,
-        'Septimal m3': (1200/31)*7,
-        'm3': (1200/31)*8,
-        'Neutral 3rd': (1200/31)*9,
-        'M3': (1200/31)*10,
-        'd4': (1200/31)*11,
-        'Half-diminished 4th': (1200/31)*12,
-        'P4': (1200/31)*13,
-        'A4': (1200/31)*15,
-        'P5': (1200/31)*18,
-        'A5': (1200/31)*20,
-        'm6': (1200/31)*21,
-        'Harmonic 7th': (1200/31)*25,
-        'm7':(1200/31)*26,
     },
     '24-tET': {
         '1/4th Tone': 50,
         'Neutral 2nd': 150,
-        'Septimal Tone': 250,
+        'Supermajor 2nd': 250,
         'Neutral 3rd': 350,
-        'Tridecimal M3': 450,
+        'Supermajor 3rd': 450,
         'Major 4th': 550,
         'Minor 5th': 650,
         'Subminor 6th': 750,
@@ -1036,16 +1017,8 @@ const intervalLookup = {
     /**
      * Incomplete...
      */
-    'Generic JI': {
-        'Lesser Diesis': Math.log2(128/125)*1200,
+    '11-Limit JI': {
         'Undecimal Diesis': Math.log2(45/44)*1200,
-        'Septimal Diesis': Math.log2(49/48)*1200,
-        'Chromatic Semitone': Math.log2(25/24)*1200,
-        'Septimal Chromatic Semitone': Math.log2(21/20)*1200,
-        'Diatonic Semitone': Math.log2(16/15)*1200,
-        'Greater M2': Math.log2(9/8)*1200,
-        'Lesser M2': Math.log2(10/9)*1200,
-        'Septimal Diatonic Semitone': Math.log2(15/14)*1200,
     },
     'Quarter-Comma Meantone': {
         'P5': Math.log2((3/2)/((81/80)**(1/4)))*1200,//
@@ -1054,12 +1027,12 @@ const intervalLookup = {
 }
 
 /**
- * Uses intervalLookup to find the nearest interval in cET.
+ * Uses IntervalLookup to find the nearest interval in cET.
  * @param {float} cents 
  */
 const findIntervals = (cents = 100) => {
     let total = [];
-    let obj = Object.entries(intervalLookup);
+    let obj = Object.entries(IntervalLookup);
     let win = [null,null,1300]; //0 = Tuning System, 1 = Interval, 2 = Difference in cents.
     for (let [key,value] of obj) {
         let t = Object.entries(value);
@@ -1362,35 +1335,33 @@ function DrawingManager (parent = 'drawing') {
         })
     }
     /**
+     * Modulus*2 points outer circle. Used for symmetry.
+     */
+    this.outerCircle = [];
+    /**
      * Manages lines of symmetry in the drawing.  
      */
     this.symmetry = () => {
+        console.log(`SYMMETRY CALLED!`)
         //Remove all previous lines of symmetry.
         document.querySelectorAll('.superSymmetryLine, .subSymmetryLine').forEach(item => {
             item.remove();
         })
-        //Place nodes at 2x modular universe positions.
-        numPoints = (Object.keys(allNodes).length)*2;
-        let allAngles = 360/numPoints; 
-        let vertices = [];
-        for (let a = 0; a < numPoints; a++) {
-            let angle = ((a*allAngles) -90) * Math.PI/180;  //-90 sets top element to 0;
-            let x = this.center[0] + 200 * Math.cos(angle);
-            let y = this.center[1] + 200 * Math.sin(angle);
-            vertices.push([x, y]);
-        }
         //Get set representations of both sets and their symmetry. Stored in object to facilitate looping.
         let obj = {
-            'supers': new MySet(numPoints/2,...this.drawingData['superset']).symmetry(),
-            'subs': new MySet(numPoints/2,...this.drawingData['subset']).symmetry(),
+            'supers': new MySet(this.drawingData['Universe'],...this.drawingData.superset).symmetryPoints(),
+            'subs': new MySet(this.drawingData['Universe'],...this.drawingData.subset).symmetryPoints(),
         }
         //Points from symmetry x2, to align with double mod points.
-        for (let [key,value] of Object.entries(obj)){
+        console.table(obj);
+        for (let [key,value] of Object.entries(obj)) {//Iterate over two obj items.
+            console.table(value);
             value.forEach(line => {
+                console.log(this.outerCircle);
                 let s = this.draw.line();
                 s.addClass(key == 'supers'? 'superSymmetryLine' : 'subSymmetryLine');
                 let modified = line.map(x => x*2);
-                s.plot(...vertices[modified[0]],...vertices[modified[1]]);
+                s.plot(...this.outerCircle[modified[0]],...this.outerCircle[modified[1]]);
                 console.log(`${line[0]}-${line[1]} plotted!`);
                 s['node']['data-tooltip'] = `${key == 'supers'? 'Superset' : 'Subset'} symmetrical about the ${line[0]}-${line[1]} axis.`;
             })
@@ -1459,21 +1430,31 @@ function DrawingManager (parent = 'drawing') {
         }
     }
     /**
-    * Computes positions of verticies for an equilateral shape with n points. 
+    * Computes positions of verticies for an equilateral shape with n points. New and Improved!
     * @param {array} center [x,y] 
     * @param {int} numPoints number of equidistant points
     * @param {float} length diameter length
     */
     this.mainPolygon = (center = this.center,numPoints = 12,length = 50) => {
-        let allAngles = 360/numPoints;      //(180*(numPoints-2))/numPoints is really interesting!
-        let vertices = [];
-        for (let a = 0; a < numPoints; a++) {
+        this.outerCircle = [];
+        let outerScale = 1.2;
+        let allAngles = 360/numPoints/2;      //(180*(numPoints-2))/numPoints is really interesting!
+        for (let a = 0; a < numPoints*2; a++) {
             let angle = ((a*allAngles) -90) * Math.PI/180;  //-90 sets top element to 0;
+            let wideX = center[0] + length * outerScale * Math.cos(angle);
             let x = center[0] + length * Math.cos(angle);
+            let wideY = center[1] + length * outerScale * Math.sin(angle);
             let y = center[1] + length * Math.sin(angle);
-            vertices.push([x,y]);
-            let temp = new MyNode(D,a,x,y);
-            temp.clockwisePosition = a;
+            let outCoord = [wideX,wideY];
+            /**
+             * If even, place node.
+             */
+            if (a%2 == 0) {
+                let temp = new MyNode(D,a/2,[x,y],outCoord,numPoints > 24);
+                temp.outerCoordinate = outCoord;
+                temp.clockwisePosition = a;
+            }
+            this.outerCircle.push(outCoord);
         }
     }
     /**
@@ -1636,12 +1617,10 @@ function DrawingManager (parent = 'drawing') {
         let superCoords = [];
         let subCoords = [];
         this.drawingData['superset'].forEach(element => {
-            let cPos = allNodes[`n${element}`].clockwisePosition;
             superCoords.push(allNodes[`n${element}`].coordinates);
             // console.log(`EL: ${element} POS: ${cPos}`);
         })
         this.drawingData['subset'].forEach(element => {
-            let cPos = allNodes[`n${element}`].clockwisePosition;
             subCoords.push(allNodes[`n${element}`].coordinates);
         })
         this.polygonA.plot(superCoords);
@@ -1841,7 +1820,7 @@ function DrawingManager (parent = 'drawing') {
                 document.querySelector(`#noteToggle`).classList.remove('void');
                 let k = this.draw.text(`${Notes[value.number]}`);
                 k.addClass('void');
-                k.center(...value.coordinates);
+                value.largeMod? k.center(...value.outerCoordinate) : k.center(...value.coordinates);
                 value.self.add(k);
             }
             else {
@@ -1865,7 +1844,6 @@ function DrawingManager (parent = 'drawing') {
              * If large modulus, add .small to all nodes.
              */
             if (Object.keys(allNodes).length > 24) {
-                console.log('BIG MOD');
                 value.self['node'].classList.add('small');
             }
             /**
@@ -1879,7 +1857,7 @@ function DrawingManager (parent = 'drawing') {
         this.displayUpdate();
         this.miniPolygons();
         populateDrops();
-        this.symmetry();//So far so good here
+        this.symmetry();//Is it an issue with timing? Move this line?
         this.showCents(this.drawingData['cent-state']);//Issues with method calls...Timing, elements not clearing etc.
     }
     /**
@@ -1978,15 +1956,18 @@ function DrawingManager (parent = 'drawing') {
  * Creates a functional Node within the parent element.
  * @param {string} parent Instance of DrawingManager
  * @param {any} textLabel Text visible in Node
- * @param {float} xPosition X coordinate
- * @param {float} yPosition Y coordinate
+ * @param {array} primary [X coordinate,Y coordinate] main node location
+ * @param {array} secondary [X coordinate, Y coordinate] outer location
+ * @param {bool} largeMod special case.
  */
-function MyNode (parent = D,textLabel,xPosition,yPosition) {
+function MyNode (parent = D,textLabel,primary,secondary,largeMod = false) {
+    console.log(`NODE ${textLabel} CREATED!`)
     parent instanceof DrawingManager? null : console.error('Parent of MyNode must be instance of DrawingManager!');
     /**
      * Keeps track of the number of clicks, determines selection status.
      */
     this.state = 0;
+    this.largeMod = largeMod;
     this.self = parent.draw.group();
     this.name = textLabel;
     this.borderChange = false;
@@ -1998,14 +1979,15 @@ function MyNode (parent = D,textLabel,xPosition,yPosition) {
     /**
      * Stored [x,y] coordinates for later use
      */
-    this.coordinates = [xPosition,yPosition];
+    this.coordinates = primary;
+    this.outerCoordinate = secondary;
     let text = parent.draw.text(`${textLabel}`);
     let circ = parent.draw.circle(40,40).fill('white').stroke({width: '1px', color: 'black'});
-    text.center(20,20);
+    this.largeMod? text.center(...this.outerCoordinate) : text.center(...this.coordinates);
     circ.addClass(`myCircle`);
+    circ.center(...this.coordinates);
     this.self.add(circ);
     this.self.add(text);
-    this.self.center(xPosition,yPosition);
     this.self.addClass('MyNode');
     this.self['node']['data-note'] = null;//Added by noteName() later
     /**
@@ -2021,7 +2003,7 @@ function MyNode (parent = D,textLabel,xPosition,yPosition) {
     this.move = (x,y) => {
         this.self.center(x,y);
         this.coordinates = [x,y];
-    }   
+    }
     /**
      * Store object reference in allNodes object.
      */
@@ -2132,9 +2114,9 @@ const attachListeners = () => {
     field.addEventListener('keydown',(event) => {
         if (event.key == 'Enter') {
             console.log('Enter was registered!');
-            // D.manualSelection(parseInt(field.value));
             D.clearDrawing();
-            D.mainPolygon(D.center,parseInt(field.value),160);
+            D.drawingData['Universe'] = parseInt(field.value);
+            D.mainPolygon(this.center,D.drawingData['Universe'],160);   //MAYBE?
             D.updateNodeStates();
         }
     })
@@ -2195,6 +2177,7 @@ document.addEventListener('DOMContentLoaded',() => {
      * Default drawing.
      */
     D.mainPolygon(undefined,undefined,160);
+    D.drawingData['Universe'] = 12;
     getLabelClass();
     attachListeners();
     D.updateNodeStates();
@@ -2358,10 +2341,11 @@ function ChordGroup (modulus = 12,...chords) {
 /**
  * Mm 1-12
  */
-const PareidoliaA = new ChordGroup(31,[0,5,18,23],[10,14,22,27],[0,5,14,18],[18,22,0,6],[10,18,22,0],[22,27,5,10],[6,10,18,22],[5,10,18,23],[18,22,27,6]);
+const PareidoliaA = new ChordGroup(31,[0,5,18,23],[10,14,22,27],[0,5,14,18],[18,22,0,6],[10,18,22,0],[22,27,5,10],[6,10,18,22],[5,10,18,23],[18,27,5,6],[18,22,27,6]);
 /**
  * Mm 21-
  */
-const PareidoliaB = new ChordGroup(31,[22,27,4,9],[14,18,27,0],[4,9,18,22],[10,14,22,26]);
+const PareidoliaB = new ChordGroup(31,[22,27,4,9],[14,18,27,0],[4,9,18,22],[10,14,22,26],[10,18,27],[10,18,22,0],[26,0,10,14]);
 
-//A - B superset is related by T27
+
+// const PareidoliaC = new ChordGroup(31,[],[27,0,10,14],[23,27,6,10],[22,0,6,10],[18,23,0,5]);
