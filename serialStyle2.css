@@ -90,6 +90,7 @@
     background-color:rgb(196, 237, 255);
 }
 
+
 .rowFind {
     background-color:rgb(255, 170, 139);
 }
@@ -216,11 +217,10 @@ button:hover {
     display:flex;
     flex-direction:row;
     max-height:fit-content;
-    /* align-content:space-evenly; */
 }
 
 .fakeRow > * {
-    align-content:space-evenly;
+    /* align-content:space-evenly; */
     min-width: 1.2em;
     max-width:fit-content;
 }
@@ -233,4 +233,48 @@ button:hover {
 
 .phantom {
     background-color:rgba(191, 208, 255, 0.7);
+}
+
+#collector {
+    display:flex;
+    flex-direction: row;
+}
+
+#collector > * {
+    /* display:flex;
+    flex-direction:row; */
+    padding:.8em;
+}
+
+.col {
+    display:flex;
+    flex-direction:column;
+    padding:.8em;
+    text-align:center;
+}
+
+.col > * {
+    text-align:center;
+    align-content: center;
+    padding:.5em;
+}
+
+.repr {
+    display:flex;
+    flex-direction:row; 
+    text-align:center;
+}
+
+.repr > *{
+    max-width:2em;
+    max-height:2em;
+}
+
+.oneEntry {
+    text-align:center;
+}
+
+.oneEntry:hover {
+    background-color:lightgrey;
+    font-weight:bolder;
 }

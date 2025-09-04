@@ -10,6 +10,10 @@
     flex-direction:row;
 }
 
+/* h4:not(.label) {
+    padding:none;
+} */
+
 .stor {
     visibility:hidden;
     display:flex;
@@ -53,11 +57,16 @@
     color:white;
 }
 
+svg {
+    padding:.9%;
+    /* border-radius:.08em;
+    border-style:inset;
+    border-color:grey; */
+}
 
 #drawing {
-    border-style:solid;
-    border-color:grey;
-    border-width:1px;
+    text-align:center;
+    /* Find a way to center */
 }
 
 .void {
@@ -145,12 +154,16 @@
 
 #moreInfo {
     display:flex;
-    min-width:95%;
+    min-width:100%;
     flex-direction:row;
 }
 
 #moreInfo > div {
-    max-width:45%;
+    max-width:50%;
+    padding-right:1%;
+    border-radius:.08em;
+    border-style:inset;
+    border-color:grey;
 }
 
 polygon:hover {
@@ -160,9 +173,6 @@ polygon:hover {
 #moreInfo > div {
     display:flex;
     flex-direction:column;
-    border-radius:1px;
-    border-color:grey;
-    border-style:solid;
 }
 
 .transform {
@@ -184,12 +194,14 @@ polygon:hover {
 #inputs {
     display:flex;
     flex-direction: row;
+    max-width:100%;
+    min-width:fit-content;
 }
 
 #inputs > * {
     padding-left: 1%;
     padding-right:1%;
-    border-radius:1px;
+    border-radius:.08em;
     border-style:inset;
     border-color:grey;
     text-align:center;
@@ -224,14 +236,10 @@ polygon:hover {
 
 .small > text {
     visibility:hidden;
-    /* transform:scale(1.2);
-    -webkit-transform:scale(1.2); */
 }
 
 .small:hover > text {
     visibility:visible;
-    /* transform:scale(1.2);
-    -webkit-transform:scale(1.2); */
 }
 
 .noteName {
@@ -269,6 +277,7 @@ polygon:hover {
 .row {
     display:flex;
     flex-direction:row;
+    max-width:100%;
 }
 
 .row:hover > * {
@@ -300,6 +309,7 @@ polygon:hover {
 #superInfo, #subInfo {
     display:flex;
     flex-direction:row !important;
+    width:50%;
 }
 
 .col {
@@ -311,11 +321,34 @@ polygon:hover {
 }
 
 #SupCol2,#SubCol2 {
-    /* max-width: 45%; */
-    /* Theres an issue with max width!! */
+    max-width:100%;
     overflow:scroll;
 }
 
 #SupCol1, #SubCol1 {
     min-width:fit-content;
+}
+
+#infoLabels {
+    display:flex;
+    flex-direction:row;
+}
+
+#infoLabels > * {
+    background-color:lightgrey;;
+    text-align:center;
+    width:50%;
+    border-radius: .08em;
+    border-style:inset;
+    border-color:grey;;
+}
+
+body {
+    max-width:95%;
+    align-self:center;
+}
+
+.frozen:hover {
+    font-weight:bolder;
+    cursor:pointer;
 }

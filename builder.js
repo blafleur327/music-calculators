@@ -206,7 +206,7 @@ allContained: function (superset,query) {
      * Returns coinciding elements of the input array.
      * @param  {...array} arrays
      */
-    union: function (...arrays) {
+    intersection: function (...arrays) {
         let comp = [...arrays].flat().sort((a,b) => a-b);
         let uns = Array.from(new Set(comp));
         let res = [];
@@ -525,7 +525,7 @@ function MySet(modulus,...elements) {
             let temp = array.map(x => this.modulo(x*a,mod))
             atM[`M${a}`] = {
                 'Cardinality': Array.from(new Set(temp)).length,
-                'Invariant Tones': ArrayMethods.union(temp,array).length,
+                'Invariant Tones': ArrayMethods.intersection(temp,array).length,
                 'Result': Array.from(new Set(temp))
             };
         }
@@ -1105,10 +1105,21 @@ function MyDropdown(parent,name,method) {
         this.entangled = twins;
         let par = document.querySelector(`#${this.parent}`);
         par.classList.add('parent');
+        // if (document.querySelector(`#${this.name}`)) {
+        //     document.querySelector(`#${this.name}`).remove();
+        // }
+        let pad;
+        /**
+         * Check if parent already has a div present.
+         */
         if (document.querySelector(`#${this.name}`)) {
-            document.querySelector(`#${this.name}`).remove();
+            pad = document.querySelector(`#${this.name}`);
+            console.log('DIV PRESENT!')
         }
-        let pad = document.createElement('div');
+        else {
+            pad = document.createElement('div');
+            console.log('DIV NOT HERE!')
+        }
         pad.id = `${this.name}`;
         pad.classList.add('primary');
         pad.innerHTML = `${name}`;
@@ -1125,7 +1136,7 @@ function MyDropdown(parent,name,method) {
                 drawer.appendChild(single);
                 value.self = single;
             }
-            let disp = null;
+            let disp = null;    //???
             if (name == 'TRANSPOSITION') {
                 disp = document.querySelector('#tContain');
             }
@@ -1135,7 +1146,6 @@ function MyDropdown(parent,name,method) {
             else if (name == 'MULTIPLICATION') {
                 disp = document.querySelector('#mContain');
             }
-            console.log(disp);
             // disp.innerHTML = `${decon.length}`; Works but is slow. 
             // disp.style.visibility = 'visible';
             drawer.addEventListener('mousedown',(event) => {
@@ -1166,7 +1176,39 @@ function MyDropdown(parent,name,method) {
         else {
             console.warn('No options!');
         }
+        this.showSize();
     }
+    /**
+     * Displays the number of options in the dropdown.
+     */
+    this.showSize = () => {
+        let arr = [];
+        Object.values(this.options).forEach(el => {
+            arr.push(el.tooltip.match(/\[(.*?)\]/ig)[1]);
+        })
+        let len = new Set(arr).size;
+        let dis = null;
+        switch (this.name) {
+            case 'TRANSPOSITION': 
+            dis = document.querySelector(`#tContain`);
+            break;
+            case 'INVERSION':
+            dis = document.querySelector(`#iContain`);
+            break;
+            case 'MULTIPLICATION':
+            dis = document.querySelector(`#mContain`);
+            break;
+        }
+        dis.innerHTML = `${len} Unique`;
+        if (len == 0) {
+            dis.style.visibility = 'hidden';
+            document.querySelector(`#${this.name}`).style.visibility = 'hidden';
+        }
+        else {
+            dis.style.visibility = 'visible';
+            document.querySelector(`#${this.name}`).style.visibility = 'visible';
+        }
+    }   
 }
 
 /**
@@ -1353,16 +1395,13 @@ function DrawingManager (parent = 'drawing') {
             'subs': new MySet(this.drawingData['Universe'],...this.drawingData.subset).symmetryPoints(),
         }
         //Points from symmetry x2, to align with double mod points.
-        console.table(obj);
         for (let [key,value] of Object.entries(obj)) {//Iterate over two obj items.
-            console.table(value);
             value.forEach(line => {
-                console.log(this.outerCircle);
                 let s = this.draw.line();
                 s.addClass(key == 'supers'? 'superSymmetryLine' : 'subSymmetryLine');
                 let modified = line.map(x => x*2);
                 s.plot(...this.outerCircle[modified[0]],...this.outerCircle[modified[1]]);
-                console.log(`${line[0]}-${line[1]} plotted!`);
+                // console.log(`${line[0]}-${line[1]} plotted!`);
                 s['node']['data-tooltip'] = `${key == 'supers'? 'Superset' : 'Subset'} symmetrical about the ${line[0]}-${line[1]} axis.`;
             })
         }
@@ -2241,6 +2280,18 @@ const Library = {
     // 'PareidoliaA': new Preset(31,[0, 5, 6, 10, 14, 18, 22, 23, 27],[0, 5, 18, 23]),
 }
 
+/**
+ * The combinatorial Hexachords outlined by Babbitt.
+ */
+const Hexachords = {
+    '0': new Preset(12,[0,1,2,3,4,5,6,7,8,9,10,11],[0,1,2,3,4,5]), 
+    '1': new Preset(12,[0,1,2,3,4,5,6,7,8,9,10,11],[0,2,3,4,5,7]),
+    '2': new Preset(12,[0,1,2,3,4,5,6,7,8,9,10,11],[0,2,4,5,7,9]),
+    '3': new Preset(12,[0,1,2,3,4,5,6,7,8,9,10,11],[0,1,2,6,7,8]),
+    '4': new Preset(12,[0,1,2,3,4,5,6,7,8,9,10,11],[0,1,4,5,8,9]),
+    '5': new Preset(12,[0,1,2,3,4,5,6,7,8,9,10,11],[0,2,4,6,8,10]),
+}
+
 //To page 4....2nd of score
 
 
@@ -2253,6 +2304,7 @@ function ChordGroup (modulus = 12,...chords) {
     this.modulus = modulus;
     this.chords = [...chords];
     this.full_data = {};
+    this.generic_data = {}
     for (let a = 0; a < this.chords.length; a++) {
         let z = new MySet(this.modulus,...this.chords[a]);
         let t = z.normal_order();
@@ -2291,13 +2343,24 @@ function ChordGroup (modulus = 12,...chords) {
     }
     /**
      * Returns a specific request from the organized property.
+     * @param {string} type 'specific' or 'generic'
      * @param {...string} keys {Normal Form, Prime Form, Interval Class Vector, Index Vector}
      * @returns 
      */
-    this.query = (...keys) => {
+    this.query = (type,...keys) => {
         let result = {};
         let disp = {};
-        let arr = Object.entries(this.full_data);
+        let arr = null;
+        if (type == 'specific') {
+            arr = Object.entries(this.full_data);
+        }
+        else if (type == 'generic') {
+            arr = Object.entries(this.generic_data);
+        }        
+        else {
+            console.error(`ERROR: Type must be 'specific' or 'generic'!`);
+            return;
+        }
         for (let a = 0; a < arr.length; a++) {
             let temp = {};
             let conc = {};
@@ -2318,22 +2381,142 @@ function ChordGroup (modulus = 12,...chords) {
         return result;
     }
     /**
-     * The complete pitch content from the input chords.
-     */
-    this.superset = Array.from(new Set(Object.values(this.query('Normal Form')).flat()));
-    /**
-     * Draws a given chord within the parent Superset.
+     * The number of unique transformations contained within the prevailing superset.
      * @param {int} chord 
      */
-    this.specialRender = (chord = 0) => {
+    this.unique_chords_contained = (chord = 0) => {
+        if (chord >= 0 && chord < this.chords.length) {
+            let tot = [];
+            let z = new MySet(this.modulus,...this.chords[chord]);
+            let sc = z.set_class();
+            for (let [key,value] of Object.entries(sc)) {
+                let test = ArrayMethods.allContained(this.superset,value);
+                test? tot.push(value) : null;
+            }
+            tot = ArrayMethods.unique_subarray(tot);
+            return tot.length;
+        }
+        else {
+            return `ERROR: ${this.chords.length} Chords in group, index ${chord} is out of bounds!`;
+        }
+    }
+    /**
+     * Returns an object with the number of unique chords contained within the superset for each chord in the group.
+     */
+    this.all_chord_instances = () => {
+        let tab = {};
+        for (let a = 0; a < this.chords.length; a++) {
+            tab[a] = this.unique_chords_contained(a);
+        }
+        console.table(tab);
+        return tab;
+    }
+    /**
+     * The complete pitch content from the input chords.
+     */
+    this.superset = Array.from(new Set(Object.values(this.query('specific','Normal Form')).flat())).sort((a,b) => a-b);
+    let gen = Array.from({length: this.superset.length}, (e, i)=> i)
+    /**
+     * Draws a given chord within the parent Superset.
+     * @param {string} type 'specific' or 'generic'
+     * @param {int} chord 
+     */
+    this.specialRender = (type,chord = 0) => {
         let wow;
         if (chord >= 0 && chord < this.chords.length) {
-            wow = new Preset(this.modulus,this.superset,this.chords[chord]);
+            if (type == 'specific') {
+                wow = new Preset(this.modulus,this.superset,this.chords[chord]);
+            }
+            else if (type == 'generic') {
+                wow = new Preset(this.superset.length,gen,this.generic_data[chord]['Normal Form']);
+            }
+            else {
+                console.error(`ERROR: Type must be 'specific' or 'generic'!`);
+                return;
+            }
             console.log(wow)
             wow.render();
         }
         else {
             return `ERROR: ${this.chords.length} Chords in group, index ${chord} is out of bounds!`;
+        }
+    }
+    /**
+     * Generate chords by a given interval and cardinality.
+     * @param {int} interval 
+     * @param {int} cardinality 
+     */
+    this.chordsByInterval = (interval = 3,cardinality) => {
+        let manualOffset = null;
+        let sup = this.superset;
+        let disp = {};
+        console.log(sup);
+        let res = {};
+        for (let a = 0; a < sup.length; a++) {
+            let t = res[a] = {};
+            let d = disp[a] = {};
+            let int = [];
+            let pitch = [];
+            let find = false;
+            for (let b = 0; b < cardinality; b++) {
+                let i = sup[(a+(b*interval))%sup.length];
+                int.push(i);
+                pitch.push(PitchSystems[`${this.modulus}`]? PitchSystems[`${this.modulus}`][i] : 'N/A');
+            }
+            for (let c = 0; c < this.chords.length; c++) {
+                if (this.chords[c].sort((a,b) => a-b).toString() == int.sort((a,b) => a-b).toString()) {
+                    find = c;
+                }
+            }
+            d['Integer'] = `[${int}]`;
+            d['Notes'] = `[${pitch}]`;
+            d['Contained'] = find;
+            t['integer'] = int;
+            t['notes'] = pitch;
+        }
+        console.table(disp);
+        return res;
+    }
+    /**
+     * Populates generic_data property.
+     */
+    for (let a = 0; a < this.chords.length; a++) {
+        let z = new MySet(this.superset.length,...this.chords[a].map(x => this.superset.indexOf(x)));
+        let t = z.normal_order();
+        this.generic_data[a] = {
+            'Set Rep': z,
+            'Normal Form': t,
+            'Prime Form': z.prime_form(),
+            'Interval Class Vector': z.interval_class_vector(),
+            'Index Vector': z.index_vector(),
+            'Note Names': null,
+            'Transforms': [],
+        }
+        let curr = this.generic_data[a];
+        if (`${this.superset.length}` in PitchSystems) {
+            let sys = PitchSystems[`${this.superset.length}`];
+            curr['Note Names'] = t.map(x => sys[x]);
+        }
+        else {
+            curr['Note Names'] = 'UNAVAILABLE';
+        }
+    }
+    /**
+     * Finds the intersecting elements between supersets of two ChordGroups.
+     * @param {ChordGroup} group 
+     * @returns 
+     */
+    this.intersection = (group) => {
+        let res = {};
+        if (group instanceof ChordGroup) {
+            res['Elements'] = ArrayMethods.intersection(this.superset,group.superset).join(',');
+            res['Fracton'] = `${ArrayMethods.intersection(this.superset,group.superset).length}/${this.superset.length}`;
+            res['Percent'] = (ArrayMethods.intersection(this.superset,group.superset).length/this.superset.length * 100).toFixed(2) + '%';
+            console.table(res);
+            return res;
+        }
+        else {
+            console.error('Argument must be instance of ChordGroup!');
         }
     }
 }
@@ -2345,7 +2528,82 @@ const PareidoliaA = new ChordGroup(31,[0,5,18,23],[10,14,22,27],[0,5,14,18],[18,
 /**
  * Mm 21-
  */
-const PareidoliaB = new ChordGroup(31,[22,27,4,9],[14,18,27,0],[4,9,18,22],[10,14,22,26],[10,18,27],[10,18,22,0],[26,0,10,14]);
+const PareidoliaB = new ChordGroup(31,[22,27,4,9],[14,18,27,0],[4,9,18,22],[10,14,22,26],[10,18,27],[10,18,22,0],[26,0,10,14],[14,22,27,0],[14,18,27,4],[14,27,0],[22,27,4,10]);
+
+/**
+ * Mm 33-
+ */
+const PareidoliaC = new ChordGroup(31,[27,0,9,14],[18,22,0,4],[14,18,27,0],[0,10,14,18],[22,26,4,10]);
+
+//A = T4 => B Centered on A then B-half flat 
+
+const DiatonicA = new ChordGroup(12,[0,4,7],[2,5,9],[4,7,11],[5,9,0],[7,11,2],[9,0,4],[11,2,5]);
+
+// (0,4,13,17) and (0,5,13,18) are primary
+
+//GROUP A SC of Chord 1 (0,4,12,17) maps onto SC Chord 3 (0,4,13,19) under M10 or M21. 
+
+//Contune at Chord index 5 checking for M operations.
+
+/**
+ * Define a transformation of an input set within a given modulus.
+ * @param {int} modulus 
+ * @param {array} input 
+ * @param  {...array} modification [element value, increment]
+ */
+function Transformation (modulus = 12,input,...modification) {
+    let init = input;
+    let modifications = [...modification];
+    let start = new MySet(modulus,...init);
+    this.chain = {'0': {
+        'Initial': init,
+        'Normal Form': start.normal_order(),
+        'Prime Form': start.prime_form(),
+        'Interval Class Vector': start.interval_class_vector(),
+    }};
+    this.modulus = modulus;
+    /**
+     * Applies the given transformation a specified number of times.
+     * @param {int} iterations = 1
+     * @returns 
+     */
+    this.apply = (iterations = 1) => {
+        for (let i = 0; i < iterations; i++) {
+            let cur = this.chain[Object.keys(this.chain).length-1]['Initial'];
+            let index = Object.keys(this.chain).length;
+            for (let a = 0; a < modifications.length; a++) {
+                let t = cur.indexOf(modifications[a][0]); 
+                console.log(`Add ${modifications[a][1]} to ${modifications[a][0]}...index ${t} = ${cur[t]+modifications[a][1]}`)
+                cur[t] = ScaleTheory.modulo(cur[t]+modifications[a][1],this.modulus);
+                modifications[a][0] = cur[t];
+            }
+            let z = new MySet(this.modulus,...cur);
+            this.chain[index] = {
+                'Initial': cur,
+                'Normal Form': z.normal_order(),
+                'Prime Form': z.prime_form(),   
+                'Interval Class Vector': z.interval_class_vector(),
+            }
+        }
+        let disp = {};
+        Object.entries(this.chain).forEach(([key,value]) => {
+            disp[key] = {
+                'Normal Form': `[${value['Normal Form']}]`,
+                'Prime Form': `(${value['Prime Form']})`,
+                'Interval Class Vector': `<${value['Interval Class Vector']}>`,
+            }
+        });
+        console.table(disp);
+        return;
+    }
+}
 
 
-// const PareidoliaC = new ChordGroup(31,[],[27,0,10,14],[23,27,6,10],[22,0,6,10],[18,23,0,5]);
+/**
+ * Chord 0 in MOD 31 Where lowest pitch is moved up incrementally.
+ */
+let Mod31 = new Transformation(31,[0,5,18,23],[0,16]);//
+/**
+ * Chord 0 in MOD 9 Where lowest pitch is moved up incrementally.
+ */
+let Mod9 = new Transformation(9,[5,7,0,1],[5,4]);//
