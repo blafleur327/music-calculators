@@ -1,0 +1,45 @@
+
+#container {
+    display:flex;
+    flex-direction:row;
+}
+
+#left {
+    min-width:20%;
+}
+
+#display {
+    display:flex;
+    flex-direction:column;
+    border-radius:1px;
+    border-style:inset;
+    border-color:grey;
+    
+    text-overflow:wrap;
+}
+
+.selected {
+    background-color:rgb(117, 177, 180);
+}
+
+li:hover {
+    cursor:pointer;
+    font-weight:bolder;
+    background-color:rgb(117, 177, 180);
+}
+
+.void {
+    visibility:hidden;
+}
+
+.emphasis {
+    font-style:italic;
+    background-color:rgba(194, 194, 194, 0.834)
+}
+
+h2 {
+    border-bottom:.04em;
+    border-bottom-color: grey;
+    border-bottom-style: double;
+    background-color:rgb(117, 177, 180);
+}
