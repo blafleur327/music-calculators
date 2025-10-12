@@ -1,0 +1,33 @@
+.major > circle {
+    fill: rgb(232, 232, 232);
+}
+
+g:hover {
+    cursor:pointer;
+}
+
+g:hover > text {
+    font-weight: bolder;
+}
+
+g:hover > circle {
+    r: 22;
+}
+
+.transform {
+    font-style:italic;
+}
+
+#upper {
+    display:flex;
+    flex-direction:row;
+}
+
+#tooltips {
+    position:absolute;
+    visibility:hidden;
+    background-color:rgb(201, 201, 201);
+    border-radius:1px;
+    border-color:grey;
+    border-style:solid;
+}
