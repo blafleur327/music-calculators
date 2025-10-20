@@ -1,7 +1,7 @@
 
 @font-face {
     font-family: 'Bravura';
-    src: url('..Fonts/Bravura.otf') format('opentype');
+    src: url('Fonts/Bravura.otf') format('opentype');
     font-weight: normal;
     font-style: normal;
     font-display:swap;
@@ -378,4 +378,5 @@ body {
     font-family: 'Bravura';
     max-height:fit-content;
     max-width:fit-content;
+
 }
