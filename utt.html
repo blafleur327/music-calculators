@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="utt.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0/dist/svg.min.js"></script>
+    <link rel="stylesheet" href="normalize.css">
+    <link rel="stylesheet" href="utt.css">
+    <title>Neo Riemannian</title>
+</head>
+<body>
+    <h1>Flip-Flop Circles</h1>
+    <h3>This calculator generates cycles of Neo-Riemannian Transformations and compiles their total pitch class content.</h3>
+    <div id="tooltips"></div>
+    <div id="upper">
+        <div id="upLeft">
+            <div class="miniBox">
+                <h3>Start Triad</h3>
+                <input type="text" id="start" placeholder="Start Triad">
+            </div>
+            <div class="miniBox">
+                <h3>Transformations</h3>
+                <input type="text" id="utts" placeholder="Transformations:">
+            </div>
+        </div>
+        <div id="drawing"></div>
+        <div id="upRight">
+            <div class="miniBox">
+                <h3>Cycle Length:</h3>
+                <div id="cycleLength"></div>
+            </div>
+            <div class="miniBox">
+                <h3>Total PC Content:</h3>
+                <div id="sum"></div>
+            </div>
+            <div class="miniBox">
+                <h3>Root PC Content:</h3>
+                <div id="roots"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
