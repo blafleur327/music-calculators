@@ -1,4 +1,4 @@
-My Music Calculators
+My Music Theory Calculators:
 =====================
 
 This project is a component of my PhD (LSU 2026) dissertation on post-tonal music theory pedagogy and how visualization other than the score might increase understanding. 
