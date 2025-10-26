@@ -1,7 +1,7 @@
 My Music Calculators
 =====================
 
-This project is a component of my dissertation on post-tonal music theory pedagogy and how we visualize it. 
+This project is a component of my dissertation on post-tonal music theory pedagogy and how visualization other than the score might increase understanding. 
 
 My primary motivation for this project is to provide learners and experienced analysts access to a more intuition forward way of approaching post-tonal music theory.
 Since my musical insterests often lie outside of the twelve-tone chromatic universe, all of these calculators except for the Neo-Riemannian one (for now!) permit larger and smaller universes.
