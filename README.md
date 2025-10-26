@@ -7,13 +7,18 @@ This is to encourage G-SPACE analysis, beat-class, and microtonal exploration us
 The aim of this program is to encourage learning and intuition about pitch/rhythmic structures that are perhaps not as easily understood by looking at the score itself.
 
 This program is fully web based and includes:
-  A pitch-class/beat-class calculator centered around a clockface diagram. It includes results such as: Normal and Prime Form, Interval Class and Index Vector, and a Maximal Evenness check. 
-  A serialism/matrix calculator that is searchable for adjacent elements or a specific set-class. It returns results for generalized n-chordal combinatoriality, derivation, and all-interval status. 
+<ul>
+  <li>A pitch-class/beat-class calculator centered around a clockface diagram. It includes results such as: Normal and Prime Form, Interval Class and Index Vector, and a Maximal Evenness check. 
+  </li>
+  <li>A serialism/matrix calculator that is searchable for adjacent elements or a specific set-class. It returns results for generalized n-chordal combinatoriality, derivation, and all-interval status. 
+  </li>
   A glossary of terminology. Many of these definitions are my own, but often include examples and/or links to papers/webpages with additional information.
+  <li>
   A rotational array calculator that permits alpha/beta and gamma/delta arrays from an input tonerow. 
-  A Neo-Riemannian Flip-Flop Circle calculator that draws cycles of any length. It permits standard Schritt and Wechsel names {P,L,R,S,N,H,...} or Uniform Triad Transformations (UTT)s. 
-    It also compiles the associated pitch-class content, helping to connect the synthetic scales to the symmetrical harmonic progressions.
-
+  </li>
+  <li>A Neo-Riemannian Flip-Flop Circle calculator that draws cycles of any length. It permits standard Schritt and Wechsel names {P,L,R,S,N,H,...} or Uniform Triad Transformations (UTT)s. It also compiles the associated pitch-class content, helping to connect the synthetic scales to the symmetrical harmonic progressions.
+  </li>
+</ul>
 
 To you who have much more programming experience, these might look a bit lackluster. But I am constantly learning and revising them to increase functionality and improve design features.
 
