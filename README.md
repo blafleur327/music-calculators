@@ -9,7 +9,10 @@ This is to encourage G-SPACE analysis, beat-class, and microtonal exploration us
 
 The aim of this program is to encourage learning and intuition about pitch/rhythmic structures that are perhaps not as easily understood by looking at the score itself.
 
-This program is fully web based and includes:
+This program is fully web based. The files are: JS, CSS, and HTML. I have included the Bravura.woff2 files to render certain music characters. The only library dependency is SVG.js, used to build some of the visualizations.
+
+Included:
+------
 <ul>
   <li>A pitch-class/beat-class calculator centered around a clockface diagram. It includes results such as: Normal and Prime Form, Interval Class and Index Vector, and a Maximal Evenness check. 
   </li>
