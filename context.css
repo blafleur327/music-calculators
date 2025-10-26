@@ -1,0 +1,21 @@
+#main {
+    display:flex;
+    flex-direction:column;
+}
+
+.sub {
+    max-width:75%;
+    /* border-color:lightgrey;
+    border-style:solid;
+    border-width:.1em; */
+}
+
+.sub > p,ul {
+    margin-left:5em;
+}
+
+.sub > h3 {
+    border-bottom-color:grey;
+    border-bottom-width: .1em;
+    border-bottom-style:solid;
+}
