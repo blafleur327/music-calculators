@@ -1,3 +1,6 @@
+My Music Calculators
+=====================
+
 This project is a component of my dissertation on post-tonal music theory pedagogy and how we visualize it. 
 
 My primary motivation for this project is to provide learners and experienced analysts access to a more intuition forward way of approaching post-tonal music theory.
@@ -21,4 +24,6 @@ This program is fully web based and includes:
 </ul>
 
 To you who have much more programming experience, these might look a bit lackluster. But I am constantly learning and revising them to increase functionality and improve design features.
+
+If you find these tools useful, please share them with others!
 
