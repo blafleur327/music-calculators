@@ -14,9 +14,9 @@ This program is fully web based. The files are: JS, CSS, and HTML. I have includ
 Included:
 ------
 <ul>
-  <li>A pitch-class/beat-class calculator centered around a clockface diagram. It includes results such as: Normal and Prime Form, Interval Class and Index Vector, and a Maximal Evenness check. 
+  <li>A pitch-class/beat-class calculator centered around a clockface diagram. It includes results such as: Normal and Prime Form, Interval Class and Index Vector, and a Maximal Evenness check. It also permits superset and subset selection, with the subset allowing T<sub><em>n</em></sub>, T<sub><em>n</em></sub>I, and M<sub><em>n</em></sub> operations if the result is included in the prevailing superset.
   </li>
-  <li>A serialism/matrix calculator that is searchable for adjacent elements or a specific set-class. It returns results for generalized n-chordal combinatoriality, derivation, and all-interval status. 
+  <li>A serialism/matrix calculator that is searchable for adjacent elements or a specific set-class. It returns results for generalized n-chordal combinatoriality, derivation, and all-interval status. Row-form selection will highlight ordinal invariance between each of the selected forms. 
   </li>
   A glossary of terminology. Many of these definitions are my own, but often include examples and/or links to papers/webpages with additional information.
   <li>
