@@ -911,17 +911,17 @@ const Accidentals = {
     sharp: '♯',
     flat: '♭',
     natural: '♮',
-    halfSharp: String.fromCharCode(0xe282),
-    halfFlat: String.fromCharCode(0xe284),
-    quarterFlat: String.fromCharCode(0xe489),
-    quarterSharp: String.fromCharCode(0xe428),
+    semiSharp: String.fromCharCode(0xe282),
+    semiFlat: String.fromCharCode(0xe284),
+    flatAndHalf: String.fromCharCode(0xe489),
+    sharpAndHalf: String.fromCharCode(0xe428),
 };
 
 /**
  * Object that stores a variety of accidental settings.
  */
 const PitchSystems = {
-    7: ['1','2','3','4','5','6','7'],
+    7: ['Do','Re','Mi','Fa','Sol','La','Ti'],
     12: [
         'C',`C${Accidentals.sharp}/D${Accidentals.flat}`,
         `D`,`D${Accidentals.sharp}/E${Accidentals.flat}`,
@@ -930,16 +930,19 @@ const PitchSystems = {
         `G${Accidentals.sharp}/A${Accidentals.flat}`,
         'A',`A${Accidentals.sharp}/B${Accidentals.flat}`,
         'B'],
-    24: [],
+    24: [`C`,`C${Accidentals.semiSharp}`,`C${Accidentals.sharp}/D${Accidentals.flat}`,`D${Accidentals.semiFlat}`,`D`,`D${Accidentals.semiSharp}`,`D${Accidentals.sharp}/E${Accidentals.flat}`,`E${Accidentals.semiFlat}`,
+        `E`,`E${Accidentals.semiSharp}`,`F`,`F${Accidentals.semiSharp}`,`F${Accidentals.sharp}/G${Accidentals.flat}`,`G${Accidentals.semiFlat}`,`G`,`G${Accidentals.semiSharp}`,`G${Accidentals.sharp}/A${Accidentals.flat}`,
+        `A${Accidentals.semiFlat}`,`A`,`A${Accidentals.semiSharp}`,`A${Accidentals.sharp}/B${Accidentals.flat}`,`B${Accidentals.semiFlat}`,`B`,`B${Accidentals.semiSharp}`
+    ],
     31: [
-        `C`,`C${Accidentals.halfSharp}`,`C${Accidentals.sharp}`,
-        `D${Accidentals.flat}`,`D${Accidentals.halfFlat}`,'D',`D${Accidentals.halfSharp}`,`D${Accidentals.sharp}`,
-        `E${Accidentals.flat}`,`E${Accidentals.halfFlat}`,`E`,`E${Accidentals.halfSharp}`,`E${Accidentals.sharp}`,
-        `F`,`F${Accidentals.halfSharp}`,`F${Accidentals.sharp}`,
-        `G${Accidentals.flat}`,`G${Accidentals.halfFlat}`,`G`,`G${Accidentals.halfSharp}`,`G${Accidentals.sharp}`,
-        `A${Accidentals.flat}`,`A${Accidentals.halfFlat}`,'A',`A${Accidentals.halfSharp}`,`A${Accidentals.sharp}`,
-        `B${Accidentals.flat}`,`B${Accidentals.halfFlat}`,`B`,`C${Accidentals.flat}`,`C${Accidentals.halfFlat}`
-    ]
+        `C`,`C${Accidentals.semiSharp}`,`C${Accidentals.sharp}`,
+        `D${Accidentals.flat}`,`D${Accidentals.semiFlat}`,'D',`D${Accidentals.semiSharp}`,`D${Accidentals.sharp}`,
+        `E${Accidentals.flat}`,`E${Accidentals.semiFlat}`,`E`,`E${Accidentals.semiSharp}`,`E${Accidentals.sharp}`,
+        `F`,`F${Accidentals.semiSharp}`,`F${Accidentals.sharp}`,
+        `G${Accidentals.flat}`,`G${Accidentals.semiFlat}`,`G`,`G${Accidentals.semiSharp}`,`G${Accidentals.sharp}`,
+        `A${Accidentals.flat}`,`A${Accidentals.semiFlat}`,'A',`A${Accidentals.semiSharp}`,`A${Accidentals.sharp}`,
+        `B${Accidentals.flat}`,`B${Accidentals.semiFlat}`,`B`,`C${Accidentals.flat}`,`C${Accidentals.semiFlat}`
+    ],
 } 
 
 /**
@@ -2332,6 +2335,18 @@ function ChordGroup (modulus = 12,...chords) {
         }
     }
     /**
+     * Who TF knows.
+     * @param {int} OPCI 
+     * @returns 
+     */
+    this.transposeGroup = (OPCI) => {
+        let modified = []
+        let z = [...this.chords].forEach(elem => {
+            modified.push(elem.map(x => (x+OPCI)%this.modulus));
+        })
+        return new ChordGroup(this.modulus,...modified);
+    }
+    /**
      * Determines if there is a relationship between two chords.
      * @param {int} chord1 
      * @param {int} chord2 
@@ -2526,19 +2541,21 @@ function ChordGroup (modulus = 12,...chords) {
     }
 }
 
-/**
- * Mm 1-12
- */
+
 const PareidoliaA = new ChordGroup(31,[0,5,18,23],[10,14,22,27],[0,5,14,18],[18,22,0,6],[10,18,22,0],[22,27,5,10],[6,10,18,22],[5,10,18,23],[18,27,5,6],[18,22,27,6]);
-/**
- * Mm 21-
- */
+
 const PareidoliaB = new ChordGroup(31,[22,27,4,9],[14,18,27,0],[4,9,18,22],[10,14,22,26],[10,18,27],[10,18,22,0],[26,0,10,14],[14,22,27,0],[14,18,27,4],[14,27,0],[22,27,4,10]);
 
 /**
- * Mm 33-
+ * A sections of Pareidolia.
  */
-const PareidoliaC = new ChordGroup(31,[27,0,9,14],[18,22,0,4],[14,18,27,0],[0,10,14,18],[22,26,4,10]);
+const PareidoliaA2 = new ChordGroup(31,[18,23,0,5],[10,14,22,27],[0,5,14,18],[18,22,0,6],[10,18,22,0],[22,27,5,10],[6,10,18,22],[23,27,5,10],[5,10,18,23],[0,5,10,18]);
+
+
+const PareidoliaB2 = PareidoliaA2.transposeGroup(4);
+
+// const ofVA = PareidoliaA2.transposeGroup(4);
+
 
 //A = T4 => B Centered on A then B-half flat 
 

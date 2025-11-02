@@ -2,10 +2,15 @@
 @font-face {
     font-family: 'Bravura';
     src: url('../Fonts/Bravura.woff2') format('woff2');
-    /*src: url('Fonts/Bravura.otf') format('opentype');  */
     font-weight: normal;
     font-style: normal;
     font-display:swap;
+}
+
+h1 {
+    border-bottom-width: .1em;
+    border-bottom-color:grey;
+    border-bottom-style:solid;
 }
 
 .primary {
@@ -72,6 +77,11 @@ svg {
     /* border-radius:.08em;
     border-style:inset;
     border-color:grey; */
+}
+
+#Search {
+    display:flex;
+    flex-direction:row;
 }
 
 #drawing {
@@ -379,8 +389,4 @@ body {
     font-family: 'Bravura';
     max-height:fit-content;
     max-width:fit-content;
-
 }
-
-
-
