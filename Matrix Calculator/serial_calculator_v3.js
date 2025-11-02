@@ -998,7 +998,11 @@ const Serialism = {
                 }
                 dict.forEach(([key,value]) => {
                     let joined = ArrayMethods.simplePartition(value,fact).map(x => x.sort((a,b) => a-b));
-                    if (joined.map(x => x.join('.')).indexOf(cur.join('.')) > 0) {
+                    let jn = joined.map(x => x.join('.'));
+                    let og = ArrayMethods.simplePartition(sel,fact).map(x => x.sort((a,b) => a-b).join('.'));
+                    console.table([key,og,jn,nChords,Array.from(new Set([...jn,...og])).length == nChords])
+                    console.log(new Set([...og,...jn]))
+                    if (jn.indexOf(cur.join('.')) > 0 && Array.from(new Set([...jn,...og])).length == nChords) {
                         tot.push(key);
                         aggCheck.push(...joined[0]);
                         vis['PASS']++
@@ -1337,34 +1341,42 @@ const labelListeners = () => {
  */
 const segmentationButtons = (size = currentData['Series'].length) => {
     let contain = document.createElement('div');
+    contain.id = 'partition';
     contain.classList.add('dropContainer');
     contain.classList.add('single');
     document.querySelectorAll('.dropContainer').forEach(item => item.remove());
-    let text = document.createElement('h4');
-    text.innerHTML = 'Partition:';
-    let mini = document.createElement('select');
-    mini.setAttribute('class','dropdown');
-    contain.append(text);
-    contain.append(mini);
+    const selectPartition = (ref = f) => {
+        currentData['partition'] = ref;
+        let size = ref;
+        K.checkerboard(size);
+        if (size !== null && size > 1) {
+            K.row_illustrator();
+        }
+        else {
+            document.querySelector('#collector').innerHTML = '';
+        }
+    }
+    let f = new MyDropdown('partition','Partition Select',selectPartition)
     document.querySelector('#upper').append(contain);
-    mini['data-tooltip'] = 'Partition the matrix into discrete <em>n</em>-chords.';
+    // mini['data-tooltip'] = 'Partition the matrix into discrete <em>n</em>-chords.';
     let facts = factors(size);
     facts = facts.slice(0,facts.length-1);
     currentData['partition'] = null;
-    let def = document.createElement('option')
-    def.innerHTML = 'NONE';
-    mini.append(def);
+    // let def = document.createElement('option')
+    // def.innerHTML = 'NONE';
+    // mini.append(def);
+    f.addOption('NONE',null);
     for (let a = 0; a < facts.length; a++) {
-        let b = document.createElement('option');
-        b.innerHTML = `${facts[a]}`;
-        mini.append(b);
+        // let b = document.createElement('option');
+        f.addOption(facts[a],facts[a],`Partition the matrix into discrete ${facts[a]}-chords.`);
     }
-    mini.addEventListener('change',() => {
-        let val = currentData['partition'] = parseInt(mini.value);
-        K.checkerboard(val);
-        // K.spacer();
-        K.row_illustrator();
-    })
+    f.construct();
+    // mini.addEventListener('change',() => {
+    //     let val = currentData['partition'] = parseInt(mini.value);
+    //     K.checkerboard(val);
+    //     // K.spacer();
+    //     K.row_illustrator();
+    // })
 }
 
 /**
@@ -1440,6 +1452,11 @@ const buildInput = (name,type,parent = 'upper',tooltip) => {
     lab.innerHTML = `${name}:`;
     cont.appendChild(lab);
     cont.appendChild(inp);
+    if (name == 'Search') {
+        let sub = document.createElement('div');
+        sub.id = 'subComponent';
+        cont.appendChild(sub);
+    }
     cont.appendChild(val);
     par.appendChild(cont); 
     document.querySelector(`#${name}`)['data-tooltip'] = tooltip; 
@@ -1492,36 +1509,22 @@ function myMatrix () {
         'Search Finds': 0,
     }
     /**
-     * Updates the combinatorial data based on the current selected rowform.
+     * Method recreates the combinatorial boxes per each update. Issue is with the arbitrary RP case. The first element stays, the rest are correct.
      */
-    this.selectionRewrite = () => {
+    this.combinatorialRewrite = () => {
+        let extant = false;
+        if (document.querySelectorAll('#lower > .inline')[0]) {
+            extant = true;
+            document.querySelectorAll('#lower > .inline')[0].innerHTML = '';
+        }
+        console.log(`BOX EXISTS? ${extant}`);
         let currSelect = currentData['selected'][currentData['selected'].length-1]? currentData['selected'][currentData['selected'].length-1] : `P${currentData['Series'][0]}`;
-        let newObj = Object.values(Serialism.generalizedCombinatoriality(currentData['Series'],currentData['Universe'],currSelect)).filter(x => x['Groups'].length > 0);
-        let par = document.querySelectorAll('.combinatorialBox');
-        for (let a = 0; a < newObj.length; a++) {
-            //This assumes that all rowforms are combinatorial, causes issues occasionally
-            for (let b = 0; b < newObj[a]['Groups'].length; b++) {
-                console.log(`STARTS AS SIZE: ${par[a].childNodes[b+1].textContent.split(',').length} SHOULD BECOME SIZE: ${newObj[a]['Groups'][b].length}`);
-                par[a].childNodes[b+1].textContent = newObj[a]['Groups'][b];
-            }
-        }
-    }
-    /**
-     * Creates a matrix from the currentData object.
-     */
-    this.createMatrix = () => {
-        currentData['matrix'] = this.arrayForm;
-        populate(currentData['matrix']);// :/
-        document.getElementById('lower').innerHTML = '';
         let results = {
-            'Combinatoriality': Serialism.generalizedCombinatoriality(currentData['Series'],currentData['Universe']),//Serialism.combinatoriality(currentData['Series'],currentData['Universe']),//Keys ['RI3']
-            'Derivation': Serialism.derivation(currentData['Series'],currentData['Universe']),//This might need to change to currentData['Series'].length
-            'AllInterval': Serialism.allInterval(currentData['Series'],currentData['Universe'])
+            'Combinatoriality': Serialism.generalizedCombinatoriality(currentData['Series'],currentData['Universe'],currSelect),
         }
-        console.table(results);
-        this.dictionaryForm = special();
         let cont = document.createElement('div');
         cont.classList.add('inline');
+        let par = extant? document.querySelectorAll('#lower > .inline')[0] : cont;
         let lab = document.createElement('div');
         lab.classList.add('hoverable');
         lab.innerHTML = `Combinatoriality:`;//Change
@@ -1529,26 +1532,29 @@ function myMatrix () {
         cont.appendChild(lab);
         let row = document.createElement('div');
         row.classList.add('fakeRow');
-        let colors = ['red','green','blue','orange','yellow','purple'];//Change this...
-        /**
-         * Combinatoriality Display
-         */
         let BD = Object.entries(results['Combinatoriality']);
+        // let horiz = document.createElement('div');
+        // horiz.classList.add('fakeRow');
         BD.forEach(([key,value]) => {
+            let contBox = document.createElement('div');
+            contBox.classList.add('fullDetails');
             let subBox = document.createElement('div');
+            let labBox = document.createElement('div');
             let lab = document.createElement('h4');
             let greek = [null,'Singleton','Dyadically','Tri','Tetra','Penta','Hexa','Hepta','Octa','Nona','Deca','Undeca','Dodeca'];//Add to this.
             lab.textContent = `${greek[key]}${key == 2? '' : 'chordally'} Combinatorial:`;
-            subBox.append(lab);
+            labBox.append(lab);
             subBox.classList.add('combinatorialBox');
             if (value['Groups'].length > 0) {
                 value['Groups'].forEach(entry => {
                     let l = document.createElement('p');
                     l.classList.add('wow');
-                    l.textContent = entry == `RP${currentData['Series'][0]}` && key == currentData['Universe']/2? `${entry} (Arbitrary)` : entry;
+                    l.textContent = entry;
                     subBox.append(l); 
                     })
-                row.append(subBox);
+                contBox.append(labBox);
+                contBox.append(subBox);
+                row.append(contBox);
             }
             subBox.addEventListener('mousedown',(event) => {
                 if (event.target.classList.contains('wow')) {
@@ -1581,7 +1587,23 @@ function myMatrix () {
             })
         })
         cont.appendChild(row);
-        document.querySelector('#lower').appendChild(cont);
+        extant? par.appendChild(cont) : document.querySelector('#lower').appendChild(cont);
+    }
+    /**
+     * Creates a matrix from the currentData object.
+     */
+    this.createMatrix = () => {
+        currentData['matrix'] = this.arrayForm;
+        populate(currentData['matrix']);// :/
+        document.getElementById('lower').innerHTML = '';
+        let results = {
+            'Combinatoriality': Serialism.generalizedCombinatoriality(currentData['Series'],currentData['Universe']),//Serialism.combinatoriality(currentData['Series'],currentData['Universe']),//Keys ['RI3']
+            'Derivation': Serialism.derivation(currentData['Series'],currentData['Universe']),//This might need to change to currentData['Series'].length
+            'AllInterval': Serialism.allInterval(currentData['Series'],currentData['Universe'])
+        }
+        console.table(results);
+        this.dictionaryForm = special();
+        this.combinatorialRewrite();
         for (let [key,value] of Object.entries(results['Derivation'])) {
             //Check if entry is null.
             if (value['set'] !== null) {
@@ -1778,45 +1800,47 @@ function myMatrix () {
         let ob = {};
         Serialism.partition(currentData['Series']).forEach(part => {
             for (let a = 0; a < part.length; a++) {
-                ob[`${part[0].length}.${a+1}`] = new MySet(currentData['Universe'],...part[a])
+                ob[`${part[0].length}.${a+1}`] = new MySet(currentData['Universe'],...part[a]);
             }
         })
         console.log(ob);
         parent.innerHTML = '';
-        let colors = ['red','blue','green','purple','yellow'];
-        for (let a = 0; a < divs; a++) {
-            let box = document.createElement('div');
-            box.id = `LBox${a}`;
-            box.classList.add('col');
-            let lab = document.createElement('h4');
-            lab.id = `labelPart${a}`;
-            lab.textContent = `${currentData['partition']}.${a+1}`;
-            let u = document.createElement('div');
-            u.id = `upperPart${a}`;
-            u.classList.add('repr');
-            box.append(lab);
-            box.append(u);
-            parent.append(box);
-            let ref = ob[`${currentData['partition']}.${a+1}`];
-            let silly = {
-                'Prime Form': `(${ref.prime_form()})`,
-                'ICV': `<${ref.interval_class_vector()}>`,
-                'Interval Vector': `<${ref.index_vector()}>`,
+        let colors = ['red','blue','green','purple','yellow'];//??
+        if (currentData['partition'] > 1 && currentData['partition'] !== null) {
+            for (let a = 0; a < divs; a++) {
+                let box = document.createElement('div');
+                box.id = `LBox${a}`;
+                box.classList.add('col');
+                let lab = document.createElement('h4');
+                lab.id = `labelPart${a}`;
+                lab.textContent = `${currentData['partition']}.${a+1}`;
+                let u = document.createElement('div');
+                u.id = `upperPart${a}`;
+                u.classList.add('repr');
+                box.append(lab);
+                box.append(u);
+                parent.append(box);
+                let ref = ob[`${currentData['partition']}.${a+1}`];
+                let silly = {
+                    'Prime Form': `(${ref.prime_form()})`,
+                    'ICV': `<${ref.interval_class_vector()}>`,
+                    'Interval Vector': `<${ref.index_vector()}>`,
+                }
+                Object.entries(silly).forEach(([key,value]) => {
+                    let lol = document.createElement('p');
+                    lol.classList.add('oneEntry');
+                    lol.id = `${key}|${a}`;
+                    lol.textContent = `${key}: ${value}`;
+                    box.append(lol);
+                })
             }
-            Object.entries(silly).forEach(([key,value]) => {
-                let lol = document.createElement('p');
-                lol.classList.add('oneEntry');
-                lol.id = `${key}|${a}`;
-                lol.textContent = `${key}: ${value}`;
-                box.append(lol);
-            })
-        }
-        for (let b = 0; b < currentData['Series'].length; b++) {
-            let part = Math.floor(b/currentData['partition']);
-            let cell = document.createElement('div');
-            cell.classList.add('cell');
-            cell.textContent = currentData['Series'][b];
-            document.querySelector(`#upperPart${part}`).append(cell);
+            for (let b = 0; b < currentData['Series'].length; b++) {
+                let part = Math.floor(b/currentData['partition']);
+                let cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.textContent = currentData['Series'][b];
+                document.querySelector(`#upperPart${part}`).append(cell);
+                }
             }
     }
     /**
@@ -1850,7 +1874,7 @@ function myMatrix () {
         else {
             console.log('No Search!')
         }
-        this.selectionRewrite();
+        this.combinatorialRewrite();
         this.orderPosition();
         this.findAdjacent();//Search if update called.
         segmentationButtons();
@@ -1867,7 +1891,7 @@ function myMatrix () {
             elem.classList.contains('rowFind')? elem.classList.remove('rowFind') : null;
             elem.classList.contains('columnFind')? elem.classList.remove('columnFind') : null;
             elem.classList.contains('both')? elem.classList.remove('both') : null;
-            elem.classList.contains('phantom')? elem.classList.remove('phantom') : null;
+            // elem.classList.contains('phantom')? elem.classList.remove('phantom') : null;
             elem.classList.contains('color3')? elem.classList.remove('color3') : null;
         })
         Object.keys(this.dictionaryForm).forEach(form => {
@@ -1997,6 +2021,129 @@ function RowLibraryItem (name,modulus,row,search,primeForm = false) {
 }
 
 /**
+ * Builds a custrom dropdown menu. Be sure to include CSS.
+ * @param {string} parent id of parent element
+ * @param {string} name Dropdown name to be displayed
+ * @param {function} method functon to call upon selection
+ * @param {...any} args arguments for callback function
+ */
+function MyDropdown(parent,name,method) {
+    this.parent = parent;
+    this.name = name;
+    this.options = {};
+    this.value = null;
+    this.method = method;
+    this.entangled = [];
+    // this.arguments = [...args];
+    /**
+     * Adds option to the dropdown menu. Options are stored in this.options object.
+     * @param {string} text 
+     * @param {any} value 
+     * @param {string} tooltip 
+     */
+    this.addOption = (text,value,tooltip) => {
+        this.options[`${text}`] = {
+            'value': value,
+            'tooltip':tooltip,
+            'selected': false,
+            'self': null
+        };
+    }
+    /**
+     * Add a function to the dropdown after construction.
+     * @param {function} ref 
+     */
+    this.addMethod = (ref) => {
+        console.log('Method added!');
+        this.method = ref;
+    }
+    /**
+     * Clears the dropdown element and removes options.
+     */
+    this.removeOptions = () => {
+        this.options = {};
+        this.value = null;
+        this.construct();
+    }
+    /**
+     * Deselects options, does not remove options from dropdown.
+     */
+    this.deselect = () => {
+        this.value = null;
+        Object.entries(this.options).forEach(([key,value]) => {
+            if (value.self.classList.contains('ddownSelect')) {
+                value.self.classList.remove('ddownSelect');
+                value.selected = false;
+            }
+        })
+    }
+    /**
+     * Builds the dropdown menu based on the current options.
+     * @param {...Object} twins Instance(s) of MyDropdown to entangle.
+     */
+    this.construct = (...twins) => {
+        this.entangled = twins;
+        let par = document.querySelector(`#${this.parent}`);
+        par.classList.add('parent');
+        /**
+         * If drop exists, remove it.
+         */
+        if (document.querySelector(`#${this.name}`)) {
+            console.error(`ERROR: #${this.name} already exists in DOM!`);
+            document.querySelector(`#${this.name}`).remove();
+        }
+        let pad = document.createElement('div');
+        pad.id = `${this.name}`;
+        pad.classList.add('primary');
+        pad.innerHTML = `${name}`;
+        let drawer = document.createElement('div');
+        drawer.classList.add('stor');
+        let decon = Object.entries(this.options);
+        if (decon.length !== 0) {
+            for (let [key,value] of decon) {
+                let single = document.createElement('div');
+                single.classList.add('myOption');
+                single.innerHTML = key;
+                // single.setAttribute('data-tooltip',value.tooltip);
+                single['data-tooltip'] = value.tooltip;
+                drawer.appendChild(single);
+                value.self = single;
+            }
+            drawer.addEventListener('mousedown',(event) => {
+                /**
+                 * Deselect previously selected option
+                 */
+                let find = event.target.closest('.myOption');   
+                this.deselect();  
+                let sel = this.options[find.innerHTML];
+                /**
+                 * If entangled elements exist, set their value to the newly selected value.
+                 */
+                if (this.entangled.length > 0) {
+                    this.entangled.forEach(twin => {
+                        twin.deselect();
+                        twin.value = sel.value;
+                    })
+                }
+                sel.selected = true;
+                this.value = sel.value;
+                sel.self.classList.add('ddownSelect');
+                if (this.method) {
+                    this.method(this.value);//add 2 undefineds before.
+                    // console.log(`Dropdown Method ${this.method} called with parameter(s): ${this.value}`)
+                }
+            })
+            pad.appendChild(drawer);
+            par.appendChild(pad);
+            console.log(`Dropdown ${this.name} constructed!`);
+        }
+        else {
+            console.warn('No options!');
+        }
+    }
+}
+
+/**
 * Creates a random matrix within the given universe.
 * @param {int} universe 
 */
@@ -2057,6 +2204,7 @@ new RowLibraryItem('ZTetrachords',12,[0,1,4,6,2,3,5,9,7,8,10,11],[0,1,4,6],true)
 new RowLibraryItem('EpicRow',12,[1, 10, 2, 6, 9, 5, 7, 4, 3, 8, 0, 11],[],false);
 new RowLibraryItem('BabbittCompositionfor12Instruments',12,[0,1,4,9,5,8,3,10,2,11,6,7],[],false);
 new RowLibraryItem('SchoenbergOp33a',12,[10,5,0,11,9,6,1,3,7,8,2,4],[],false);
+new RowLibraryItem('CombinatorialAnomaly',12,[5,11,3,8,2,0,1,9,7,4,10,6],[],false);
 
 
 /**
@@ -2149,6 +2297,9 @@ const buildKey = () => {
     }
 }
 
+/**
+ * Upon Load
+ */
 document.addEventListener('DOMContentLoaded',() => {
     console.log('Loaded!');
     currentData['matrix'] = null;
@@ -2156,23 +2307,16 @@ document.addEventListener('DOMContentLoaded',() => {
     buildInput('Universe','number',undefined,'Enter an integer value for the chromatic universe then press enter.');
     buildInput('Series','text',undefined,'Enter the elements of the series separated by commas. Ex: 0,4,5,7,... then press enter.');
     buildInput('Search','text',undefined,'Enter elements to search for in the matrix separated by commas. Ex: 0,3,5,9,... then press enter.');
-    let tiny = document.createElement('p');
-    tiny.innerHTML = `Set-Class:`;
-    let check = document.createElement('select');
-    let a = document.createElement('option');
-    a.innerHTML = 'true';
-    let b = document.createElement('option');
-    b.innerHTML = 'false';
-    check.appendChild(b);
-    check.appendChild(a);
+    const searchType = (ref = check) => {
+        console.log(`PF search? ${ref}`);
+        currentData['pfSrch'] = ref;
+    }
+    let check = new MyDropdown('subComponent','Search Type',searchType);
+    check.addOption('Literal',false,'Search the matrix for unordered adjacent elements.');
+    check.addOption('Abstract',true,'Search the matrix for the prime-form of the input.');
+    check.construct();
+    
     currentData['pfSrch'] = false;
-    check.addEventListener('change',() => {
-        let res = check.value === 'true'? true : false;
-        currentData['pfSrch'] = res;
-    })
-    let box = document.getElementById('Search');
-    box.appendChild(tiny);
-    box.appendChild(check);
     check['data-tooltip'] = 'Determine wheter the search is for literal elements or the prime form of the input.';
     let defaultURL = new URL(`file:///C:/Users/blafl/OneDrive/Desktop/Calculators%20v4/serialism.html`) == new URL(window.location);
     // if (defaultURL == false) {
