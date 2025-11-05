@@ -12,3 +12,10 @@ li:hover > a {
 footer {
     text-align:center;
 }
+
+h1 {
+    border-bottom-width: .1em;
+    border-bottom-color:grey;
+    border-bottom-style:solid;
+}
+
