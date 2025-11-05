@@ -12,14 +12,18 @@
     <div id="titleInfo">
         <h1>Set-Class List Generator:</h1>
         <h3>Generate a list of set classes for a given universe. Be advised, this process is computationally expensive, and is limited to universes of about 20.</h3>
-        <p>For more information about the expensiveness click <strong>here</strong></p>
+        <p>For more information about the expensiveness hover <strong>here</strong></p>
         <p id="progress"></p>
     </div>
     <p id="time"></p>
-    <div>
-        <input type="number" id="card" placeholder="Universe cardinality">
+    <div id="inputs">
+        <input type="number" id="univ" placeholder="Universe Cardinality">
+        <input type="number" id="card" placeholder="Set Cardinality">
     </div>
-    <div id="result"></div>
+    <div id="organizer">
+        <div id="result"></div>
+        <div id="data"></div>
+    </div>
     <div id="tooltips"></div>
 </body>
 </html>
