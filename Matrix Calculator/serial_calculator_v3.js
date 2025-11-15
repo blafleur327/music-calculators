@@ -1340,6 +1340,7 @@ const labelListeners = () => {
  * @param {int} size 
  */
 const segmentationButtons = (size = currentData['Series'].length) => {
+    console.log(`SIZE OF ROW = ${size}`)
     let contain = document.createElement('div');
     contain.id = 'partition';
     contain.classList.add('dropContainer');
@@ -1407,7 +1408,6 @@ const buildInput = (name,type,parent = 'upper',tooltip) => {
                 let data = parseInt(inp.value.match(regex));
                 currentData[`${name}`] = data;//This should populate currentData['Series'] in time for the segmentationButtons to run.
                 val.innerHTML = data;
-                segmentationButtons(data);
             }
         });
     }
@@ -1431,6 +1431,7 @@ const buildInput = (name,type,parent = 'upper',tooltip) => {
                     document.querySelectorAll('#collector > *').forEach(elem => {
                         elem.innerHTML = '';
                     })
+                    segmentationButtons(series.length);
                     buildKey();
                     K = new myMatrix();
                     K.createMatrix();
@@ -1465,14 +1466,15 @@ const buildInput = (name,type,parent = 'upper',tooltip) => {
     })
 }
 
+
 /**
- * Irritating code.
+ * Collects the elements actually present in the matrix rather than a theoretical list.
  */
 const special = () => {
     let validForms = currentData['matrix'].flat().filter(x => typeof x == 'string' && x !== ' ');
     let res = {};
     validForms.forEach(form => {
-        // console.log(`${form} => <${Serialism.singleRowForm(currentData['Series'],form,currentData['Universe'])}>`);
+        console.log(`${form} => <${Serialism.singleRowForm(currentData['Series'],form,currentData['Universe'])}>`);
         res[form] = Serialism.singleRowForm(currentData['Series'],form,currentData['Universe']);
     })
     return res;
@@ -1486,17 +1488,10 @@ function myMatrix () {
     this.seriesLength = currentData['Series'].length; //Use this for derivation purposes.
     this.dictionaryForm = null;
     /**
-     * Converts the arrayForm property into note names.
+     * 
      */
-    this.noteNames = (state = true) => {
-        document.getElementById('matrix').innerHTML = '';
-        let size = 5;
-        this.arrayForm = Serialism.buildMatrix(currentData['Series'],currentData['Universe'],state,true);
-        document.querySelectorAll('.void.cell.label').forEach(element => {
-            element.style.minWidth = `${size}em`;
-            element.style.minHeight = `${size}em`;
-        })
-        this.createMatrix();
+    this.noteNames = () => {
+        //Need to work this out.
     }
     /**
      * Removes all selected rows.
@@ -1558,8 +1553,8 @@ function myMatrix () {
             }
             subBox.addEventListener('mousedown',(event) => {
                 if (event.target.classList.contains('wow')) {
-                    document.querySelectorAll('.find,.color3').forEach(item => {
-                        item.classList.remove(item.classList.contains('find')? 'find' : 'color3');
+                    document.querySelectorAll('.find,.phantom').forEach(item => {
+                        item.classList.remove(item.classList.contains('find')? 'find' : 'phantom');
                     })
                     //Make sure original
                     let original = this.rowFormAsCells(`${currentData['selected'].length > 0? currentData['selected'][currentData['selected'].length-1] : `P${currentData['Series'][0]}`}`).flat().slice(0,key);
@@ -1581,7 +1576,7 @@ function myMatrix () {
                         cell.classList.add('find');
                     })
                     sliced.forEach(cell => {
-                        cell.classList.add('color3');
+                        cell.classList.add('phantom');
                     });
                 }
             })
@@ -1594,7 +1589,7 @@ function myMatrix () {
      */
     this.createMatrix = () => {
         currentData['matrix'] = this.arrayForm;
-        populate(currentData['matrix']);// :/
+        populate(currentData['matrix']);// 
         document.getElementById('lower').innerHTML = '';
         let results = {
             'Combinatoriality': Serialism.generalizedCombinatoriality(currentData['Series'],currentData['Universe']),//Serialism.combinatoriality(currentData['Series'],currentData['Universe']),//Keys ['RI3']
@@ -1714,11 +1709,12 @@ function myMatrix () {
         return result;
     }
     /**
-     * Tests each row form to find order invariance.
+     * Tests each row form to find order invariance. Fails if cells have duplicates.
      * @param  {array} forms 
      * @returns 
      */
     this.orderPosition = (forms = currentData['selected']) => {//????
+        console.log(`ORDER POSITION CALLED!`)
         document.querySelectorAll('.positInvar').forEach(elem => {
             elem.classList.remove('positInvar');
         })
@@ -1729,10 +1725,10 @@ function myMatrix () {
                 forms.forEach(form => {
                     test.push(this.dictionaryForm[form][a]);
                     multiList.push(this.rowFormAsCells(`${form}`));
-                    console.log(this.dictionaryForm[form][a]);
-                    console.log(this.rowFormAsCells(`${form}`));
                 })
-                let pass = Array.from(new Set(test)).length == 1;
+                console.log(`Order Position ${a}: [${test}]`);
+                // If the elements are the same, condition passes.
+                let pass = Array.from(new Set(test)).length == 1;//
                 console.log(`element ${a} is invariant? ${pass}`);//test is same element as others
                 if (pass) {
                     multiList.forEach(row => {
@@ -1847,6 +1843,7 @@ function myMatrix () {
      * Updates the matrix according to currentData.
      */
     this.updateMatrix = () => {
+        console.log(`UPDATE MATRIX CALLED!?`)
         this.dictionaryForm = special();
         document.querySelectorAll('div').forEach(item => {
             item.classList.remove('select');
@@ -1874,8 +1871,9 @@ function myMatrix () {
         else {
             console.log('No Search!')
         }
+        this.orderPosition();//This should be correct now!
         this.combinatorialRewrite();
-        this.orderPosition();
+        // this.orderPosition();
         this.findAdjacent();//Search if update called.
         segmentationButtons();
         urlOperations('change');
@@ -1894,7 +1892,8 @@ function myMatrix () {
             // elem.classList.contains('phantom')? elem.classList.remove('phantom') : null;
             elem.classList.contains('color3')? elem.classList.remove('color3') : null;
         })
-        Object.keys(this.dictionaryForm).forEach(form => {
+        this.dictionaryForm = special();
+        Object.keys(this.dictionaryForm).forEach(form => {//If row doesn't exist creates problems!
             // console.log(`LINE 1629: Row Form: ${form}`);
             let individual = this.rowFormAsCells(form);//Now a 2D array
             individual.forEach(cell => {
@@ -2205,6 +2204,7 @@ new RowLibraryItem('EpicRow',12,[1, 10, 2, 6, 9, 5, 7, 4, 3, 8, 0, 11],[],false)
 new RowLibraryItem('BabbittCompositionfor12Instruments',12,[0,1,4,9,5,8,3,10,2,11,6,7],[],false);
 new RowLibraryItem('SchoenbergOp33a',12,[10,5,0,11,9,6,1,3,7,8,2,4],[],false);
 new RowLibraryItem('CombinatorialAnomaly',12,[5,11,3,8,2,0,1,9,7,4,10,6],[],false);
+new RowLibraryItem('CiurlionisGeneric',7,[0,1,2,5,4,1,0,5,4,1,4,2,0,3,5,4,1,1,0],[],false);
 
 
 /**
