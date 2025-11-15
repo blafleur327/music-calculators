@@ -5,14 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SC-Generator</title>
     <script type="text/javascript" src="set_class_generator.js"></script>
-    <link rel="stylesheet" href="normalize.css">
     <link rel="stylesheet" href="set_class_generator.css">
 </head>
 <body>
     <div id="titleInfo">
         <h1>Set-Class List Generator:</h1>
         <h3>Generate a list of set classes for a given universe. Be advised, this process is computationally expensive, and is limited to universes of about 20.</h3>
-        <p>For more information about the expensiveness hover <strong>here</strong></p>
         <p id="progress"></p>
     </div>
     <p id="time"></p>
@@ -21,7 +19,10 @@
         <input type="number" id="card" placeholder="Set Cardinality">
     </div>
     <div id="organizer">
-        <div id="result"></div>
+        <div id="result">
+            <div id="info" class="small"></div>
+            <div id="list" class="small"></div>
+        </div>
         <div id="data"></div>
     </div>
     <div id="tooltips"></div>

@@ -1,12 +1,15 @@
 #result {
     display:flex;
     flex-direction:row;
+    max-height:25em;
+}
+
+#list {
     overflow-y: scroll;
-    max-height: 20em;
 }
 
 .hoverable:hover {
-    background-color:lightblue;
+    background-color:rgb(117, 177, 180);
     font-weight:bolder;
     cursor:pointer;
 }
@@ -54,7 +57,7 @@ strong {
 }
 
 .selected {
-    background-color:aquamarine;
+    background-color: rgb(117, 177, 180);
 }
 
 .fakeRow {
@@ -62,6 +65,11 @@ strong {
     flex-direction: row;
 }
 
+.fakeRow:hover {
+    cursor:crosshair;
+}
+
 .fakeRow > * {
     padding-left:1em;
 }
+

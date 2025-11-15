@@ -568,6 +568,21 @@ function MySet(modulus,...elements) {
         return res;
     }
     /**
+     * Straus' Degree of Symmetry tuple, and distinct forms. (See Bain)
+     */
+    this.dos = (array = this.set,modulus = this.universe) => {
+        let vect = [0,0];
+        let test = array.sort((a,b) => a-b).join('.');
+        for (let a = 0; a < modulus; a++) {
+            this.transpose(undefined,undefined,a).sort((a,b) => a-b).join('.') == test? vect[0]++ : null;
+            this.invert(undefined,undefined,a).sort((a,b) => a-b).join('.') == test? vect[1]++ : null;
+        }
+        return {
+            'DOS': vect,
+            'DF': (modulus*2)/vect.reduce((a,b) => a+=b)
+        }
+    }
+    /**
      * Creates a stringified object with specific values.
      */
     this.exportable = (json = false) => {
@@ -577,6 +592,8 @@ function MySet(modulus,...elements) {
             'Prime Form': this.prime_form(),
             'Interval Class Vector': this.interval_class_vector(),
             'Index Vector': this.index_vector(),
+            'Degree of Symmetry': this.dos()['DOS'],
+            'Distinct Forms': this.dos()['DF'],
             'Maximally Even': `${this.set.length} into ${this.universe}: ${this.maximallyEven()}`
         };
         return json? JSON.stringify(obj) : obj;
@@ -680,7 +697,7 @@ const ScaleTheory = {
         } 
     },
     /**
-     * Determines if an input array has the property of cardinality equals variety.
+     * Determines if an input array has the property of cardinality equals variety. This does not work...
      * @param {array} array 
      * @param {int} universe 
      * @returns boolean
@@ -1170,6 +1187,16 @@ const binaryFun = (number) => {
 }
 
 /**
+ * Simple constructor for storage objects.
+ * @param {any} value 
+ * @param {string} tooltip 
+ */
+function DataPoints (value,tooltip) {
+    this.value = value;
+    this.tooltip = tooltip;
+}
+
+/**
 * Monitors the hovering of the cursor. Updates tooltip box.
 */
 const mouseTracking = () => {
@@ -1242,7 +1269,8 @@ document.addEventListener('DOMContentLoaded',() => {
                      * If both are defined, clear set storage and result box.
                      */
                     setStorage = [];
-                    document.querySelector('#result').innerHTML = '';
+                    document.querySelector('#info').innerHTML = '';
+                    document.querySelector('#list').innerHTML = '';
                     console.log(`Proceed with UNIV: ${STORE['universe']} & CARD: ${STORE['cardinality']}`);
                     let ints = [];
                     for (let a = 0; a < STORE['universe']; a++) {
@@ -1259,8 +1287,16 @@ document.addEventListener('DOMContentLoaded',() => {
                         pfs.push(s.prime_form());
                     })
                     let filt = ArrayMethods.unique_subarray(pfs);
-                    let par = document.querySelector('#result');
+                    /**
+                     * Attempt to sort into Reverse Lexicographical order...fails for Z-related sets.
+                     */
+                    let sor = filt.map(x => [x,new MySet(STORE['universe'],...x).interval_class_vector().join('')]).sort((a,b) => a[1] + b[1]).map(z => z[0]);
+                    console.table(sor);
+                    let info = document.querySelector('#info');
+                    let list = document.querySelector('#list');
+                    let h1 = document.createElement('h3');
                     let head = document.createElement('h3');
+                    h1.innerHTML = `<em>k</em> = ${STORE['universe']}`;
                     head.textContent = `${STORE['cardinality']}-Chords:`;
                     let mini = document.createElement('ol');
                     filt.forEach(entry => {
@@ -1269,8 +1305,8 @@ document.addEventListener('DOMContentLoaded',() => {
                         item.textContent = `(${entry})`;
                         mini.appendChild(item);
                     });
-                    par.appendChild(head);
-                    par.appendChild(mini);
+                    info.append(h1,head);
+                    list.appendChild(mini);
                 }
                 /**
                  * If missing value, console.error the required input.
@@ -1304,27 +1340,35 @@ document.addEventListener('DOMContentLoaded',() => {
                 sel.textContent = `SC: ${event.target.textContent}`;
                 bigDisplay.append(sel);
                 let ob = {
-                    'Interval Class Vector': `<${num.interval_class_vector()}>`,
-                    'Index Vector': `<${num.index_vector()}>`,
-                    'Maximally Even': num.maximallyEven(),
-                    'Complement': `(${c.prime_form()})`,
-                    'Z-Partner': null
+                    'Interval Class Vector': new DataPoints(`<${num.interval_class_vector()}>`,'The number of tones held invariant under a T<sub><em>n</em></sub> operation.'),
+                    'Index Vector': new DataPoints(`<${num.index_vector()}>`,'The number of tones held invariant under a T<sub><em>n</em></sub>I operation.'),
+                    'Complement': new DataPoints(`(${c.prime_form()})`,'The opposite elements to the original, placed in prime form.'),
+                    'Distinct Forms': new DataPoints(`${num.dos()['DF']}`,'The number of unique instances of this SC.'),
+                    'Degree of Symmetry': new DataPoints(`${num.dos()['DOS']}`,'An ordered tuple [x,y] indicating the number of self-mapping transposition (x) and self-mapping inversioin (y) operations.'),
+                    'Z-Partner': undefined,
+                    'Maximally Even': undefined
                 }
                 /**
                  * Check for Z-partner
                  */
+                ob['Maximally Even'] = num.maximallyEven()? new DataPoints(String(num.maximallyEven()).toUpperCase(),`A set that is "as spread out as possible" with respect to the elements in the parent universe.`) : undefined;
                 setStorage.forEach(item => {
-                    num.interval_class_vector().join('.') == item.interval_class_vector().join('.') && num.prime_form().join('.') !== item.prime_form().join('.')? ob['Z-Partner'] = `(${item.prime_form()})` : null; 
+                    num.interval_class_vector().join('.') == item.interval_class_vector().join('.') && num.prime_form().join('.') !== item.prime_form().join('.')? ob['Z-Partner'] = new DataPoints(`(${item.prime_form()})`,"Two sets are Z-Related if they have the same interval content (same interval-class vector), but are not members of the same set-class.") : null; 
                 })
+                console.log(ob);
                 Object.entries(ob).forEach(item => {
                     let miniRow = document.createElement('div');
                     miniRow.classList.add('fakeRow');
                     let lab = document.createElement('p');
                     lab.textContent = `${item[0]}:`;
                     let data = document.createElement('p');
-                    data.textContent = item[1];
+                    data.textContent = item[1] instanceof DataPoints? item[1]['value'] : '';
+                    lab['data-tooltip'] = item[1] instanceof DataPoints? item[1]['tooltip'] : '';
                     miniRow.append(lab,data);
-                    bigDisplay.appendChild(miniRow);
+                    /**
+                     * If item is undefined, don't add to the box.
+                     */
+                    item[1] == undefined? null : bigDisplay.appendChild(miniRow);
                 })
             }
         })  
