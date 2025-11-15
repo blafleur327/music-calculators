@@ -610,6 +610,21 @@ function MySet(modulus,...elements) {
         return is;
     }
     /**
+     * Straus' Degree of Symmetry tuple, and distinct forms. (See Bain)
+     */
+    this.dos = (array = this.set,modulus = this.universe) => {
+        let vect = [0,0];
+        let test = array.sort((a,b) => a-b).join('.');
+        for (let a = 0; a < modulus; a++) {
+            this.transpose(undefined,undefined,a).sort((a,b) => a-b).join('.') == test? vect[0]++ : null;
+            this.invert(undefined,undefined,a).sort((a,b) => a-b).join('.') == test? vect[1]++ : null;
+        }
+        return {
+            'DOS': vect,
+            'DF': (modulus*2)/vect.reduce((a,b) => a+=b)
+        }
+    }
+    /**
      * A method that returns a variety of relevant parameters.
      */
     this.displayProperties = (...info) => {
@@ -620,6 +635,8 @@ function MySet(modulus,...elements) {
             'Interval Class Vector': this.interval_class_vector(),
             'Index Vector': this.index_vector(),
             'Maximally Even': `${this.set.length} into ${this.universe}: ${this.maximallyEven()}`,
+            'Degree of Symmetry': `${this.dos()['DOS']}`,
+            'Distinct Forms': `${this.dos()['DF']}`,
             'Literal Subsets': this.literal_subsets(),
             'Abstract Subsets': this.abstract_subsets()
         }
@@ -660,6 +677,8 @@ function MySet(modulus,...elements) {
             'Prime Form': this.prime_form(),
             'Interval Class Vector': this.interval_class_vector(),
             'Index Vector': this.index_vector(),
+            'Degree of Symmetry': this.dos()['DOS'],
+            'Distinct Forms': this.dos()['DF'],
             'Maximally Even': `${this.set.length} into ${this.universe}: ${this.maximallyEven()}`
         };
         return json? JSON.stringify(obj) : obj;
@@ -1286,6 +1305,8 @@ function SetInformation(name,set) {
         'Prime Form': new DataEntry('Prime Form',`: (${setRep.prime_form()})`,"Prime Form is the leftwise 'tightest packing' between the Normal Form or its inversion. The result is then transposed to 0."),
         'Interval Class Vector': new DataEntry('Prime Form',`: <${setRep.interval_class_vector()}>`,'The interval-class vector is the total interval content for a set. It can be used to determine the number of invariant tones under a given transpositional index.'),
         'Index Vector': new DataEntry('Index Vector',`: <${setRep.index_vector()}>`,'The index vector shows invariant tones under a given inversional index.'),
+        'Degree of Symmetry': new DataEntry('Degree of Symmetry',`: ${setRep.dos()['DOS']}`,`An ordered tuple [x,y] indicating the number of self-mapping transposition (x) and self-mapping inversioin (y) operations.`),
+        'Distinct Forms': new DataEntry('Distinct Forms',`: ${setRep.dos()['DF']}`,`The number of unique versions of this SC.`),
         'Maximally Even': new DataEntry('Maximally Even',`: ${set == 'superset'? setRep.exportable()['Maximally Even'] : subRef.exportable()['Maximally Even']}`,`Determines if the set is 'as spread out as possible', or as close to an equilateral polygon as it could be while being contained within the parent.`),
         }
         return D.drawingData[`${name}`];
