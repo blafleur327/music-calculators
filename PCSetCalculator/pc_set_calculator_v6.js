@@ -12,6 +12,11 @@ const coprime = (...nums) => {
 }
 
 /**
+ * Arrow character to be used to denote functions.
+ */
+const arrow = String.fromCharCode("0x2192");
+
+/**
  * Series of methods useful for manipulating and dealing with arrays.
  */
 const ArrayMethods = {
@@ -536,14 +541,14 @@ function MySet(modulus,...elements) {
      * @param {array} array 
      * @param {int} modulus 
      * @param {boolean} eliminateDuplicates 
-     * @param {boolean} includeMOperand
+     * @param {boolean} TnI
      * @returns Set Class
      */
-    this.set_class = (array = this.set,modulus = this.universe,eliminateDuplicates = false,includeMOperand = false) => {
+    this.set_class = (array = this.set,modulus = this.universe,eliminateDuplicates = false,TnI = false) => {
         let result = {};
         for (let a = 0; a < modulus; a++) {
             result['T'+a] = this.normal_order(array.map(x => this.modulo(x+a,modulus)),modulus);
-            result['I'+a] = this.normal_order(array.map(y => this.modulo(a-y,modulus)),modulus);
+            result[TnI? 'T'+a+'I' : 'I'+a] = this.normal_order(array.map(y => this.modulo(a-y,modulus)),modulus);
             let attempt = a > 0? this.multiply(array,modulus,a) : null;
             attempt? result['M'+a] = this.normal_order(attempt,modulus) : null;
         }
@@ -1162,7 +1167,7 @@ function MyDropdown(parent,name,method) {
                 drawer.appendChild(single);
                 value.self = single;
             }
-            let disp = null;    //???
+            // let disp = null;    //???
             if (name == 'TRANSPOSITION') {
                 disp = document.querySelector('#tContain');
             }
@@ -1763,10 +1768,10 @@ function DrawingManager (parent = 'drawing') {
      * @param {string} transform T/I(n)
      */
     this.transformation = (transform) => {
-        console.log(D.drawingData);
         this.removeTransformation();
         let setRep = new MySet(Object.keys(allNodes).length,...this.drawingData['subset']);
-        let selection = setRep.set_class()[transform];
+        console.log(`Apply ${transform} to ${setRep.normal_order()}`)
+        let selection = setRep.set_class(undefined,undefined,undefined,true)[transform];
         let test = ArrayMethods.allContained(this.drawingData['superset'],selection);
         console.log(`[${this.drawingData['superset']}] contains [${selection}]?? : ${test}`);
         if (test) {
@@ -1788,7 +1793,7 @@ function DrawingManager (parent = 'drawing') {
             })
             tr.plot(selCoords);
             tr['node'].id = `${transform}`;
-            tr['node']['data-tooltip'] = `[${setRep.normal_order()}] under ${transform[0]}<sub>${transform.slice(1)}</sub> = [${selection}]`;
+            tr['node']['data-tooltip'] = `${transform[0]}<sub>${transform.match(/[0-9]+/ig)}</sub>${transform[transform.length-1] == 'I'? 'I' : ''} [${setRep.normal_order()}] = [${selection}]`;
             this.transforms[transform] = tr;
         }
         else {
@@ -2151,11 +2156,17 @@ const populateDrops = () => {
     Object.entries(setClass).forEach(([key,value]) => {
         if (ArrayMethods.allContained(big,value) == true) {
             let current = null;
-            if (key[0] == 'T') {
+            /**
+             * Tn case.
+             */
+            if (key[0] !== 'M' && key[key.length-1] !== 'I') {
                 current = A;
                 ti[0]++;
             }
-            else if (key[0] == 'I') {
+            /**
+             * TnI case.
+             */
+            else if (key[key.length-1] == 'I') {
                 current = B;
                 ti[1]++;
             }
@@ -2163,7 +2174,8 @@ const populateDrops = () => {
                 current = C;
                 ti[2]++;
             }
-            current.addOption(key,key,`[${setClass['T0']}] under ${key} => [${value}] ${key[0] == 'M'? `SC: (${new MySet(Object.keys(allNodes).length,...value).prime_form()})` : ''}`);
+            let fixed = `${key[0]}<sub>${key.match(/[0-9]+/ig)}</sub>${key[key.length-1] == 'I'? 'I' : ''}`;
+            current.addOption(fixed,key,`${key[0]}<sub>${key.match(/[0-9]+/ig)}</sub>${key[key.length-1] == 'I'? 'I' : ''} [${setClass['T0']}] = [${value}] ${key[0] == 'M'? `SC: (${new MySet(Object.keys(allNodes).length,...value).prime_form()})` : ''}`);
         }
     });
     A.construct(B,C);
