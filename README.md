@@ -5,7 +5,7 @@ This project is a component of my PhD (LSU 2026) dissertation on post-tonal musi
 
 My primary motivation for this project is to provide learners and experienced analysts access to a more intuition forward way of approaching post-tonal music theory.
 Since my musical insterests often lie outside of the twelve-tone chromatic universe, all of these calculators except for the Neo-Riemannian one (for now!) permit larger and smaller universes.
-This is to encourage G-SPACE analysis, beat-class, and microtonal exploration using the tools and terminology from pitch-class set theory and mathematical music theories. (But with a more pedagogical spin).
+This is to encourage GPC analysis, beat-class, and microtonal exploration using the tools and terminology from pitch-class set theory and mathematical music theories. (But with a more pedagogical spin).
 
 The aim of this program is to encourage learning and intuition about pitch/rhythmic structures that are perhaps not as easily understood by looking at the score itself.
 
