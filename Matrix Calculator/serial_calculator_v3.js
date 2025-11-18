@@ -233,44 +233,18 @@ const ArrayMethods = {
  * Searches an array for an adjacency pattern. Order doesn't matter.
  * @param {array} array Array to search for pattern
  * @param {array} search Pattern to match
- * @param {array} res 2D array of [start,stop] indices
- * @param {int} offset Keeps track of the displaced indices through slicing
  * @returns 2D array (res)
  */
- adjacentIndices: function (array,search,res = [],offset = 0) {
-    /**
-     * Base case.
-     */
-    if (array.length == 0 || array.indexOf(search[0]) == -1) {
-      return res;
-    }
-    else if (search.length == 1) {
-        return [array.indexOf(search[0])];
-    }
-    else {
-        let inds = [];
-        search.forEach(item => {
-            if (array.indexOf(item) > -1) {
-                inds.push(array.indexOf(item));
-            }
-        })
-        let valid = search.length == inds.length;
-        let big = Math.max(...inds);
-        let small = Math.min(...inds);
-        let adj = big-small == search.length-1;
-        adj == true && valid == true? res.push([small+offset,big+offset]) : null;//Array.from({length: (big+offset)-(small+offset)+1},(_,i) => small+offset+i)): null;
-        /**
-        * This needs to not start from the max if the adjacency check fails...
-        */
-        let stor = adj == true? array.slice(big) : array.slice(small+1);
-        /**
-        * Offset adjusts by where you start!
-        */
-        let offVal = adj == true? big : small+1;
-        return ArrayMethods.adjacentIndices(stor,search,res,offset+offVal);
+ adjacentIndices: function (array,search) {
+    let res = [];
+    let sor = search.sort((a,b) => a-b).join('.');
+    for (let a = 0; a < array.length; a++) {
+        if (array.slice(a,a+search.length).sort((x,y) => x-y).join('.') == sor) {
+            res.push([a,a+search.length-1]);
         }
-  },
-
+    }
+    return res;
+},
 /**
  * Checks the two arrays to determine if one is an ordered rotation of the other. Can return the rotation index or a boolean.
  * @param {array} array1 
@@ -1000,8 +974,8 @@ const Serialism = {
                     let joined = ArrayMethods.simplePartition(value,fact).map(x => x.sort((a,b) => a-b));
                     let jn = joined.map(x => x.join('.'));
                     let og = ArrayMethods.simplePartition(sel,fact).map(x => x.sort((a,b) => a-b).join('.'));
-                    console.table([key,og,jn,nChords,Array.from(new Set([...jn,...og])).length == nChords])
-                    console.log(new Set([...og,...jn]))
+                    // console.table([key,og,jn,nChords,Array.from(new Set([...jn,...og])).length == nChords])
+                    // console.log(new Set([...og,...jn]))
                     if (jn.indexOf(cur.join('.')) > 0 && Array.from(new Set([...jn,...og])).length == nChords) {
                         tot.push(key);
                         aggCheck.push(...joined[0]);
@@ -1474,7 +1448,7 @@ const special = () => {
     let validForms = currentData['matrix'].flat().filter(x => typeof x == 'string' && x !== ' ');
     let res = {};
     validForms.forEach(form => {
-        console.log(`${form} => <${Serialism.singleRowForm(currentData['Series'],form,currentData['Universe'])}>`);
+        // console.log(`${form} => <${Serialism.singleRowForm(currentData['Series'],form,currentData['Universe'])}>`);
         res[form] = Serialism.singleRowForm(currentData['Series'],form,currentData['Universe']);
     })
     return res;
@@ -1900,11 +1874,8 @@ function myMatrix () {
                 let pcs = [...cell.map(x => parseInt(x.textContent))];
                 if (primeForms == false) {
                     let fs = ArrayMethods.adjacentIndices(pcs,search);//Returns slicing indices.
-                    // console.log(`[${search}] in ${form}? ${fs.length > 0}...${fs.length} times`);
+                    console.log(`[${search}] in ${form}? ${fs.length > 0}...${fs.length} times`);
                     this.counts['Search Finds']+=(fs.length);
-                    /**
-                    * Searching for more than one element
-                    */
                     if (search.length > 0) {
                         if (search.length >= 1) {
                             /**
@@ -1912,10 +1883,11 @@ function myMatrix () {
                              */
                             let showPhantom = false;
                             fs.forEach(pair => {
+                                console.log(`${form} cells ${pair}`);
                                 /**
                                  * Search for multiple elements
                                  */
-                                if (pair.length > 1) {
+                                if (pair.length >= 1) {
                                     for (let a = pair[0]; a <= pair[1]; a++) {//Take slices and add find
                                         cell[a].classList.add('find');
                                     }
@@ -1924,9 +1896,6 @@ function myMatrix () {
                                         showPhantom? el.classList.add('phantom') : null;
                                     })
                                 }
-                                /**
-                                 * Single Element clause
-                                 */
                                 else {
                                     cell[pair].classList.add('find');
                                 }
