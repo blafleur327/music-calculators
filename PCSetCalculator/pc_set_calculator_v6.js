@@ -1483,7 +1483,7 @@ function DrawingManager (parent = 'drawing') {
              */
             if (a == 0) {
                 pairs[`${arrRep[selection[selection.length-1]].name}-${arrRep[selection[a]].name}`] = {
-                    'cents': ((arrRep[selection[a]].name)-arrRep[selection[selection.length-1]].name*centStep+three60).toFixed(2),
+                    'cents': (((arrRep[selection[a]].name)-arrRep[selection[selection.length-1]].name)*centStep+three60).toFixed(2),
                     'coords': midpoint(arrRep[selection[a]].coordinates,arrRep[selection[selection.length-1]].coordinates)
                 }
             }
@@ -2662,3 +2662,4 @@ let Mod31 = new Transformation(31,[0,5,18,23],[0,16]);//
  * Chord 0 in MOD 9 Where lowest pitch is moved up incrementally.
  */
 let Mod9 = new Transformation(9,[5,7,0,1],[5,4]);//
+
