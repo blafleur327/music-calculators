@@ -1494,10 +1494,12 @@ function DrawingManager (parent = 'drawing') {
                 }
             }
         }
+        console.table(pairs);
         for (let [key,value] of Object.entries(pairs)) {
             let t = this.draw.circle(7);
             t.addClass('centDis');
             t.center(...value['coords']);
+            console.log(findIntervals(value['cents']));
             t['node']['data-tooltip'] = `Distance between ${key} = ${value['cents']}cET<br>${findIntervals(value['cents'])}`;
         }
     }
@@ -2057,6 +2059,7 @@ function MyNode (parent = D,textLabel,primary,secondary,largeMod = false) {
     let text = parent.draw.text(`${textLabel}`);
     let circ = parent.draw.circle(40,40).fill('white').stroke({width: '1px', color: 'black'});
     this.largeMod? text.center(...this.outerCoordinate) : text.center(...this.coordinates);
+    // this.largeMod? text.style.fontSize = inversely proportional to modulus : null;
     circ.addClass(`myCircle`);
     circ.center(...this.coordinates);
     this.self.add(circ);
@@ -2662,4 +2665,3 @@ let Mod31 = new Transformation(31,[0,5,18,23],[0,16]);//
  * Chord 0 in MOD 9 Where lowest pitch is moved up incrementally.
  */
 let Mod9 = new Transformation(9,[5,7,0,1],[5,4]);//
-
