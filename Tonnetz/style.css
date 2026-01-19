@@ -1,0 +1,196 @@
+@font-face {
+    font-family: 'Bravura';
+    src: url('../Fonts/Bravura.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display:swap;
+}
+
+circle {
+    stroke:darkgrey;
+    stroke-width:.05em;
+    fill:rgba(255, 255, 255, 0.255);
+}
+
+.chord:hover {
+    cursor: pointer
+}
+
+.chord:hover > circle {
+    r:22;
+    fill:rgba(174, 174, 174, 0.596);
+}
+
+.chord:hover > text {
+    visibility:visible;
+}
+
+.hexNode > text {
+    user-select: none;
+}
+
+.hexNode > polygon {
+    fill:white;
+    stroke-width:.05em;
+    stroke:grey;
+}
+
+.hexNode:hover {
+    cursor:cell;
+}
+
+.sel > circle {
+    fill:rgba(97, 97, 189, 0.556) !important;
+    r:22;
+}
+
+.sel > text {
+    fill:white;
+    visibility: visible;
+}
+
+#drawing {
+    width:60%;
+    overflow: scroll;
+}
+
+.void {
+    visibility:hidden;
+}
+
+.active > polygon {
+    stroke:darkgrey;
+    stroke-width:.05em;
+    fill:grey !important;
+}
+
+.dark > polygon {
+    fill: rgb(49, 49, 49);
+}
+
+.dark > text {
+    fill:white;
+}
+
+.test > circle {
+    stroke-dasharray: 3,2;
+}
+
+.test > text {
+    visibility: visible !important;
+}
+
+.primary {
+    background-color:rgb(144, 144, 208);
+    position:relative;
+    min-width:15%;
+    border: 1px solid grey;
+}
+
+.parent {
+    display:flex;
+    flex-direction:row;
+}
+
+h4 {
+    margin:.8em;
+}
+
+.stor {
+    visibility:hidden;
+    display:flex;
+    flex-direction:column;
+    position:absolute;
+    width:99%;
+    max-height:20em;
+    overflow-y:auto;
+    overflow-x:hidden;
+    border:1px solid black;
+}
+
+.primary:hover {
+    background-color:rgb(100, 100, 208);
+    cursor:pointer;
+}
+
+.primary:hover > .stor {
+    visibility:visible;
+}
+
+.myOption {
+    background-color:rgb(198, 198, 198);
+    text-align:center;
+    width: 100%;
+    height:2em;
+    line-height:2em;
+    box-sizing:border-box;
+    border: 1px solid grey;
+}
+
+.myOption:hover {
+    background-color:rgb(59, 59, 59);
+    color:white;
+    transform: scale(1.1);
+    overflow:visible;
+}
+
+.ddownSelect {
+    background-color:rgb(94, 94, 94);
+    color:white;
+}
+
+#upper {
+    display:flex;
+    flex-direction:column;
+}
+
+#Layout {
+    max-width:fit-content;
+    margin-bottom: 3em;
+}
+
+text {
+    font-family: Bravura;
+}
+
+/* .color1 {
+    fill: blue;
+}
+
+.color2 {
+    fill: green;
+}
+
+.color3 {
+    fill:yellow;
+}
+
+.color4 {
+    fill:white;
+}
+
+.color4 {
+    fill:orange;
+}
+
+.color6 {
+    fill:red;
+}
+
+.color7 {
+    fill:black;
+} */
+
+
+.wham > polygon {
+    fill:rgba(255, 103, 103, 0.551);
+}
+
+.both > polygon {
+    fill: rgba(255, 132, 0, 0.89);
+}
+
+.wham2 > polygon {
+    fill: rgba(255, 217, 0, 0.458);
+}
+
