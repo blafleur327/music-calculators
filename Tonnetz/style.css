@@ -83,8 +83,9 @@ circle {
 .primary {
     background-color:rgb(144, 144, 208);
     position:relative;
-    min-width:15%;
+    min-width:10em;
     border: 1px solid grey;
+    margin-bottom: 3em;
 }
 
 .parent {
@@ -144,11 +145,6 @@ h4 {
     flex-direction:column;
 }
 
-#Layout {
-    max-width:fit-content;
-    margin-bottom: 3em;
-}
-
 text {
     font-family: Bravura;
 }
@@ -194,3 +190,23 @@ text {
     fill: rgba(255, 217, 0, 0.458);
 }
 
+.horiz {
+    display:flex;
+    flex-direction: row;
+    padding-bottom: 1em;
+}
+
+#info > * {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+.box {
+    border-radius: .2em;
+    border-color:grey;
+    border-style: inset;
+}
+
+.box > * {
+    text-align: center;
+}

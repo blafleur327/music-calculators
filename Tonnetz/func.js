@@ -1,7 +1,7 @@
 /**
  * Set the Tuning System for the tonnetz.
  */
-let tuning = '31-EDO';
+// let tuning = '12-EDO';
 
 /**
  * Stein-Zimmerman accidentals for various tunings/temperaments.
@@ -35,13 +35,13 @@ const TuningSystems = {
             `G${Accidentals.flat}`,`G${Accidentals.semiFlat}`,`G`,`G${Accidentals.semiSharp}`,`G${Accidentals.sharp}`,
             `A${Accidentals.flat}`,`A${Accidentals.semiFlat}`,'A',`A${Accidentals.semiSharp}`,`A${Accidentals.sharp}`,
             `B${Accidentals.flat}`,`B${Accidentals.semiFlat}`,`B`,`C${Accidentals.flat}`,`C${Accidentals.semiFlat}`],
-        'pcs': [`C`,`C${Accidentals.semiSharp}`,`C${Accidentals.sharp}`,
-            `D${Accidentals.flat}`,`D${Accidentals.semiFlat}`,'D',`D${Accidentals.semiSharp}`,`D${Accidentals.sharp}`,
-            `E${Accidentals.flat}`,`E${Accidentals.semiFlat}`,`E`,`E${Accidentals.semiSharp}`,`E${Accidentals.sharp}`,
-            `F`,`F${Accidentals.semiSharp}`,`F${Accidentals.sharp}`,
-            `G${Accidentals.flat}`,`G${Accidentals.semiFlat}`,`G`,`G${Accidentals.semiSharp}`,`G${Accidentals.sharp}`,
-            `A${Accidentals.flat}`,`A${Accidentals.semiFlat}`,'A',`A${Accidentals.semiSharp}`,`A${Accidentals.sharp}`,
-            `B${Accidentals.flat}`,`B${Accidentals.semiFlat}`,`B`,`C${Accidentals.flat}`,`C${Accidentals.semiFlat}`],
+        'pcs': [[`C`],[`C${Accidentals.semiSharp}`],[`C${Accidentals.sharp}`],
+            [`D${Accidentals.flat}`,`C${Accidentals.sharpAndHalf}`],[`D${Accidentals.semiFlat}`],['D'],[`D${Accidentals.semiSharp}`],[`D${Accidentals.sharp}`],
+            [`E${Accidentals.flat}`],[`E${Accidentals.semiFlat}`],[`E`],[`E${Accidentals.semiSharp}`],[`E${Accidentals.sharp}`],
+            [`F`],[`F${Accidentals.semiSharp}`],[`F${Accidentals.sharp}`],
+            [`G${Accidentals.flat}`],[`G${Accidentals.semiFlat}`],[`G`],[`G${Accidentals.semiSharp}`],[`G${Accidentals.sharp}`],
+            [`A${Accidentals.flat}`],[`A${Accidentals.semiFlat}`],['A'],[`A${Accidentals.semiSharp}`],[`A${Accidentals.sharp}`],
+            [`B${Accidentals.flat}`],[`B${Accidentals.semiFlat}`],[`B`],[`C${Accidentals.flat}`,`B${Accidentals.semiSharp}`],[`C${Accidentals.semiFlat}`,`B${Accidentals.sharp}`]],
         'enharm': [`C`,`C${Accidentals.semiSharp}`,`C${Accidentals.sharp}`,
             `D${Accidentals.flat}`,`D${Accidentals.semiFlat}`,'D',`D${Accidentals.semiSharp}`,`D${Accidentals.sharp}`,
             `E${Accidentals.flat}`,`E${Accidentals.semiFlat}`,`E`,`E${Accidentals.semiSharp}`,`E${Accidentals.sharp}`,
@@ -318,7 +318,13 @@ const IntsByTuning = {
     }
 }
 
-const findOPCI = (opci) => {
+/**
+ * 
+ * @param {int} opci 
+ * @param {string} tuning 12-EDO
+ * @returns 
+ */
+const findOPCI = (opci,tuning = '12-EDO') => {
     for (let [key,value] of Object.entries(IntsByTuning[tuning])) {
         if (value.opci == opci) {
             return key;
@@ -329,9 +335,10 @@ const findOPCI = (opci) => {
 /**
  * Determines if the input PC or pitch is a black key or not.
  * @param {any} name Pitch Name || PC
+ * @param {string} tuning 12-EDO
  * @returns Boolean
  */
-const isBlackKey = (name) => {
+const isBlackKey = (name,tuning = '12-EDO') => {
     let black = tuning == '12-EDO'? [1,3,6,8,10] : [1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 14, 15, 16, 17, 19, 20, 21, 22, 24, 25, 26, 27, 29, 30];
     let result = null;
     if (typeof name == 'string' && isNaN(parseInt(name))) {
@@ -383,9 +390,10 @@ function Interval (unwound,opci) {
 /**
  * Gets the PC of input note.
  * @param {string} note 
+ * @param {string} tuning
  * @returns 
  */
-const getPC = (note) => {
+const getPC = (note,tuning = '12-EDO') => {
     let res = null;
     let i = 0; 
     while (res == null && i < TuningSystems[tuning]['pcs'].length) {
@@ -403,12 +411,13 @@ let TonnetzStructure = {};
 /**
  * Define a new tonnetz structure.
  * @param {string} name 
+ * @param {string} tuning 12-EDO
  * @param {string} start starting pitch.
  * @param {string} a east-west
  * @param {string} b south-east
  * @param {string} c south-west
  */
-function Structure (name,start = 'B♯',a,b,c) {
+function Structure (name,tuning = '12-EDO',start = 'B♯',a,b,c) {
     let width = 15;
     this.enharmonicWrap = true;
     this.name = name;
@@ -449,41 +458,34 @@ function Structure (name,start = 'B♯',a,b,c) {
         }
     }
     populate();
-    TonnetzStructure[name] = this;
-}
-
-/**
- * Fixes the Intervals for each new Tuning System
- */
-const fixer = {
-    '12-EDO': {
-        'Triadic': ['P5','M3','m3'],
-        'Janko': ['M2','M7','m2'],
-        'Wicki-Hayden': ['M2','P4','P5'],
-        'B-System': ['m3','m3','m2'],
-        'C-System': ['m3','M7','M2']
-    },
-    '31-EDO': {
-        'Triadic': ['P5','M3','m3'],
-        'Janko': ['M2','M7','Chromatic m2'],
-        'Wicki-Hayden': ['M2','P4','P5'],
-        'B-System': ['m3','m3','Chromatic m2'],
-        'C-System': ['m3','M7','M2'],
-        'Bosanquet-Wilson': ['M2','Chromatic m2','Diatonic m2'],
+    if (TonnetzStructure[tuning] == undefined) {
+        TonnetzStructure[tuning] = {};
+        TonnetzStructure[tuning][name] = this;
+    }
+    else {
+        TonnetzStructure[tuning][name] = this;
     }
 }
 
 /**
- * Tonnetz layouts access through TonnetzStructure object.
+ * 12-EDO Layouts
  */
-new Structure('Triadic',tuning == '12-EDO'? undefined : 'C',...fixer[tuning]['Triadic']); //undefined for 12
-new Structure('Janko',tuning == '12-EDO'? undefined : 'C',...fixer[tuning]['Janko']);
-new Structure('Wicki-Hayden',tuning == '12-EDO'? 'B♭♭' : 'C',...fixer[tuning]['Wicki-Hayden']);
-new Structure('B-System',tuning == '12-EDO'? 'Bx' : 'C',...fixer[tuning]['B-System']);
-new Structure('C-System',tuning == '12-EDO'? undefined : 'C',...fixer[tuning]['C-System']);
-if (tuning == '31-EDO') {
-    new Structure('Bosanquet-Wilson','C',...fixer[tuning]['Bosanquet-Wilson']);
-}
+new Structure('Triadic',undefined,undefined,...['P5','M3','m3']);
+new Structure('Jankó',undefined,undefined,...['M2','M7','m2']);
+new Structure('Wicki-Hayden',undefined,undefined,...['M2','P4','P5']);
+new Structure('B-System',undefined,undefined,...['m3','m3','m2']);
+new Structure('C-System',undefined,undefined,...['m3','M7','M2']);
+
+/**
+ * 31-EDO Layouts
+ */
+new Structure('Triadic','31-EDO','C',...['P5','M3','m3']);
+new Structure('Jankó','31-EDO','C',...['M2','M7','Chromatic m2']);
+new Structure('Wicki-Hayden','31-EDO','C',...['M2','P4','P5']);
+new Structure('B-System','31-EDO','C',...['m3','m3','Chromatic m2']);
+new Structure('C-System','31-EDO','C',...['m3','M7','M2']);
+new Structure('Bosanquet-Wilson','31-EDO','C',...['M2','Chromatic m2','Diatonic m2']);
+
 
 /**
  * Corrects b or # in an input.
@@ -507,12 +509,12 @@ const fixAccidentals = (string) => {
 /**
  * Contains the unwound vectors for the 4 triad types.
  */
-const triads = {
-    '+': [IntsByTuning[tuning].M3,IntsByTuning[tuning].P5],
-    '-': [IntsByTuning[tuning].m3,IntsByTuning[tuning].P5],
-    'aug': [IntsByTuning[tuning].M3,IntsByTuning[tuning].A5],
-    'dim': [IntsByTuning[tuning].m3,IntsByTuning[tuning].D5]
-}
+// const triads = {
+//     '+': [IntsByTuning[tuning].M3,IntsByTuning[tuning].P5],
+//     '-': [IntsByTuning[tuning].m3,IntsByTuning[tuning].P5],
+//     'aug': [IntsByTuning[tuning].M3,IntsByTuning[tuning].A5],
+//     'dim': [IntsByTuning[tuning].m3,IntsByTuning[tuning].D5]
+// }
 
 /**
  * Create a Uniform Triadic Transformation or UTT object.
@@ -1131,7 +1133,7 @@ function HexNode (parent,name,center,numPoints = 6,length = 30) {
             this.self.add(t);
             this.self.addClass('hexNode');
             this.self.id(`n${curr}`);
-            if (tuning == '12-EDO') {
+            if (parent.tuning == '12-EDO') {
                 isBlackKey(this.name)? this.self.addClass('dark') : null;
             }
             else {
@@ -1270,6 +1272,7 @@ const proximity = (x1,y1,x2,y2,deviation = 10) => {
  */
 function LatticeManager (parent,structure = 'Triadic') {
     let drawSize = {'x': 1200,'y': 750};
+    this.tuning = '12-EDO';
     this.selectedTriad = null;
     this.depth = 15;
     /**
@@ -1300,7 +1303,7 @@ function LatticeManager (parent,structure = 'Triadic') {
         let diag = [26,45]; //[26,45]
         let first = 12;
         for (let a = 0; a < this.depth; a++) {
-            first = (first*a)%TuningSystems[tuning]['unwound'].length;//???
+            first = (first*a)%TuningSystems[this.tuning]['unwound'].length;//???
             let init = [start[0]+(diag[0]*a),start[1]+(diag[1]*a)];
             for (let b = 0; b < this.depth; b++) {
                 let hex = new HexNode(this,this.integers? `${this.structure.pcArray[a*this.depth+b]}` : `${this.structure.enharmonicWrap? this.structure.noteArray[a*this.depth+b] : TuningSystems[tuning]['unwound'][this.structure.noteArray[a*this.depth+b]]}`,[init[0]+(xChange*b),init[1]]);
@@ -1364,7 +1367,7 @@ function LatticeManager (parent,structure = 'Triadic') {
         let ints = [...this.structure.pcArray.slice(0,2),this.structure.pcArray[this.depth]];
         console.log(ints);
         document.querySelector('#type').textContent = `${this.structure.name} ... <${this.structure.intNames}>`;
-        document.querySelector('#setClass').textContent = `SC: (${new MySet(TuningSystems[tuning]['universe'],...ints).prime_form()})`;
+        document.querySelector('#setClass').textContent = `SC: (${new MySet(TuningSystems[this.tuning]['universe'],...ints).prime_form()})`;
     }
     /**
      * Groups hex nodes.
@@ -1441,6 +1444,21 @@ function LatticeManager (parent,structure = 'Triadic') {
                 }
             }
         })
+    }
+    /**
+     * Draws an interval cycle on the Tonnetz.
+     * @param {int} terms number of elements to highlight
+     * @param {int} start PC within universe
+     * @param  {...int} ints OPCIs within universe
+     */
+    this.intervalCycle = (terms = 12,start = 0,...ints) => {
+        let inds = [start];
+        for (let a = 0; a < terms; a++) {
+            let curr = ints[a%ints.length];
+            inds.push((inds[a]+curr)%TuningSystems[this.tuning].universe);
+        }
+        console.log(inds)
+        this.highlightPCs(inds);
     }
 }    
 
@@ -1567,18 +1585,12 @@ function MyDropdown(parent,name,method) {
     }
 }
 
-let D;
-let Z;
-
-const dumb = () => {
-    let res = [];
-    for (let a = 0; a < TuningSystems['31-EDO'].unwound.length; a++) {
-        if (TuningSystems['31-EDO'].unwound[a].length > 1) {
-            res.push(a);
-        }
-    }
-    return res;
-}
+/**
+ * Relevant Globals
+ */
+let D;  //Lattice Manager
+let Y; //Universe Dropdown
+let Z; //Structure Dropdown
 
 /**
  * Chords found in Pareidolia...requires 31-EDO layout.
@@ -1592,16 +1604,28 @@ const PareidoliaB = {
     'superset': Array.from(new Set([[22,27,4,9],[14,18,27,0],[4,9,18,22],[10,14,22,26],[10,18,27],[10,18,22,0],[26,0,10,14],[14,22,27,0],[14,18,27,4],[14,27,0],[22,27,4,10]].flat()))
 }
 document.addEventListener('DOMContentLoaded',() => {
-    D = new LatticeManager('drawing',tuning == '12-EDO'? undefined : 'Bosanquet-Wilson');
-    Z = new MyDropdown('upper','Layout',() => {
-        D.structure = Z.value;
-        D.buildLattice();
+    D = new LatticeManager('drawing','Triadic');
+    // D.buildLattice();
+    /**
+     * Nested Dropdown...
+     */
+    Y = new MyDropdown('universe','Tuning System',() => {
+        D.tuning = Y.value;
+        document.querySelector('#tuning').textContent = `${Y.value}`;
+        document.querySelector('#structure').innerHTML = '';
+            Z = new MyDropdown('structure','Layout',() => {
+                D.structure = Z.value;
+                D.buildLattice();
+            });
+        Object.entries(TonnetzStructure[D.tuning]).forEach(([key,value]) => {
+            Z.addOption(key,value,`<${value.axes}>`);
+        })
+        Z.construct();
     });
-    Object.entries(TonnetzStructure).forEach(([key,value]) => {
-        Z.addOption(key,value,`<${value.axes}>`);
-    })
-    Z.construct();
-    D.buildLattice();
+    Object.keys(TuningSystems).forEach(entry => {
+        Y.addOption(entry,entry);
+    });
+    Y.construct();
     /**
      * Allows selecting of hex nodes.
      */
