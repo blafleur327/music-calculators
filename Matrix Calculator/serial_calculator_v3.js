@@ -1592,13 +1592,17 @@ function myMatrix () {
                 ts.innerHTML = `Relationship(s):`;
                 let r = document.createElement('div');
                 r.classList.add('fakeRow');
+                /**
+                 * Derivation levels.
+                 */
                 for (let [k, v] of Object.entries(value['levels'])) {
                     let mini = document.createElement('p');
                     mini.classList.add('wow');
-                    mini.innerHTML = conc == ''? `${v}` : `, ${v}`;
+                    //fix v to have subscript...
+                    let fixed = v.map(x => x = x.match(/[A-Z]+/ig)[0] == 'I'? `T<sub>${x.match(/[0-9]+/ig)[0]}</sub>I` : `T<sub>${x.match(/[0-9]+/ig)[0]}</sub>`);
+                    mini.innerHTML = conc == ''? `${fixed}` : `, ${fixed}`;
                     let m = k.match(/[0-9]+/g);
-                    // console.log(m);
-                    mini['data-tooltip'] = `${key}.${m[0]} = {${currentData['Series'].slice(parseInt((m[0])-1)*key,parseInt((m[1])-1)*key)}}<br> Under ${v}<br>${key}.${m[1]} = {${currentData['Series'].slice(parseInt((m[0]))*key,parseInt((m[1]))*key)}}<br>`;
+                    mini['data-tooltip'] = `${key}.${m[0]} = {${currentData['Series'].slice(parseInt((m[0])-1)*key,parseInt((m[1])-1)*key)}}<br> Under ${fixed}<br>${key}.${m[1]} = {${currentData['Series'].slice(parseInt((m[0]))*key,parseInt((m[1]))*key)}}<br>`;
                     r.appendChild(mini);
                 }
                 item.append(i);//Derived at ...
@@ -1794,7 +1798,7 @@ function myMatrix () {
                 let silly = {
                     'Prime Form': `(${ref.prime_form()})`,
                     'ICV': `<${ref.interval_class_vector()}>`,
-                    'Interval Vector': `<${ref.index_vector()}>`,
+                    'Index Vector': `<${ref.index_vector()}>`,
                 }
                 Object.entries(silly).forEach(([key,value]) => {
                     let lol = document.createElement('p');
@@ -1863,8 +1867,8 @@ function myMatrix () {
             elem.classList.contains('rowFind')? elem.classList.remove('rowFind') : null;
             elem.classList.contains('columnFind')? elem.classList.remove('columnFind') : null;
             elem.classList.contains('both')? elem.classList.remove('both') : null;
-            // elem.classList.contains('phantom')? elem.classList.remove('phantom') : null;
-            elem.classList.contains('color3')? elem.classList.remove('color3') : null;
+            elem.classList.contains('phantom')? elem.classList.remove('phantom') : null;
+            // elem.classList.contains('color3')? elem.classList.remove('color3') : null;
         })
         this.dictionaryForm = special();
         Object.keys(this.dictionaryForm).forEach(form => {//If row doesn't exist creates problems!
@@ -2165,7 +2169,7 @@ new RowLibraryItem('CiurlionisFugue',12,[10,0,1,5,4,9,8,0,11,2,5,4,2,0,6,10,8,4,
 new RowLibraryItem('Anomaly1',12,[5, 3, 0, 1, 11, 4, 9, 6, 2, 7, 8, 10],[5,3,0,1,11,4],false);
 new RowLibraryItem('Anomaly2',12,[4, 10, 0, 1, 5, 7, 8, 9, 2, 6, 11, 3],[4, 10, 0, 1, 5, 7],false);
 new RowLibraryItem('WT',12,[0,2,4,6,8,10,11,9,7,5,3,1],[],false);
-new RowLibraryItem('BabbittPedagogy',12,[0,4,5,2,7,9,3,1,8,11,10,6],[],false);//h1 = voice...h2 = bells
+new RowLibraryItem('BabbittPedagogy',12,[0,4,5,2,7,9,3,11,10,1,8,6],[],false);//h1 = voice...h2 = bells
 new RowLibraryItem('WebernConcertoOp24',12,[11,10,2,3,7,6,8,4,5,0,1,9],[],false);
 new RowLibraryItem('BerioNones',12,[11,2,10,7,4,3,8,1,0,9,6,2,5],[0,1,4],true);//13 tone row, still derived at the trichord (ish)
 new RowLibraryItem('ZTetrachords',12,[0,1,4,6,2,3,5,9,7,8,10,11],[0,1,4,6],true);
@@ -2174,6 +2178,8 @@ new RowLibraryItem('BabbittCompositionfor12Instruments',12,[0,1,4,9,5,8,3,10,2,1
 new RowLibraryItem('SchoenbergOp33a',12,[10,5,0,11,9,6,1,3,7,8,2,4],[],false);
 new RowLibraryItem('CombinatorialAnomaly',12,[5,11,3,8,2,0,1,9,7,4,10,6],[],false);
 new RowLibraryItem('CiurlionisGeneric',7,[0,1,2,5,4,1,0,5,4,1,4,2,0,3,5,4,1,1,0],[],false);
+new RowLibraryItem('BoulezStructures1a',12,[0,11,6,5,4,3,1,10,9,7,2,8],[],false);
+new RowLibraryItem('BabbittAllSet',12,[0,4,5,11,6,10,7,3,1,2,9,8],[],false);
 
 
 /**
