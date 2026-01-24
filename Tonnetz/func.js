@@ -1,4 +1,11 @@
 /**
+ * Relevant Globals
+ */
+let D;  //Lattice Manager
+let Y; //Universe Dropdown
+let Z; //Structure Dropdown
+
+/**
  * Set the Tuning System for the tonnetz.
  */
 // let tuning = '12-EDO';
@@ -97,6 +104,14 @@ const ArrayMethods = {
         else {
             console.error(`${array.length} is not divisible by ${size}!`);
         }
+    },
+    /**
+     * Returns the number of overlapping elements between two arrays;
+     * @param {array} arr1 
+     * @param {array} arr2 
+     */
+    intersection: function (arr1,arr2) {
+        return [...arr1,...arr2].length-Array.from(new Set([...arr1,...arr2])).length;
     },
     /**
      * Returns all indices of a query found within the parent array.
@@ -509,74 +524,11 @@ const fixAccidentals = (string) => {
 /**
  * Contains the unwound vectors for the 4 triad types.
  */
-// const triads = {
-//     '+': [IntsByTuning[tuning].M3,IntsByTuning[tuning].P5],
-//     '-': [IntsByTuning[tuning].m3,IntsByTuning[tuning].P5],
-//     'aug': [IntsByTuning[tuning].M3,IntsByTuning[tuning].A5],
-//     'dim': [IntsByTuning[tuning].m3,IntsByTuning[tuning].D5]
-// }
-
-/**
- * Create a Uniform Triadic Transformation or UTT object.
- * @param {string} parody +/-
- * @param {int} majorInt 
- * @param {int} minorInt
- * @param {string} tooltip to display upon hover
- */
-function UTT (parody,majorInt,minorInt,tooltip) {
-    this.quality = parody;
-    this.majorInt = findOPCI(majorInt);
-    this.minorInt = findOPCI(minorInt);
-    /**
-     * Shows the string format of a UTT.
-     */
-    this.stringFormat = `<${this.quality},${majorInt},${minorInt}>`;
-    /**
-     * Boolean, if the UTT is a Schritt. That is, it is a contextual transposition that transposes a major triad in one direction and a minor triad in an equal and opposite direction.
-     */
-    this.isSchritt = parody == '+' && (majorInt+minorInt)%12 == 0;
-    /**
-     * Boolean, if the UTT is a Wechsel. That is, it is a contextual inversion that transposes a major triad in one direction and a minor triad in an equal and opposite direction.
-    */
-    this.isWechsel = parody == '-' && (majorInt+minorInt)%12 == 0;
-    this.tooltip = tooltip? tooltip : this.stringFormat;
-    /**
-     * Perform this transformation on an input triad.
-     * @param {any} triad 
-     */
-    this.execute = (triad) => {
-        let temp = triad;
-        if (typeof triad == 'object') {
-            temp = PC.reduceTriad(triad);
-        }
-        let init = temp.match(/[A-G♭♯b#]+/g)[0];
-        let qual = temp.match(/[+-]/g)[0];
-        root = fixAccidentals(init);
-        let index = TuningSystems[tuning]['unwound'].indexOf(root);
-        if (qual == '+') {
-            index+=IntsByTuning[tuning][this.majorInt].unwound;
-        }
-        else {
-            index+=IntsByTuning[tuning][this.minorInt].unwound;
-        }
-        if (parody == '-') {
-            if (qual == '-') {
-                qual = '+';
-            }
-            else if (qual == '+') {
-                qual = '-';
-            }
-        }
-        return typeof triad == 'object'? PC.buildTriad(PC.enharmonicRespell(`${TuningSystems[tuning]['unwound'][index]}${qual}`)) : PC.enharmonicRespell(`${TuningSystems[tuning]['unwound'][index]}${qual}`);
-    }
-    let grp = ['C+'];
-    for (let a = 0; a < 24; a++) {
-        grp.push(this.execute(grp[a]));
-    }
-    /**
-     * Boolean, if the input UTT creates a simply transitive, closed group. That is, with recursive application, this transformation can produce the complete consonant triad group.
-     */
-    this.kGroup = Array.from(new Set(grp)).length == 24;
+const triads = {
+    '+': [IntsByTuning['12-EDO'].M3,IntsByTuning['12-EDO'].P5],
+    '-': [IntsByTuning['12-EDO'].m3,IntsByTuning['12-EDO'].P5],
+    'aug': [IntsByTuning['12-EDO'].M3,IntsByTuning['12-EDO'].A5],
+    'dim': [IntsByTuning['12-EDO'].m3,IntsByTuning['12-EDO'].D5]
 }
 
 const PC = {
@@ -615,6 +567,7 @@ const PC = {
      * @param {boolean} numbers
      */
     buildTriad: (chord,numbers = false) => {
+        console.log(`buildTriad called on params:...chord ${chord}, numbers: ${numbers}`);
         let init = chord.match(/[A-G♭♯b#]+/g)[0];
         let root = fixAccidentals(init);
         let qual = chord.match(/[+-]/g)[0];
@@ -640,6 +593,7 @@ const PC = {
         for (let a = 1; a < chord.length; a++) {
             ints.push(chord[a]-chord[0]);
         }
+        console.table(triads)
         for (let [key,value] of Object.entries(triads)) {
             let temp = value.map(x => x.unwound);
             if (temp.join('.') == ints.join('.')) {
@@ -654,6 +608,7 @@ const PC = {
      * @param {*} lower 
      */
     enharmonicRespell: (chord,upper = 'B♯',lower = 'F♭') => {
+        console.log(`ENHARMONIC RESPELL CALLED! on params...chord: ${chord}`)
         let ints = [TuningSystems['12-EDO']['unwound'].indexOf(upper),TuningSystems['12-EDO']['unwound'].indexOf(lower)];
         let resp = typeof chord == 'string'? PC.buildTriad(chord,true) : chord.map(x => TuningSystems['12-EDO']['unwound'].indexOf(x));
         if (Math.min(...resp) <= ints[1]) {
@@ -980,11 +935,15 @@ function Cycle (start,...utts) {
          * Convert string rep of utt into actual UTT instance.
          */
         utts.forEach(transformation => {
-            if (typeof transformation == 'string') {
+            if (typeof transformation == 'string' && transformation[0] == '<') {
                 let split = transformation.match(/[0-9-+]+/g);
+                console.log(split)
                 split[1] = parseInt(split[1]);
                 split[2] = parseInt(split[2]);
                 transformations.push(new UTT(...split));
+            }
+            else if (typeof transformation == 'string') {
+                transformations.push(NRTs[`${transformation}`]);
             }
             else if (transformation instanceof UTT) {
                 transformations.push(transformation);
@@ -1049,10 +1008,10 @@ function UTT (parody,majorInt,minorInt,tooltip) {
         root = fixAccidentals(init);
         let index = TuningSystems['12-EDO']['unwound'].indexOf(root);
         if (qual == '+') {
-            index+=IntsByTuning[tuning][this.majorInt].unwound;
+            index+=IntsByTuning['12-EDO'][this.majorInt].unwound;
         }
         else {
-            index+=IntsByTuning[tuning][this.minorInt].unwound;
+            index+=IntsByTuning['12-EDO'][this.minorInt].unwound;
         }
         if (parody == '-') {
             if (qual == '-') {
@@ -1062,6 +1021,7 @@ function UTT (parody,majorInt,minorInt,tooltip) {
                 qual = '-';
             }
         }
+        console.table(index);
         return typeof triad == 'object'? PC.buildTriad(PC.enharmonicRespell(`${TuningSystems['12-EDO']['unwound'][index]}${qual}`)) : PC.enharmonicRespell(`${TuningSystems['12-EDO']['unwound'][index]}${qual}`);
     }
     let grp = ['C+'];
@@ -1078,14 +1038,14 @@ function UTT (parody,majorInt,minorInt,tooltip) {
  * An object containing a variety of the standard Neo Riemannian Transformations already instances of UTT object.
  */
 //These cause errors in 31-EDO
-// const NRTs = {
-//     L: new UTT('-',4,8,'Leittonwechsel or Leading-Tone.'),
-//     R: new UTT('-',9,3,'Relative.'),
-//     P: new UTT('-',0,0,'Parallel.'),
-//     N: new UTT('-',5,7,'Nebenverwandt or Neighbor-Related.'),
-//     H: new UTT('-',8,4,'Hexatonic Pole.'),
-//     S: new UTT('-',1,11,'Slide.')
-// }
+const NRTs = {
+    L: new UTT('-',4,8,'Leittonwechsel or Leading-Tone.'),
+    R: new UTT('-',9,3,'Relative.'),
+    P: new UTT('-',0,0,'Parallel.'),
+    N: new UTT('-',5,7,'Nebenverwandt or Neighbor-Related.'),
+    H: new UTT('-',8,4,'Hexatonic Pole.'),
+    S: new UTT('-',1,11,'Slide.')
+}
 
 /**
  * Creates a hexagonal node. 
@@ -1282,6 +1242,7 @@ function LatticeManager (parent,structure = 'Triadic') {
     this.structure = TonnetzStructure[structure];
     this.draw = null;
     this.center = [drawSize['x']/2,drawSize['y']/2];
+    this.previous = null;
     /**
      * Stores vertex instances.
      */
@@ -1338,6 +1299,10 @@ function LatticeManager (parent,structure = 'Triadic') {
          */
         this.chordGrouper();
         /**
+         * Wether or not all similar items on the tonnetz can be selected in tandem.
+         */
+        this.cluster = false;
+        /**
          * Event Listener to select a hexagon.
          */
         document.querySelector('svg').addEventListener('mousedown',(event) => {
@@ -1353,21 +1318,88 @@ function LatticeManager (parent,structure = 'Triadic') {
              * Select nearest .chord
              */
             if (event.target.parentNode.classList.contains('chord') || event.target.parentNode.parentNode.classList.contains('chord')) {
+                document.querySelectorAll('.sel1,.active1').forEach(el => {
+                    el.classList.remove(el.classList.contains('sel1')? 'sel1' : 'active1');
+                })
                 let active = event.target.closest('.chord');
                 active.classList.add('sel');
-                console.log(active.childNodes[1].textContent);
+                console.log(`Chord Selected: ${active.childNodes[1].textContent}`);
                 this.selectedTriad = active.childNodes[1].textContent;
-                let grp = active['data-cluster'].split('.');
-                grp.forEach(el => {
-                    document.querySelector(`#${el}`).classList.add('active');
-                });
-                
+                this.previous = [parseFloat(active.childNodes[0].getAttribute('cx')),parseFloat(active.childNodes[0].getAttribute('cy'))];
+                /**
+                 * Select only single instance.
+                 */
+                if (this.cluster == false) {
+                    let grp = active['data-cluster'].split('.');
+                    grp.forEach(el => {
+                        document.querySelector(`#${el}`).classList.add('active');
+                    });
+                }
+                /**
+                 * Select all instances.
+                 */
+                else {
+                    this.selectAll(this.selectedTriad,true);
+                }
             }
         });
         let ints = [...this.structure.pcArray.slice(0,2),this.structure.pcArray[this.depth]];
         console.log(ints);
         document.querySelector('#type').textContent = `${this.structure.name} ... <${this.structure.intNames}>`;
         document.querySelector('#setClass').textContent = `SC: (${new MySet(TuningSystems[this.tuning]['universe'],...ints).prime_form()})`;
+    }
+    /**
+     * Select all of a single traid on the tonnetz.
+     * @param {string} chord 'C+' 
+     * @param {boolean} primary
+     * @param {array} coordinate [x,y]
+     */
+    this.selectAll = (chord,primary = true,coordinate = undefined) => {
+        let en = PC.enharmonicRespell(chord,'B♯','C♭');
+        // console.log(`${chord} => ${fix}`);
+        let annoying = en.match(/[^+\/-]+/ig);
+        let spl = [...annoying,en.slice(-1)];
+        let classes = {
+            'circle': primary? 'sel' : 'sel1', 
+            'hex': primary? 'active' : 'active1'
+        }
+        document.querySelectorAll(`.${classes['circle']}, .${classes['hex']}`).forEach(item => {
+            item.classList.remove(item.classList.contains(`.${classes['circle']}`)? `.${classes['circle']}` : `.${classes['hex']}`);
+        })
+        if (this.cluster == true) {
+            document.querySelectorAll('.chord').forEach(el => {
+                let tSplit = [...el.textContent.match(/[^+\/-]+/ig)];
+                if (ArrayMethods.intersection(annoying,tSplit) > 0 && el.textContent.slice(-1) == spl.slice(-1)[0]) {//CHANGE THIS LINE
+                    el.classList.add(classes['circle']);
+                    let grp = el['data-cluster'].split('.');
+                    grp.forEach(sub => {
+                        document.querySelector(`#${sub}`).classList.add(classes['hex']);
+                    })
+                }
+            })
+        }
+        else {
+            let init = document.querySelector('.sel > circle');
+            /**
+             * If coordinate is defined, use it, else use the origin.
+             */
+            let coord = coordinate? coordinate : [parseFloat(init.getAttribute('cx')),parseFloat(init.getAttribute('cy'))];
+            /**
+             * Filter chords such that only the correct names are present.
+             */
+            let temp = Object.values(this.chords).filter(v => ArrayMethods.intersection(annoying,v.name.match(/[^+\/-]+/ig)) > 0 && v.name.slice(-1) == spl.slice(-1)[0]);
+            /**
+             * Filter again by proximity;
+             */
+            let fin = temp.filter(value => proximity(...value.coordinate,...coord,65) == true);//Consider expanding radius/deviation...
+            console.log(`FIND NEAREST ${en}? ${fin[0].self['node'] !== undefined}`);
+            fin[0].self['node'].classList.add(classes['circle']);
+            let grp = fin[0].self['node']['data-cluster'].split('.');
+            this.previous = fin[0].coordinate;
+            grp.forEach(sub => {
+                document.querySelector(`#${sub}`).classList.add(classes['hex']);
+            })
+        }
     }
     /**
      * Groups hex nodes.
@@ -1459,6 +1491,26 @@ function LatticeManager (parent,structure = 'Triadic') {
         }
         console.log(inds)
         this.highlightPCs(inds);
+    }
+    /**
+     * 
+     * @param {string} start C+
+     * @param  {...any} operations instance of UTT, 'L','R',...etc. or <-,4,8>;
+     * @returns 
+     */
+    this.highlightCycle = (start = this.selectedTriad,...operations) => {
+        /**
+         * Remove previous applied classes.
+         */
+        document.querySelectorAll('.sel1, .active1').forEach(node => {
+            node.classList.contains('sel1')? node.classList.remove('sel1') : node.classList.remove('active1');
+        })
+        let cyc = new Cycle(start,...operations);
+        cyc['result'].forEach(entry => {
+            this.selectAll(entry,false,this.previous);
+        })
+        console.table(cyc['result']);
+        this.previous = undefined;
     }
 }    
 
@@ -1586,11 +1638,26 @@ function MyDropdown(parent,name,method) {
 }
 
 /**
- * Relevant Globals
+ * 
+ * @param {} str 
+ * @returns 
  */
-let D;  //Lattice Manager
-let Y; //Universe Dropdown
-let Z; //Structure Dropdown
+const uttJoiner = (str) => {
+    str = str.split(',');
+    let fix = [];
+    let i = 0;
+    while (i < str.length) {
+        if (str[i][0] == '<') {
+            fix.push([str[i],str[i+1],str[i+2]].join(','));
+            i+=3;
+        }
+        else {
+            fix.push(str[i].toUpperCase());
+            i++;
+        }
+    }
+    return fix;
+}
 
 /**
  * Chords found in Pareidolia...requires 31-EDO layout.
@@ -1614,6 +1681,9 @@ document.addEventListener('DOMContentLoaded',() => {
         document.querySelector('#tuning').textContent = `${Y.value}`;
         document.querySelector('#structure').innerHTML = '';
             Z = new MyDropdown('structure','Layout',() => {
+                if (D.tuning == '12-EDO' && Z.value.name == 'Triadic') {
+                    document.querySelector('#tBox').classList.remove('void');
+                }
                 D.structure = Z.value;
                 D.buildLattice();
             });
@@ -1627,7 +1697,7 @@ document.addEventListener('DOMContentLoaded',() => {
     });
     Y.construct();
     /**
-     * Allows selecting of hex nodes.
+     * Allows selecting of hex nodes. Useful if isomorphic keyboard functionality fleshed out.
      */
     document.querySelector('#drawing').addEventListener('mousedown',(event) => {
         let sel = event.target.closest('.hexNode');
@@ -1637,6 +1707,21 @@ document.addEventListener('DOMContentLoaded',() => {
         }
         else {
             sel.classList.add('wham');
+        }
+    })
+    /**
+     * Event listener for transform input.
+     */
+    let inp = document.querySelector('#tBox > input')
+    inp.addEventListener('keydown',(event) => {
+        if (event.key == 'Enter') {
+            if (D.selectedTriad !== null) {
+                console.log(`START: ${D.selectedTriad}`);
+                D.highlightCycle(D.selectedTriad,...uttJoiner(inp.value));
+            }
+            else {
+                alert(`Select a starting triad on the tonnetz!`);
+            }
         }
     })
 })

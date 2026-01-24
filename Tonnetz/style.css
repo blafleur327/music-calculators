@@ -50,7 +50,7 @@ circle {
 }
 
 #drawing {
-    width:60%;
+    width:90%;
     overflow: scroll;
 }
 
@@ -209,4 +209,25 @@ text {
 
 .box > * {
     text-align: center;
+}
+
+.sel1 > circle {
+    fill:rgba(57, 163, 22, 0.734);
+    r: 15;
+}
+
+.sel1:not(.void) > text {
+    visibility: visible;
+}
+
+.active1 > polygon {
+    fill:rgba(44, 164, 255, 0.422)
+}
+
+.active1 > text {
+    fill:black;
+}
+
+#tBox {
+    padding-left: 2em;
 }
