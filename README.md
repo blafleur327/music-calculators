@@ -26,7 +26,7 @@
             <h3>Current Features:</h3>
             <p></p>
             <ul>
-                <li><a href="../PCSetCalculator/pc_set_calculator_v6.html">PC/BC Calculator:</a>
+                <li>PC/BC Calculator:
                     <ul>
                         <li>Support for two sets, superset and a contained subset. Includes T<sub><em>n</em></sub>,T<sub><em>n</em></sub>I, and M<sub><em>n</em></sub> transformations that are included within parent superset.</li>
                         <li>Complement of superset or subset.</li>
@@ -44,7 +44,7 @@
                         <li>Cents Equal Temperament (cET) between selected elements of superset and/or subset.</li>
                     </ul>
                 </li>
-                <li><a href="../Matrix Calculator/serial_calculator_v3.html">Serialism Calculator:</a></li>
+                <li>Serialism Calculator:</li>
                     <ul>
                         <li>Supports any <em>n</em> x <em>n</em> matrix.</li>
                         <li>Literal and Abstract adjacency search.</li>
@@ -57,7 +57,7 @@
                             </ul>
                         </li>
                     </ul>
-                <li><a href="../Glossary/glossary.html">Glossary:</a></li>
+                <li>Glossary</li>
                     <ul>
                         <li>Various music-theoretical terminology ranging from:
                             <ul>
@@ -69,17 +69,17 @@
                         </li>
                         <li>Links to external sources.</li>
                     </ul>
-                <li><a href="../Rotational Arrays/rotational_arrays.html">Rotational Arrays:</a></li>
+                <li>Rotational Arrays:</li>
                     <ul>
                         <li>Partition a Tonerow into 2 distinct 1/2<em>k</em> rotational arrays.</li>
                         <li>Supports α/β (literal rotation) and γ/δ (transposed rotation).</li>
                         <li>Search rotations and verticals for adjacent elements.</li>
                     </ul>
-                <li><a href="../UTT/utt.html">Flip-Flop Circles:</a></li>
+                <li>Flip-Flop Circles:</li>
                     <ul>
                         <li>Calculate Flip-Flop circles, Neo-Riemannian cycles using standard NRT transformations or UTTs.</li>
                     </ul>
-                <li><a href="../Tonnetz/tonnetz.html">Isomorphic Keyboard/Generalized Tonnetz:</a></li>
+                <li>Isomorphic Keyboard/Generalized Tonnetz:</li>
                 <ul>
                     <li>Visualizes a variety of Tonnetze layouts for 12- and 31-EDO including:
                         <ul>
