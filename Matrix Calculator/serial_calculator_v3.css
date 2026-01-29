@@ -34,7 +34,7 @@ h1 {
     position:relative;
     min-width:15%;
     border: 1px solid grey;
-    max-height:fit-content;
+    height:fit-content;
 }
 
 .parent {
@@ -401,4 +401,3 @@ button:hover {
 #subComponent {
     text-align:center;
 }
-
