@@ -1239,6 +1239,7 @@ function LatticeManager (parent,structure = 'Triadic') {
     this.tuning = '12-EDO';
     this.selectedTriad = null;
     this.selectedTriadNode = null;
+    // this.initialCoord = null;
     this.depth = 15;
     /**
      * Stores hexagonal nodes.
@@ -1248,6 +1249,7 @@ function LatticeManager (parent,structure = 'Triadic') {
     this.draw = null;
     this.center = [drawSize['x']/2,drawSize['y']/2];
     this.previous = null;
+    this.initialCoord = null;
     let parity = 0;
     /**
      * Stores vertex instances.
@@ -1323,7 +1325,8 @@ function LatticeManager (parent,structure = 'Triadic') {
                 console.log(`Chord Selected: ${active.childNodes[1].textContent}`);
                 this.selectedTriad = active.childNodes[1].textContent;
                 this.selectedTriadNode = active;
-                this.previous = [parseFloat(...active.getAttribute('transform').match(/[0-9.]+/g).slice(-2,-1)),parseFloat(...active.getAttribute('transform').match(/[0-9.]+/g).slice(-1))];
+                this.initialCoord = [parseFloat(...active.getAttribute('transform').match(/[0-9.]+/g).slice(-2,-1)),parseFloat(...active.getAttribute('transform').match(/[0-9.]+/g).slice(-1))];
+                this.previous = this.initialCoord;
                 /**
                  * Select only single instance.
                  */
@@ -1354,6 +1357,7 @@ function LatticeManager (parent,structure = 'Triadic') {
      */
     this.selectAll = (chord,primary = true,coordinate = undefined) => {
         //clear some things?
+        this.previous = this.initialCoord;
         let en = PC.enharmonicRespell(chord,'B♯','C♭');
         let annoying = en.match(/[^+\/-]+/ig);
         let spl = [...annoying,en.slice(-1)];
@@ -1516,7 +1520,7 @@ function LatticeManager (parent,structure = 'Triadic') {
             console.log(`PARITY: ${parity}`);
         })
         console.table(cyc['result']);
-        this.previous = null;
+        this.previous = this.initialCoord;
     }
 }    
 
