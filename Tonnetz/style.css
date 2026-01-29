@@ -6,18 +6,34 @@
     font-display:swap;
 }
 
+text {
+    font-family: Bravura;
+    dominant-baseline: middle;
+    alignment-baseline: central;
+    max-height:.8em;
+    overflow-y:hidden;
+}
+
+g {
+    text-anchor: middle;
+    dominant-baseline: middle;
+    transform-origin: center center;
+
+}
+
 circle {
     stroke:darkgrey;
     stroke-width:.05em;
     fill:rgba(255, 255, 255, 0.255);
 }
 
+
 .chord:hover {
     cursor: pointer
 }
 
 .chord:hover > circle {
-    r:22;
+    r: 1.2em;
     fill:rgba(174, 174, 174, 0.596);
 }
 
@@ -40,14 +56,19 @@ circle {
 }
 
 .sel > circle {
+    transform-box:fill-box;
     fill:rgba(97, 97, 189, 0.556) !important;
-    r:22;
+    r: 1.2em;
 }
 
 .sel > text {
+    transform-box: fill-box;
+    transform-origin: center;
     fill:white;
     visibility: visible;
 }
+
+
 
 #drawing {
     width:90%;
@@ -145,39 +166,6 @@ h4 {
     flex-direction:column;
 }
 
-text {
-    font-family: Bravura;
-}
-
-/* .color1 {
-    fill: blue;
-}
-
-.color2 {
-    fill: green;
-}
-
-.color3 {
-    fill:yellow;
-}
-
-.color4 {
-    fill:white;
-}
-
-.color4 {
-    fill:orange;
-}
-
-.color6 {
-    fill:red;
-}
-
-.color7 {
-    fill:black;
-} */
-
-
 .wham > polygon {
     fill:rgba(255, 103, 103, 0.551);
 }
@@ -211,20 +199,51 @@ text {
     text-align: center;
 }
 
-.sel1 > circle {
-    fill:rgba(57, 163, 22, 0.734);
-    r: 15;
-}
-
 .sel1:not(.void) > text {
     visibility: visible;
 }
 
-.active1 > polygon {
-    fill:rgba(44, 164, 255, 0.422)
+.sel1 > circle {
+    fill:rgba(255, 243, 22, 0.53);
+    r: 1.2em;
 }
 
 .active1 > text {
+    fill:black;
+}
+
+.sel2 > circle {
+    fill:rgba(255, 168, 29, 0.692);
+    r: 1.2em;
+}
+
+.sel2:not(.void) > text {
+    visibility: visible;
+}
+
+.active1 > polygon {
+    fill:rgba(122, 242, 255, 0.345);
+}
+
+.active2 > text {
+    fill:black;
+}
+
+.sel3 > circle {
+    fill:rgba(200, 36, 241, 0.345);
+    r: 1.2em;
+}
+
+.sel3:not(.void) > text {
+    visibility: visible;
+    fill:white;
+}
+
+.active3 > polygon {
+    fill:rgba(71, 164, 9, 0.808)
+}
+
+.active3 > text {
     fill:black;
 }
 

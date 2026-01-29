@@ -1086,7 +1086,7 @@ function HexNode (parent,name,center,numPoints = 6,length = 30) {
                 points.push(x,y);
             }
             let s = parent.draw.polygon(points).center(0,0);
-            let t = parent.draw.text(this.name).center(0,0);
+            let t = parent.draw.text(this.name);
             s.plot();
             let curr = Object.keys(parent.nodes).length;
             this.self.add(s);
@@ -1105,11 +1105,15 @@ function HexNode (parent,name,center,numPoints = 6,length = 30) {
              */
             this.index = this.index? this.index : curr;
             parent.nodes[this.index] = this;
-            this.self.center(...center);
+            this.self.translate(...center);
+            // s.center(...center);
+            // t.center(...center);
+            
             /**
-             * Stores the central of each hexagon.
+             * Stores the center of each hexagon.
              */
             this.centroid = [...center];
+            
             /**
              * If no name, void.
              */
@@ -1173,11 +1177,11 @@ function Vertex (parent = D,coordinate,name) {
         this.self.id = `${this.id}`;
         this.self.addClass('chord');
         let cir = parent.draw.circle(15).center(0,0);
-        let tex = parent.draw.text(`${this.name}`).center(0,0);
+        let tex = parent.draw.text(`${this.name}`);
         tex.addClass('void');
         this.self.add(cir);
         this.self.add(tex);
-        this.self.center(...coordinate);
+        this.self.translate(...coordinate);
         parent.chords[this.id] = this;
         this.name == 'undefined+' || this.name == 'undefined-'? this.self.addClass('void') : null;
     }
@@ -1234,6 +1238,7 @@ function LatticeManager (parent,structure = 'Triadic') {
     let drawSize = {'x': 1200,'y': 750};
     this.tuning = '12-EDO';
     this.selectedTriad = null;
+    this.selectedTriadNode = null;
     this.depth = 15;
     /**
      * Stores hexagonal nodes.
@@ -1243,6 +1248,7 @@ function LatticeManager (parent,structure = 'Triadic') {
     this.draw = null;
     this.center = [drawSize['x']/2,drawSize['y']/2];
     this.previous = null;
+    let parity = 0;
     /**
      * Stores vertex instances.
      */
@@ -1306,26 +1312,18 @@ function LatticeManager (parent,structure = 'Triadic') {
          * Event Listener to select a hexagon.
          */
         document.querySelector('svg').addEventListener('mousedown',(event) => {
-            if (document.querySelectorAll('.sel, .active').length) {
-                /**
-                 * Remove selected and active upon click.
-                 */
-                document.querySelectorAll('.sel, .active').forEach(item => {
-                    item.classList.remove(item.classList.contains('sel')? 'sel' : 'active');
-                })
-            }
             /**
              * Select nearest .chord
              */
             if (event.target.parentNode.classList.contains('chord') || event.target.parentNode.parentNode.classList.contains('chord')) {
-                document.querySelectorAll('.sel1,.active1').forEach(el => {
-                    el.classList.remove(el.classList.contains('sel1')? 'sel1' : 'active1');
-                })
+                this.resetTonnetz(true);
                 let active = event.target.closest('.chord');
                 active.classList.add('sel');
+                // active.childNodes[0].setAttribute('r',22)
                 console.log(`Chord Selected: ${active.childNodes[1].textContent}`);
                 this.selectedTriad = active.childNodes[1].textContent;
-                this.previous = [parseFloat(active.childNodes[0].getAttribute('cx')),parseFloat(active.childNodes[0].getAttribute('cy'))];
+                this.selectedTriadNode = active;
+                this.previous = [parseFloat(...active.getAttribute('transform').match(/[0-9.]+/g).slice(-2,-1)),parseFloat(...active.getAttribute('transform').match(/[0-9.]+/g).slice(-1))];
                 /**
                  * Select only single instance.
                  */
@@ -1355,25 +1353,22 @@ function LatticeManager (parent,structure = 'Triadic') {
      * @param {array} coordinate [x,y]
      */
     this.selectAll = (chord,primary = true,coordinate = undefined) => {
+        //clear some things?
         let en = PC.enharmonicRespell(chord,'B♯','C♭');
-        // console.log(`${chord} => ${fix}`);
         let annoying = en.match(/[^+\/-]+/ig);
         let spl = [...annoying,en.slice(-1)];
         let classes = {
-            'circle': primary? 'sel' : 'sel1', 
-            'hex': primary? 'active' : 'active1'
+            'circle': primary? 'sel' : ['sel1','sel2','sel3','sel4','sel5'], 
+            'hex': primary? 'active' : ['active1','active2','active3','sel4','sel5']
         }
-        document.querySelectorAll(`.${classes['circle']}, .${classes['hex']}`).forEach(item => {
-            item.classList.remove(item.classList.contains(`.${classes['circle']}`)? `.${classes['circle']}` : `.${classes['hex']}`);
-        })
         if (this.cluster == true) {
             document.querySelectorAll('.chord').forEach(el => {
                 let tSplit = [...el.textContent.match(/[^+\/-]+/ig)];
                 if (ArrayMethods.intersection(annoying,tSplit) > 0 && el.textContent.slice(-1) == spl.slice(-1)[0]) {//CHANGE THIS LINE
-                    el.classList.add(classes['circle']);
+                    el.classList.add(primary? classes['circle'] : classes['circle'][parity]);
                     let grp = el['data-cluster'].split('.');
                     grp.forEach(sub => {
-                        document.querySelector(`#${sub}`).classList.add(classes['hex']);
+                        document.querySelector(`#${sub}`).classList.add(primary? classes['hex'] : classes[hex][parity]);
                     })
                 }
             })
@@ -1383,7 +1378,7 @@ function LatticeManager (parent,structure = 'Triadic') {
             /**
              * If coordinate is defined, use it, else use the origin.
              */
-            let coord = coordinate? coordinate : [parseFloat(init.getAttribute('cx')),parseFloat(init.getAttribute('cy'))];
+            let coord = coordinate? coordinate : [parseFloat(...init.getAttribute('transform').match(/[0-9.]+/g).slice(-2,-1)),parseFloat(...init.getAttribute('transform').match(/[0-9.]+/g).slice(-1))];
             /**
              * Filter chords such that only the correct names are present.
              */
@@ -1393,11 +1388,11 @@ function LatticeManager (parent,structure = 'Triadic') {
              */
             let fin = temp.filter(value => proximity(...value.coordinate,...coord,65) == true);//Consider expanding radius/deviation...
             console.log(`FIND NEAREST ${en}? ${fin[0].self['node'] !== undefined}`);
-            fin[0].self['node'].classList.add(classes['circle']);
+            fin[0].self['node'].classList.add(primary? classes['circle'] : classes['circle'][parity]);
             let grp = fin[0].self['node']['data-cluster'].split('.');
             this.previous = fin[0].coordinate;
             grp.forEach(sub => {
-                document.querySelector(`#${sub}`).classList.add(classes['hex']);
+                document.querySelector(`#${sub}`).classList.add(primary? classes['hex'] : classes['hex'][parity]);
             })
         }
     }
@@ -1493,6 +1488,17 @@ function LatticeManager (parent,structure = 'Triadic') {
         this.highlightPCs(inds);
     }
     /**
+     * Resets the tonnetz to default.
+     */
+    this.resetTonnetz = (initial = false) => {
+        document.querySelectorAll('.sel,.active,.sel1,.active1,.sel2,.active2,.sel3,.active3,.sel4,.active4').forEach(node => {
+            if (initial == true) {
+                node.classList.remove('sel','active');
+            }
+            node.classList.remove('sel1','active1','sel2','active2','sel3','active3','sel4','active4');
+        })
+    }
+    /**
      * 
      * @param {string} start C+
      * @param  {...any} operations instance of UTT, 'L','R',...etc. or <-,4,8>;
@@ -1502,15 +1508,15 @@ function LatticeManager (parent,structure = 'Triadic') {
         /**
          * Remove previous applied classes.
          */
-        document.querySelectorAll('.sel1, .active1').forEach(node => {
-            node.classList.contains('sel1')? node.classList.remove('sel1') : node.classList.remove('active1');
-        })
+        this.resetTonnetz();
         let cyc = new Cycle(start,...operations);
         cyc['result'].forEach(entry => {
             this.selectAll(entry,false,this.previous);
+            parity = (parity+1)%operations.length;
+            console.log(`PARITY: ${parity}`);
         })
         console.table(cyc['result']);
-        this.previous = undefined;
+        this.previous = null;
     }
 }    
 
@@ -1716,7 +1722,7 @@ document.addEventListener('DOMContentLoaded',() => {
     inp.addEventListener('keydown',(event) => {
         if (event.key == 'Enter') {
             if (D.selectedTriad !== null) {
-                console.log(`START: ${D.selectedTriad}`);
+                console.log(`Cycle Start: ${D.selectedTriad}`);
                 D.highlightCycle(D.selectedTriad,...uttJoiner(inp.value));
             }
             else {
