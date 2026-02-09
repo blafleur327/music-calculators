@@ -1694,6 +1694,9 @@ document.addEventListener('DOMContentLoaded',() => {
                 if (D.tuning == '12-EDO' && Z.value.name == 'Triadic') {
                     document.querySelector('#tBox').classList.remove('void');
                 }
+                else {
+                    document.querySelector('#tBox').classList.add('void');
+                }
                 D.structure = Z.value;
                 D.buildLattice();
             });
