@@ -172,11 +172,6 @@ option:hover {
     flex-direction: row;
 }
 
-#d > * {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
-}
-
 .row {
     display:flex;
     flex-direction: row;
@@ -219,4 +214,10 @@ option:hover {
 
 .both {
     background-color: rgba(123, 255, 0, 0.812);
+}
+
+h1 {
+    border-bottom-width: .1em;
+    border-bottom-color:grey;
+    border-bottom-style:solid;
 }
