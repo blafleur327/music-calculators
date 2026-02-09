@@ -307,6 +307,27 @@ const Combinatorics = {
 }
 
 /**
+ * Returns the number of unique shapes on a conventional keyboard. Only works in 12-EDO.
+ * @param {boolean} formOnly 
+ * @param  {...any} pcs Integers Z12
+ * @returns Object
+ */
+const keyboardForms = (formOnly = false,...pcs) => {
+    let white = [0,2,4,5,7,9,11];
+    let ob = {};
+    let distinct = [];
+    let trans = new MySet(12,...pcs);
+    for (let a = 0; a < 12; a++) {
+        let t = trans.transpose(undefined,undefined,a);
+        let shape = t.map(x => white.indexOf(x) == -1? 'B' : 'W').join('');
+        ob['T'+a] = [t,shape];
+        distinct.push(shape);
+    }
+    ob['Shapes'] = new Set(distinct).size;
+    return formOnly? ob['Shapes'] : ob;
+}
+
+/**
  * Get the factors of n.
  * @param {int} n
  * @returns array 
@@ -382,12 +403,11 @@ function MySet(modulus,...elements) {
      * @returns this.set -> * index
      */
     this.multiply = function (array = this.set,modulus = this.universe,index = 5) {
-        // console.table({
-        //     'set': `{${array}}`,
-        //     'modulus': modulus,
-        //     'index': index
-        // })
-        let valid = coprime(index,modulus);
+        /**
+         * Permit only bijective or all indices.
+         */
+        let all = false;
+        let valid = all? true : coprime(index,modulus);
         if (valid) {
             return array.map(x => this.modulo(x*index,modulus));
         }
@@ -1032,7 +1052,7 @@ const IntervalLookup = {
         'Harmonic m7': Math.log2(7/4)*1200,
     },
     '24-tET': {
-        '1/4th Tone': 50,
+        'Quarter-Tone': 50,
         'Neutral 2nd': 150,
         'Supermajor 2nd': 250,
         'Neutral 3rd': 350,
@@ -1306,13 +1326,13 @@ function SetInformation(name,set) {
     let setRep = new MySet(Object.keys(allNodes).length,...info);
     let subRef = new MySet(D.drawingData['superset'].length,...info.map(x => D.drawingData['superset'].indexOf(x)));//This works correctly!
     D.drawingData[`${name}`] = {
-        'Normal Order': new DataEntry('Normal Order',`: [${setRep.normal_order()}]`,'Normal Order is the tightest rotation of the numerical ordered PCs.'), //
-        'Prime Form': new DataEntry('Prime Form',`: (${setRep.prime_form()})`,"Prime Form is the leftwise 'tightest packing' between the Normal Form or its inversion. The result is then transposed to 0."),
-        'Interval Class Vector': new DataEntry('Prime Form',`: <${setRep.interval_class_vector()}>`,'The interval-class vector is the total interval content for a set. It can be used to determine the number of invariant tones under a given transpositional index.'),
-        'Index Vector': new DataEntry('Index Vector',`: <${setRep.index_vector()}>`,'The index vector shows invariant tones under a given inversional index.'),
-        'Degree of Symmetry': new DataEntry('Degree of Symmetry',`: ${setRep.dos()['DOS']}`,`An ordered tuple [x,y] indicating the number of self-mapping transposition (x) and self-mapping inversioin (y) operations.`),
-        'Distinct Forms': new DataEntry('Distinct Forms',`: ${setRep.dos()['DF']}`,`The number of unique versions of this SC.`),
-        'Maximally Even': new DataEntry('Maximally Even',`: ${set == 'superset'? setRep.exportable()['Maximally Even'] : subRef.exportable()['Maximally Even']}`,`Determines if the set is 'as spread out as possible', or as close to an equilateral polygon as it could be while being contained within the parent.`),
+        'Normal Order': new DataEntry('Normal Order',`:  [${setRep.normal_order()}]`,'Normal Order is the tightest rotation of the numerical ordered PCs.'), //
+        'Prime Form': new DataEntry('Prime Form',`:  (${setRep.prime_form()})`,"Prime Form is the leftwise 'tightest packing' between the Normal Form or its inversion. The result is then transposed to 0."),
+        'Interval Class Vector': new DataEntry('Prime Form',`:  <${setRep.interval_class_vector()}>`,'The interval-class vector is the total interval content for a set. It can be used to determine the number of invariant tones under a given transpositional index.'),
+        'Index Vector': new DataEntry('Index Vector',`:  <${setRep.index_vector()}>`,'The index vector shows invariant tones under a given inversional index.'),
+        'Degree of Symmetry': new DataEntry('Degree of Symmetry',`:  [${setRep.dos()['DOS']}]`,`An ordered tuple [x,y] indicating the number of self-mapping transposition (x) and self-mapping inversion (y) operations.`),
+        'Distinct Forms': new DataEntry('Distinct Forms',`:  ${setRep.dos()['DF']}`,`The number of unique versions of this SC.`),
+        'Maximally Even': new DataEntry('Maximally Even',`:  ${set == 'superset'? setRep.exportable()['Maximally Even'] : subRef.exportable()['Maximally Even']}`,`Determines if the set is 'as spread out as possible', or as close to an equilateral polygon as it could be while being contained within the parent.`),
         }
         return D.drawingData[`${name}`];
     }
@@ -2253,6 +2273,22 @@ const attachListeners = () => {
     });
 }
 
+/**
+ * 
+ * @param {int} modulus 
+ * @param {int} cardinality
+ * @param  {...any} interval 
+ */
+const combinationCycle = (modulus = 12,cardinality = 3,...interval) => {
+    let pcs = [0];
+    for (let a = 0; a < cardinality-1; a++) {
+        console.log(`${pcs[a]} + ${interval[a%interval.length]} = ${(pcs[a]+interval[a%interval.length])%modulus}`);
+        pcs.push((pcs[a]+interval[a%interval.length])%modulus);
+    }
+     console.log(pcs);
+    D.manualSelection(modulus,pcs,[]);
+}
+
 document.addEventListener('DOMContentLoaded',() => {
     console.log('DOM Loaded!');
     D = new DrawingManager('drawing');
@@ -2371,6 +2407,30 @@ function ChordGroup (modulus = 12,...chords) {
         }
     }
     /**
+     * Search Generic NOs for a generated chord.
+     * @param {int} OPCI 
+     */
+    this.genericGenerator = (OPCI = 2,cardinality = 4) => {
+        let mod = this.superset.length;
+        let res = {};
+        for (let a = 0; a < mod; a++) {
+            let temp = [];
+            for (let b = 1; b <= cardinality; b++) {
+                temp.push((a+b*OPCI)%mod);
+            }
+            res[`c_${a}`] = temp.sort((x,y) => x-y);
+        }
+        let fRes = Object.values(res).map(x => x.join(','));
+        let fGen = Object.values(this.query('generic','Normal Form')).map(x => x.join(','));
+        let result = {};
+        for (let i = 0; i < fGen.length; i++) {
+            if (fRes.indexOf(fGen[i]) > -1) {
+                result[`c_${i}`] = fGen[i];
+            }
+        }
+        return result;
+    }
+    /**
      * Who TF knows.
      * @param {int} OPCI 
      * @returns 
@@ -2474,10 +2534,12 @@ function ChordGroup (modulus = 12,...chords) {
     let gen = Array.from({length: this.superset.length}, (e, i)=> i)
     /**
      * Draws a given chord within the parent Superset.
-     * @param {string} type 'specific' or 'generic'
+     * @param {string} type 'specific', 'generic', 'specGen', 'genGen'
      * @param {int} chord 
+     * @param {int} interval
+     * @param {int} card
      */
-    this.specialRender = (type,chord = 0) => {
+    this.specialRender = (type,chord = 0,interval = null,card = null) => {
         let wow;
         if (chord >= 0 && chord < this.chords.length) {
             if (type == 'specific') {
@@ -2580,7 +2642,7 @@ function ChordGroup (modulus = 12,...chords) {
 
 const PareidoliaA = new ChordGroup(31,[0,5,18,23],[10,14,22,27],[0,5,14,18],[18,22,0,6],[10,18,22,0],[22,27,5,10],[6,10,18,22],[5,10,18,23],[18,27,5,6],[18,22,27,6]);
 
-const PareidoliaB = new ChordGroup(31,[22,27,4,9],[14,18,27,0],[4,9,18,22],[10,14,22,26],[10,18,27],[10,18,22,0],[26,0,10,14],[14,22,27,0],[14,18,27,4],[14,27,0],[22,27,4,10]);
+const PareidoliaB = PareidoliaA.transposeGroup(4);
 
 /**
  * A sections of Pareidolia.
@@ -2588,18 +2650,11 @@ const PareidoliaB = new ChordGroup(31,[22,27,4,9],[14,18,27,0],[4,9,18,22],[10,1
 const PareidoliaA2 = new ChordGroup(31,[18,23,0,5],[10,14,22,27],[0,5,14,18],[18,22,0,6],[10,18,22,0],[22,27,5,10],[6,10,18,22],[23,27,5,10],[5,10,18,23],[0,5,10,18]);
 
 
-const PareidoliaB2 = PareidoliaA2.transposeGroup(4);
-
 // const ofVA = PareidoliaA2.transposeGroup(4);
-
-
-//A = T4 => B Centered on A then B-half flat 
 
 const DiatonicA = new ChordGroup(12,[0,4,7],[2,5,9],[4,7,11],[5,9,0],[7,11,2],[9,0,4],[11,2,5]);
 
-// (0,4,13,17) and (0,5,13,18) are primary
-
-//GROUP A SC of Chord 1 (0,4,12,17) maps onto SC Chord 3 (0,4,13,19) under M10 or M21. 
+// (0,4,13,17) and (0,5,13,18) are primary 
 
 //Contune at Chord index 5 checking for M operations.
 
