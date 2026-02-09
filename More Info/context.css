@@ -11,8 +11,10 @@
 }
 
 .sub > p,ul {
-    margin-left:5em;
+    margin-left:4em;
 }
+
+
 
 .sub > h3 {
     border-bottom-color:grey;
