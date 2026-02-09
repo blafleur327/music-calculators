@@ -1,3 +1,5 @@
+
+
 /**
  * Class filled with methods for combinatorics calculation.
  */
@@ -2273,9 +2275,37 @@ const buildKey = () => {
 }
 
 /**
+ * Search for derivation.
+ * @param {array} cell set to check library against.
+ * @returns 
+ */
+const queryEXTERNAL = (cell) => {
+    let spec = `(${cell})`;
+    let size = cell.length;
+    const EXTERNAL = window.Library;
+    let final = {};
+    for (let a = 0; a < EXTERNAL.length; a++) {
+        let dObj = Serialism.derivation(EXTERNAL[a].Row,12);
+            let total = {};
+            Object.entries(dObj).forEach(([key,value]) => {
+                let temp = value['set'];
+                if (temp !== null) {
+                    console.log(value['set'])
+                    total[key] = `(${value['set']})`;
+                }
+                if (Object.keys(total).length > 0) {
+                    final[EXTERNAL[a]['Title']+'|'+EXTERNAL[a]['Composer']] = total;
+                }
+            })   
+    }
+    let pre = Object.entries(final).filter(([key,value]) => value[size] == spec);
+    return pre.map(x => x[0].split('|').reverse());
+}
+
+/**
  * Upon Load
  */
-document.addEventListener('DOMContentLoaded',() => {
+document.addEventListener('DOMContentLoaded',() => { 
     console.log('Loaded!');
     currentData['matrix'] = null;
     currentData['selected'] = [];
