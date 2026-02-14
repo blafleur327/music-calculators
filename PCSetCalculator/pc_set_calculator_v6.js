@@ -1889,9 +1889,17 @@ function DrawingManager (parent = 'drawing') {
             this.clearDrawing();
             this.mainPolygon(this.center,modulus,160);
         }
-        this.drawingData['superset'] = superset;
+        let pre = null;
+        if (typeof superset == 'object') {
+            pre = superset;
+        }
+        else {
+            pre = Array.from({length: modulus}, (e, i)=> i);
+        }
+        this.drawingData['superset'] = pre;
         this.drawingData['subset'] = subset;
-        let combin = [...superset,...subset];
+
+        let combin = [...pre,...subset];
         combin.forEach(item => {
             // let filt = combin.filter(x => x == item);
             allNodes[`n${item}`]['state']++;//Check the length of instances, will be state CONFUSING
