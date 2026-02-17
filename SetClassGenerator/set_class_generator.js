@@ -1013,7 +1013,7 @@ const PCSetTheory = {
         return result;
     },
     /**
-     * Directly generate subsets of size n given an input array.
+     * Directly generate subsets of size n given an input array. Uses gospers hack, limited to 32-bit values.
      * @param {array} array 
      * @param {int} cardinality 
      */
@@ -1035,6 +1035,36 @@ const PCSetTheory = {
             let c = v & -v;
             let r = v + c;
             v = (((r ^ v) >>> 2) / c) | r;
+        }
+    },
+    /**
+     * Directly generate subsets of a specific cardinality using Gosper's Hack. Does not use bitwise operands, not limited to 32-bit integers.
+     * @param {array} array 
+     * @param {int} cardinality 
+     * @returns 
+     */
+    cardinal_subsets: function* (array,cardinality) {
+        let n = array.length;
+        /**
+         * Ensure cardinality is between 0 and cardinlity-1
+         */
+        if (cardinality <= 0 || cardinality > n) return;
+            /**
+            * Array of integers from {0,1,2,...cardinality}
+            */
+            let idx = Array.from({ length: cardinality},(_,i) => i);
+            while (true) {
+                /**
+                 * 
+                 */
+            yield idx.map(i => array[i]);
+            let i = cardinality-1;
+            while (i >= 0 && idx[i] === n-cardinality+i) i--;
+                if (i < 0) break;
+                idx[i]++;
+                for (let j = i + 1; j < cardinality; j++) {
+                    idx[j] = idx[j-1]+1;
+                }
         }
     },
     /**
@@ -1236,6 +1266,39 @@ let STORE = {
 };
 
 /**
+ * Separates individual entries of vectors {ICV,IV,DoS}, allowing them to be added as single, hoverable elements.
+ * @param {HTMLElement} parent 
+ * @param {string} data 
+ * @param {string} type key of ob
+ */
+const vectorBreaker = (parent,data,type) => {
+    let bounds = data.match(/[<>]/ig);
+    console.log(bounds);
+    let inner = data.match(/[A-Z0-9]+/ig);
+    let start = document.createElement('div');
+    start.textContent = bounds? bounds[0] : '';
+    bounds? parent.appendChild(start) : null;
+    for (let a = 0; a < inner.length; a++) {
+        let t = document.createElement('div');
+        t.classList.add('hoverable');
+        t.textContent = `${inner[a]}${a == inner.length-1? '' : ', '}`;
+        if (type == 'Interval Class Vector') {
+            t['data-tooltip'] = `${inner[a]} invariant tones under T<sub>${a+1}/${STORE['universe']-(a+1)}</sub>.`;
+        }
+        else if (type == 'Index Vector') {
+            t['data-tooltip'] = `${inner[a]} invariant tones under T<sub>${a}</sub>I.`;
+        }
+        else if (type == 'Degree of Symmetry') {
+             t['data-tooltip'] = `${inner[a]} self mapping ${a == 0? 'transposition' : 'inversion'} operand${inner[a] == 1? '' : 's'}.`;
+        }
+        parent.appendChild(t);
+    }
+    let last = document.createElement('div');
+    last.textContent = bounds? bounds[1] : '';
+    bounds? parent.appendChild(last) : null;
+}
+
+/**
  * Perform upon load.
  */
 document.addEventListener('DOMContentLoaded',() => {
@@ -1276,10 +1339,12 @@ document.addEventListener('DOMContentLoaded',() => {
                     for (let a = 0; a < STORE['universe']; a++) {
                         ints.push(a);
                     }
+                    document.querySelector('#organizer').classList !== null? document.querySelector('#organizer').classList.remove('void') : null;
                     /**
                      * This isn't working correctly. Doesn't return anything.
                      */
-                    let initList = Array.from(PCSetTheory.cardinal_specific_subsets(ints,STORE['cardinality']));
+                    // let initList = Array.from(PCSetTheory.cardinal_specific_subsets(ints,STORE['cardinality']));
+                    let initList = Array.from(PCSetTheory.cardinal_subsets(ints,STORE['cardinality']));
                     let pfs = [];
                     initList.forEach(item => {
                         let s = new MySet(STORE['universe'],...item);
@@ -1355,20 +1420,41 @@ document.addEventListener('DOMContentLoaded',() => {
                 setStorage.forEach(item => {
                     num.interval_class_vector().join('.') == item.interval_class_vector().join('.') && num.prime_form().join('.') !== item.prime_form().join('.')? ob['Z-Partner'] = new DataPoints(`(${item.prime_form()})`,"Two sets are Z-Related if they have the same interval content (same interval-class vector), but are not members of the same set-class.") : null; 
                 })
-                console.log(ob);
-                Object.entries(ob).forEach(item => {
+                /**
+                 * Specify which keys are to be broken into single elements. (for hovering)
+                 */
+                let toSplit = ['Interval Class Vector','Index Vector','Degree of Symmetry'];
+                Object.entries(ob).forEach(([key,value]) => {
                     let miniRow = document.createElement('div');
                     miniRow.classList.add('fakeRow');
                     let lab = document.createElement('p');
-                    lab.textContent = `${item[0]}:`;
+                    lab.textContent = `${key}:`;
                     let data = document.createElement('p');
-                    data.textContent = item[1] instanceof DataPoints? item[1]['value'] : '';
-                    lab['data-tooltip'] = item[1] instanceof DataPoints? item[1]['tooltip'] : '';
+                    if (value instanceof DataPoints) {
+                        /**
+                         * If key is found in toSplit, use vectorBreaker.
+                         */
+                        if (toSplit.indexOf(key) > -1) {
+                            data.classList.add('horiz');
+                            vectorBreaker(data,value['value'],key);
+                        }
+                        /**
+                         * Otherwise, just populate data literally.
+                         */
+                        else {
+                            console.log(`${key} & ${value}`);
+                            data.textContent = value['value'];
+                        }
+                    }
+                    else {
+                        console.log([key,value])
+                    }
+                    value == undefined? null : lab['data-tooltip'] = value['tooltip'];
                     miniRow.append(lab,data);
                     /**
                      * If item is undefined, don't add to the box.
                      */
-                    item[1] == undefined? null : bigDisplay.appendChild(miniRow);
+                    value == undefined? null : bigDisplay.appendChild(miniRow);
                 })
             }
         })  

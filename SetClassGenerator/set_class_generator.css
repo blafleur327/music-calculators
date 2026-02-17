@@ -6,6 +6,7 @@
 
 #list {
     overflow-y: scroll;
+    padding-right:.5em;
 }
 
 .hoverable:hover {
@@ -73,3 +74,11 @@ strong {
     padding-left:1em;
 }
 
+.void {
+    visibility:hidden;
+}
+
+.horiz {
+    display: flex;
+    flex-direction:row;
+}
