@@ -52,7 +52,7 @@
                             <ul>
                                 <li>Derivation</li>
                                 <li><em>n</em>-Chordal Combinatoriality (All divisors of universe)</li>
-                                <li>All Interval Status</li>
+                                <li>All-Interval Status</li>
                             </ul>
                         </li>
                     </ul>
@@ -89,7 +89,7 @@
                             <li>Bosanquet-Wilson</li>
                         </ul>
                     </li>
-                    <li>12-EDO and 31-EDO Triadic Tonnetze UTT or NRT chain support.</li>
+                    <li>12-EDO and 31-EDO Triadic <em>Tonnetz</em> UTT or NRT chain support.</li>
                 </ul>
             </ul>
         </div>
