@@ -9,6 +9,10 @@ li:hover > a {
     max-width:fit-content;
 }
 
+li {
+    max-width:fit-content;
+}
+
 footer {
     text-align:center;
 }
