@@ -974,6 +974,11 @@ const PitchSystems = {
         `G${Accidentals.sharp}/A${Accidentals.flat}`,
         'A',`A${Accidentals.sharp}/B${Accidentals.flat}`,
         'B'],
+    19: [
+        `C`,`C${Accidentals.sharp}`,`D${Accidentals.flat}`,`D`,`D${Accidentals.sharp}`,`E${Accidentals.flat}`,
+        `E`,`E${Accidentals.sharp}`,`F`,`F${Accidentals.sharp}`,`G${Accidentals.flat}`,`G`,`G${Accidentals.sharp}`,`A${Accidentals.flat}`,`A`,`A${Accidentals.sharp}`,
+        `B${Accidentals.flat}`,`B`,`B${Accidentals.sharp}`
+    ],
     24: [`C`,`C${Accidentals.semiSharp}`,`C${Accidentals.sharp}/D${Accidentals.flat}`,`D${Accidentals.semiFlat}`,`D`,`D${Accidentals.semiSharp}`,`D${Accidentals.sharp}/E${Accidentals.flat}`,`E${Accidentals.semiFlat}`,
         `E`,`E${Accidentals.semiSharp}`,`F`,`F${Accidentals.semiSharp}`,`F${Accidentals.sharp}/G${Accidentals.flat}`,`G${Accidentals.semiFlat}`,`G`,`G${Accidentals.semiSharp}`,`G${Accidentals.sharp}/A${Accidentals.flat}`,
         `A${Accidentals.semiFlat}`,`A`,`A${Accidentals.semiSharp}`,`A${Accidentals.sharp}/B${Accidentals.flat}`,`B${Accidentals.semiFlat}`,`B`,`B${Accidentals.semiSharp}`
@@ -2652,6 +2657,25 @@ const PareidoliaA = new ChordGroup(31,[0,5,18,23],[10,14,22,27],[0,5,14,18],[18,
 
 const PareidoliaB = PareidoliaA.transposeGroup(4);
 
+const XENOScale = new MySet(31,...PareidoliaA.superset).set_class();
+
+/**
+ * Dadgum.
+ * @param  {...any} pcs 
+ */
+const searchXENO = (...pcs) => {
+    let x = Object.entries(XENOScale);
+    let result = {};
+    x.forEach(([key,value]) => {
+        let ct = 0;
+        pcs.forEach(elem => {
+            value.indexOf(elem) > -1? ct++ : null;
+        })
+        ct == pcs.length? result[key] = value : null;
+    })
+    return result;
+}
+
 /**
  * A sections of Pareidolia.
  */
@@ -2728,3 +2752,4 @@ let Mod31 = new Transformation(31,[0,5,18,23],[0,16]);//
  * Chord 0 in MOD 9 Where lowest pitch is moved up incrementally.
  */
 let Mod9 = new Transformation(9,[5,7,0,1],[5,4]);//
+
