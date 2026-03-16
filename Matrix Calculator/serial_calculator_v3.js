@@ -1369,6 +1369,8 @@ const buildInput = (name,type,parent = 'upper',tooltip) => {
     cont.setAttribute('class','single');
     cont.setAttribute('id',`${name}`);
     // par['data-tooltip'] = tooltip;
+    let wrapper = document.createElement('label');
+    wrapper.setAttribute('for','name > input');
     let lab = document.createElement('h4');
     let inp;
     if (type == 'number') {
@@ -1427,7 +1429,8 @@ const buildInput = (name,type,parent = 'upper',tooltip) => {
     }
     let val = document.createElement('p');
     lab.innerHTML = `${name}:`;
-    cont.appendChild(lab);
+    wrapper.appendChild(lab);
+    cont.appendChild(wrapper);
     cont.appendChild(inp);
     if (name == 'Search') {
         let sub = document.createElement('div');
