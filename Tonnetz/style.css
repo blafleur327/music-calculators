@@ -32,7 +32,7 @@ circle {
     cursor: pointer
 }
 
-.chord:hover > circle {
+.chord:not(.sel1,.sel2,.sel3):hover > circle {
     r: 1.2em;
     fill:rgba(174, 174, 174, 0.596);
 }
@@ -199,54 +199,73 @@ h4 {
     text-align: center;
 }
 
-.sel1:not(.void) > text {
-    visibility: visible;
-}
-
 .sel1 > circle {
-    fill:rgba(255, 243, 22, 0.53);
-    r: 1.2em;
+    fill:rgb(255, 243, 22);
+    /* r: 1.2em; */
 }
 
 .active1 > text {
     fill:black;
+    /* visibility:hidden; */
 }
 
 .sel2 > circle {
-    fill:rgba(255, 168, 29, 0.692);
-    r: 1.2em;
-}
-
-.sel2:not(.void) > text {
-    visibility: visible;
+    fill:rgb(204, 129, 9);
+    /* r: 1.2em; */
 }
 
 .active1 > polygon {
-    fill:rgba(122, 242, 255, 0.345);
+    fill:rgba(135, 148, 149, 0.345);
+    stroke-width: .3em;
+    /* stroke-dasharray: 3,3; */
+    stroke: black;
+    transform:scale(.85);
 }
 
 .active2 > text {
     fill:black;
+    /* visibility:hidden; */
+}
+
+.active2 > polygon {
+    fill:rgba(135, 148, 149, 0.345);
+    stroke-width: .3em;
+    /* stroke-dasharray: 3,3; */
+    stroke: black;
+    transform:scale(.85);
 }
 
 .sel3 > circle {
-    fill:rgba(200, 36, 241, 0.345);
-    r: 1.2em;
+    fill:rgb(200, 36, 241);
+    /* r: 1.2em; */
 }
 
-.sel3:not(.void) > text {
-    visibility: visible;
-    fill:white;
-}
 
 .active3 > polygon {
-    fill:rgba(71, 164, 9, 0.808)
+    fill:rgba(135, 148, 149, 0.345);
+    stroke-width: .3em;
+    /* stroke-dasharray: 3,3; */
+    stroke: black;
+    transform:scale(.85);
 }
 
 .active3 > text {
     fill:black;
+    /* visibility:hidden; */
 }
 
 #tBox {
     padding-left: 2em;
+}
+
+.sel1:hover > circle {
+    r:1.2em;
+}
+
+.sel2:hover > circle {
+    r:1.2em;
+}
+
+.sel3:hover > circle {
+    r:1.2em;
 }

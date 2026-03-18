@@ -1410,7 +1410,7 @@ function LatticeManager (parent,structure = 'Triadic') {
             let temp = [];
             let ids = [];
             Object.values(this.nodes).forEach(node => {
-                if (proximity(...node.centroid,...cent,50)) {
+                if (proximity(...node.centroid,...cent,50)) {//Expanding this seems to ruin everything?
                     temp.push(node);
                     ids.push(node.self['node'].id);
                 }
@@ -1459,7 +1459,6 @@ function LatticeManager (parent,structure = 'Triadic') {
         let oppo = color == 0? 'wham2' : 'wham';
         document.querySelectorAll(`.${spec}, .both`).forEach(item => {
             item.classList.contains('both')? item.classList.remove('both') : item.classList.remove(`${spec}`);
-
         });
         Object.values(this.nodes).forEach(hex => {
             for (let a = 0; a < array.length; a++) {
@@ -1669,6 +1668,7 @@ const uttJoiner = (str) => {
     return fix;
 }
 
+
 /**
  * Chords found in Pareidolia...requires 31-EDO layout.
  */
@@ -1680,6 +1680,7 @@ const PareidoliaB = {
     'chords': [[22,27,4,9],[14,18,27,0],[4,9,18,22],[10,14,22,26],[10,18,27],[10,18,22,0],[26,0,10,14],[14,22,27,0],[14,18,27,4],[14,27,0],[22,27,4,10]],
     'superset': Array.from(new Set([[22,27,4,9],[14,18,27,0],[4,9,18,22],[10,14,22,26],[10,18,27],[10,18,22,0],[26,0,10,14],[14,22,27,0],[14,18,27,4],[14,27,0],[22,27,4,10]].flat()))
 }
+
 document.addEventListener('DOMContentLoaded',() => {
     D = new LatticeManager('drawing','Triadic');
     // D.buildLattice();
@@ -1713,13 +1714,22 @@ document.addEventListener('DOMContentLoaded',() => {
      * Allows selecting of hex nodes. Useful if isomorphic keyboard functionality fleshed out.
      */
     document.querySelector('#drawing').addEventListener('mousedown',(event) => {
+        let single = true;//Add to something global later.
         let sel = event.target.closest('.hexNode');
         console.log(sel);
-        if (sel.classList.contains('wham')) {
-            sel.classList.remove('wham');
+        if (single) {
+            document.querySelectorAll('.wham').forEach(item => {
+                item.classList.remove('wham');
+            })
+            sel.classList.add('wham');
         }
         else {
-            sel.classList.add('wham');
+            if (sel.classList.contains('wham')) {
+            sel.classList.remove('wham');
+            }
+            else {
+                sel.classList.add('wham');
+            }
         }
     })
     /**
