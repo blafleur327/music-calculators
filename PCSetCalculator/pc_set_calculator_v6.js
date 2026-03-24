@@ -965,7 +965,7 @@ const Accidentals = {
  * Object that stores a variety of accidental settings.
  */
 const PitchSystems = {
-    7: ['Do','Re','Mi','Fa','Sol','La','Ti'],
+    7: [`1\u0302`,`2\u0302`,`3\u0302`,`4\u0302`,`5\u0302`,`6\u0302`,`7\u0302`],
     12: [
         'C',`C${Accidentals.sharp}/D${Accidentals.flat}`,
         `D`,`D${Accidentals.sharp}/E${Accidentals.flat}`,
@@ -1202,8 +1202,6 @@ function MyDropdown(parent,name,method) {
             else if (name == 'MULTIPLICATION') {
                 disp = document.querySelector('#mContain');
             }
-            // disp.innerHTML = `${decon.length}`; Works but is slow. 
-            // disp.style.visibility = 'visible';
             drawer.addEventListener('mousedown',(event) => {
                 /**
                  * Deselect previously selected option
@@ -2041,7 +2039,6 @@ function DrawingManager (parent = 'drawing') {
         else {
             console.log('No Node clicked!');
         };
-
         /**
          * If a node is clicked, add 1 (mod3) to object reference state. Ints range from 0-2 where...
          * 0 = Deselect
@@ -2050,7 +2047,18 @@ function DrawingManager (parent = 'drawing') {
          */
         if (currNode !== null) {
             console.log(currNode.childNodes[1]);
-            inst.state = (inst.state+1)%3;
+            /**
+             * Left Click (Increment)
+             */
+            if (event.button == 0) {
+                inst.state = (inst.state+1)%3;
+            }
+            /**
+             * Right Click (Decrement)
+             */
+            else if (event.button == 2) {
+                inst.state = (inst.state+2)%3;
+            }
             let nodeNumber = index;//Fails when click text?????
             let nodeState = Object.values(allNodes)[nodeNumber].state;
             document.querySelector(`#tooltips`).innerHTML = `${currNode['data-tooltip'][nodeState]}`;//THIS LINE IS THE PROBLEM
