@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="PCStyle.css">
+    <script src="http://unpkg.com/tone"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0/dist/svg.min.js"></script>
+    <script type="module" src="PCOperations.js"></script>
+    <title>PC Calculator v7</title>
+</head>
+<body>
+    <div>
+        <h1>PC/BC Calculator</h1>
+    </div>
+    <div id="bigTable">
+        <div id="col1">
+            <div class="box" id="inputs">
+            <div class="inp" data-tooltip="Modular universe to display.">
+                <label universe>Chromatic Universe</label>
+                <!-- <input id="universe" type="number" placeholder="Integer" min="1"> -->
+                <input id="universe" type="text" placeholder="Modulus,Factor">
+            </div>
+            <div class="inp">
+                <label for supersetComp>Superset</label>
+                <button id="supersetComp" onclick="F.drawComplement('superset')" data-tooltip="Complement superset.">Complement</button>
+                <button id="supersetCents" onclick="F.showCents('superset')" data-tooltip="Show cents between elements of superset.">Cents</button>
+                <button id="supersetSymm" onclick="F.drawSymmetry('superset')" data-tooltip="Draw lines of symmetry for elements in superset.">Symmetry</button>
+            </div>
+            <div class="inp" data-tooltip="Get the opposing elements of the current subset.">
+                <label for subsetComp>Subset</label>
+                <button id="subsetComp" onclick="F.drawComplement('subset')" data-tooltip="Complement subset.">Complement</button>
+                <button id="subsetCents" onclick="F.showCents('subset')" data-tooltip="Show cents between elements of subset.">Cents</button>
+                <button id="subsetSymm" onclick="F.drawSymmetry('subset')" data-tooltip="Draw lines of symmetry for elements in subset.">Symmetry</button>
+            </div>
+            <div class="inp" data-tooltip="Draw the selected transformation for the subset.">
+                <label for transpose>Transposition</label>
+                <div id="transpose"></div>
+            </div>
+            <div class="inp" data-tooltip="Draw the selected transformation for the subset.">
+                <label for invert>Inversion</label>
+                <div id="invert"></div>
+            </div>
+            <div class="inp" data-tooltip="Draw the selected transformation for the subset.">
+                <label for multiply>Multiplication</label>
+                <div id="multiply"></div>
+            </div>
+            </div>
+            <div id="drawing" oncontextmenu="return false"></div>
+        </div>
+        <div id="col2">
+             <div class="box" id="results"></div>
+        </div>
+    </div>
+</body>
+</html>
+
+<!-- Parediolia Chord A3 -->

@@ -1,0 +1,215 @@
+@font-face {
+    font-family: 'Bravura';
+    src: url('../fonts/Bravura.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display:swap;
+}
+
+p {
+    margin-top: .5em;
+    margin-bottom: .5em;
+}
+
+.myNode:not(.small):hover > circle {
+   r: 25;
+}
+
+.small:not(.subset,.superset) > text {
+    visibility: hidden;
+}
+
+.small > .outText {
+    font-size: 1.1em;
+}
+
+.small:hover > circle {
+    r:12;
+}
+
+.small:hover > .outText {
+    visibility:visible;
+}
+
+.box {
+    display: flex;
+    flex-direction: row;
+}
+
+.box > *:not(.void) {
+    border-color: grey;
+    border-style: inset;
+    border-width: .1em;
+    padding-left: .2em;
+    padding-right: .2em;
+}
+
+.inp {
+    display:flex;
+    flex-direction: column;
+    height:5.5em;
+    align-items: center;
+}
+
+.myNode:hover > text > tspan {
+    font-size: 1.1em;
+}
+
+.myNode:hover {
+    cursor: pointer;
+}
+
+.myNode > text,tspan {
+    text-anchor:middle;
+    dominant-baseline:auto;
+}
+
+.myNode > text > tspan {
+    font-family: "Bravura";
+    user-select: none;
+}
+
+.small > text > tspan {
+    font-size: .8em;
+}
+
+.small:hover > text > tspan {
+    font-size: 1.1em;
+}
+
+.void {
+    visibility: hidden;
+}
+
+.small > circle {
+    r: 6;
+}
+
+.subset > circle {
+    fill:rgb(108, 108, 233);
+}
+
+.subset:not(.small) > text {
+    fill:white;
+}
+
+.superset > circle {
+    fill:rgb(206, 232, 255);
+}
+
+.superPoly {
+    fill:rgba(186, 186, 186, 0.468);
+}
+
+.subPoly  {
+    fill:rgba(118, 169, 189, 0.366);
+}
+
+.transPoly {
+    /* stroke-color: rgba(152, 152, 152, 0.508); */
+    stroke:grey;
+    fill:rgba(108, 154, 194, 0.368);
+    transform-origin: center;
+}
+
+.transPoly:hover {
+    fill:rgba(162, 196, 225, 0.686);
+    cursor: pointer;
+}
+
+button {
+    width:100%;
+}
+
+button:hover {
+    transform: scale(1.1);
+    cursor: pointer;
+}
+
+.centCircle {
+    r: 5;
+    stroke:grey;
+    fill:rgb(104, 104, 164);
+}
+
+.centCircle:hover {
+    cursor: pointer;
+    r: 9;
+}
+
+.play > circle {
+    fill:grey;
+    stroke-dasharray:3,3,3;
+    stroke-color:black;
+}
+
+
+.row {
+    width:20em;
+    height:2.3em;
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.row > * {
+    align-items: center;
+}
+
+/* .row > * {
+    align-content: space-evenly;
+} */
+
+.hov:hover {
+    transform:scale(1.1);
+    cursor: crosshair;
+    background-color:lightgrey;
+}
+
+.semi {
+    display:flex;
+    flex-direction: column;
+    padding-bottom: .2em;
+    border-color: grey;
+    border-width: .1em;
+    border-style: inset;
+}
+
+.semi > * {
+    padding-right: .5em;
+    text-align: center;
+}
+
+#bigTable {
+    display:flex;
+    flex-direction: row;
+}
+
+#results > * {
+    width: 50%;
+    /* border-color:grey;
+    border-width: .1em;
+    border-style: inset; */
+}
+
+.inTrans > circle {
+    stroke-width: .1em;
+    stroke-color:grey;
+    stroke-dasharray: 3,3;
+    fill:rgba(155, 161, 255, 0.442)
+}
+
+#universe {
+    max-width: 9em;
+}
+
+.selButton {
+    background-color: rgb(118, 118, 118);
+    color:white;
+}
+
+#toolbox {
+    font-family: "Bravura";
+    margin:1em;
+}
