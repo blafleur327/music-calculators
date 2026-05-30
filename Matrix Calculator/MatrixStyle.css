@@ -1,0 +1,194 @@
+@font-face {
+    font-family: 'Bravura';
+    src: url('../fonts/Bravura.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display:swap;
+}
+
+body {
+    display:flex;
+    flex-direction: row;
+}
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+.bigCol {
+    width:fit-content;
+    display:flex;
+    flex-direction: column;
+}
+
+.label {
+    background-color:rgb(188, 188, 188);
+}
+
+.label:hover {
+    cursor: pointer;
+    scale:1.1;
+}
+
+.cell {
+    display: flex;
+    border-color: lightgrey;
+    border-style:inset;
+    border-width:.01em;
+    width:2.5em;
+    height: 2.5em;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Bravura';
+    user-select:none;
+}
+
+.void {
+    visibility: hidden !important;
+}
+
+.select {
+    background-color: rgb(181, 208, 243);
+}
+
+.labelSelect {
+    background-color: rgba(62, 75, 255, 0.685);
+    color:white;
+}
+
+.box {
+    display: flex;
+    flex-direction: row;
+}
+
+.box > *:not(.void) {
+    border-color: grey;
+    border-style: inset;
+    border-width: .1em;
+    padding-left: .2em;
+    padding-right: .2em;
+}
+
+.inp {
+    display:flex;
+    flex-direction: column;
+}
+
+.invar {
+    background-color: rgba(76, 109, 120);
+    color:white;
+}
+
+.literalFind {
+    /* background-color: rgba(88, 37, 135, 0.5) !important; */
+    background-image:repeating-radial-gradient(rgba(128, 128, 128, 0.567),rgb(143, 143, 255)) !important;
+    color:white !important;
+}
+
+.verticalSC {
+    /* background-image: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 5px,
+        #ff4d4d 10px);   */
+    background-color: #698cff;
+}
+
+.horizontalSC {
+    background-color: rgb(206, 188, 88);
+     /* background-image: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 5px,
+        #ffe469 10px);   */
+}
+
+.bothSC {
+    background-color: rgb(244, 206, 35);
+     /* background-image: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 5px,
+        #698cff 10px),
+        repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 5px,
+        #698cff 10px);  */
+}
+
+label {
+    font-weight: bold;
+}
+
+#inputs {
+    padding-bottom: 1em;
+}
+
+.combin:hover {
+    cursor: pointer;
+    background-color: aquamarine;
+}
+
+.mini {
+    max-height: 10em;
+    overflow-y: scroll;
+    border-radius:.05em;
+    border-color: grey;
+    border-style: solid;
+}
+
+.subGrp {
+    background-color: rgba(0, 74, 11, 0.667) !important;
+    color:white !important;
+}
+
+.selectCombinGroup {
+    background-color: lightblue;
+    font-weight: bold;
+}
+
+#matrix {
+    padding-bottom: 1em;
+}
+
+button {
+    font-family: 'Times New Roman', Times, serif;
+}
+
+button:hover {
+    cursor: pointer;
+    transform: scale(1.1);
+}
+
+.abs {
+    background-color: rgb(200, 200, 200);
+}
+
+.lit {
+    background-color: rgb(86, 86, 86);
+    color:white;
+}
+
+.dark {
+    background-color:rgb(42, 42, 42);
+    color:rgb(109, 195, 109);
+}
+
+.col {
+    display: flex;
+    flex-direction: column;
+}
+
+#key > .cell {
+    width: 10em;
+}
+
+#key > .cell:hover {
+    cursor: pointer;
+    transform:scale(1.1);
+}
+
+#key {
+    padding: 5.5em;
+}
