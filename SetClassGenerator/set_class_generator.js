@@ -1045,26 +1045,25 @@ const PCSetTheory = {
      */
     cardinal_subsets: function* (array,cardinality) {
         let n = array.length;
-        /**
-         * Ensure cardinality is between 0 and cardinlity-1
-         */
-        if (cardinality <= 0 || cardinality > n) return;
-            /**
-            * Array of integers from {0,1,2,...cardinality}
-            */
-            let idx = Array.from({ length: cardinality},(_,i) => i);
-            while (true) {
-                /**
-                 * 
-                 */
-            yield idx.map(i => array[i]);
-            let i = cardinality-1;
-            while (i >= 0 && idx[i] === n-cardinality+i) i--;
-                if (i < 0) break;
-                idx[i]++;
-                for (let j = i + 1; j < cardinality; j++) {
-                    idx[j] = idx[j-1]+1;
+        let k = cardinality;
+        if (k <= 0 || k > n) return;
+
+        let v = (1n << BigInt(k)) - 1n;
+        let limit = 1n << BigInt(n);
+
+        while (v < limit) {
+            let subset = [];
+            for (let i = 0; i < n; i++) {
+                if (v & (1n << BigInt(i))) {
+                    subset.push(array[i]);
                 }
+            }
+            yield subset;
+
+            // Gosper's hack with BigInt
+            let c = v & -v;
+            let r = v + c;
+            v = (((r ^ v) / c) >> 2n) | r;
         }
     },
     /**
