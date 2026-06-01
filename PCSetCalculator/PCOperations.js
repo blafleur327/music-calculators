@@ -68,7 +68,7 @@ function DrawingManager (parent = document.querySelector(`#drawing`)) {
         'subset': null,
         'superset': null,
     }
-    this.synthManager = new MySynth();
+    // this.synthManager = new MySynth();
     /**
      * Controls the display type, the visual format of the drawing.
      */
@@ -646,6 +646,7 @@ document.addEventListener('DOMContentLoaded',() => {
         'SupersetB': [4, 9, 10, 14, 18, 22, 26, 27, 0],
 }
     console.log('LOADED');
+    alert('Use left and right arrow keys to change display type.');
     F = window.F = new DrawingManager();
     F.populate(undefined,undefined);
     let targ = document.querySelector('#universe');
