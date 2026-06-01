@@ -1,5 +1,5 @@
 
-import { PCset,Serialism,DisplayTypes,mouseTracking, MyDropdown, IntervalLookup, findIntervals, MySynth} from "../pcMethods.js";
+import { PCset,Serialism,DisplayTypes,mouseTracking, MyDropdown, IntervalLookup, findIntervals} from "../pcMethods.js";
 
     /**
      * Returns the factors/divisors of an input.
