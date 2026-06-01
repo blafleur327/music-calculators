@@ -646,6 +646,7 @@ document.addEventListener('DOMContentLoaded',() => {
         'SupersetB': [4, 9, 10, 14, 18, 22, 26, 27, 0],
 }
     console.log('LOADED');
+    alert('Use the left and right arrow keys to toggle visual display types.');
     F = window.F = new DrawingManager();
     F.populate(undefined,undefined);
     let targ = document.querySelector('#universe');
