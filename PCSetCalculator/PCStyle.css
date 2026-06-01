@@ -153,18 +153,19 @@ button:hover {
     overflow-y: hidden;
 }
 
-.row > * {
-    align-items: center;
-}
-
 /* .row > * {
     align-content: space-evenly;
 } */
 
 .hov:hover {
     transform:scale(1.1);
+    font-weight: bolder;
     cursor: crosshair;
     background-color:lightgrey;
+}
+
+.hov {
+    max-height: 1.1em;
 }
 
 .semi {
@@ -187,7 +188,8 @@ button:hover {
 }
 
 #results > * {
-    width: 50%;
+    min-width: 18em;
+    max-width: 50%;
     /* border-color:grey;
     border-width: .1em;
     border-style: inset; */
@@ -210,6 +212,6 @@ button:hover {
 }
 
 #toolbox {
-    font-family: "Bravura";
+    /* font-family: "Bravura"; */
     margin:1em;
 }

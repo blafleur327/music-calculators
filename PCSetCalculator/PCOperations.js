@@ -1,5 +1,5 @@
 
-import { PCset,Serialism,DisplayTypes,mouseTracking, MyDropdown, IntervalLookup, findIntervals} from "../pcMethods.js";
+import { PCset,Serialism,DisplayTypes,mouseTracking, MyDropdown, IntervalLookup, findIntervals, MySynth} from "../pcMethods.js";
 
     /**
      * Returns the factors/divisors of an input.
@@ -68,7 +68,7 @@ function DrawingManager (parent = document.querySelector(`#drawing`)) {
         'subset': null,
         'superset': null,
     }
-    // this.synthManager = new MySynth();
+    this.synthManager = new MySynth();
     /**
      * Controls the display type, the visual format of the drawing.
      */
@@ -510,7 +510,7 @@ function DrawingManager (parent = document.querySelector(`#drawing`)) {
         let par = document.querySelector('#results');
         par.innerHTML = '';
         let included = ['Normal','Prime','ICV','IV','DoS','DF','ME'];
-        Object.entries(this.sets).forEach(([key,value]) => {
+        (Object.entries(this.sets).reverse()).forEach(([key,value]) => {
             let main = document.createElement('div');
             let h = document.createElement('h4');
             h.textContent = `${key.toLocaleUpperCase()}`;
@@ -646,7 +646,6 @@ document.addEventListener('DOMContentLoaded',() => {
         'SupersetB': [4, 9, 10, 14, 18, 22, 26, 27, 0],
 }
     console.log('LOADED');
-    alert('Use the left and right arrow keys to toggle visual display types.');
     F = window.F = new DrawingManager();
     F.populate(undefined,undefined);
     let targ = document.querySelector('#universe');
