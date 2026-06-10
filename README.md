@@ -11,7 +11,7 @@
     <div id="main">
         <div class="sub">
             <h3>Purpose:</h3>
-            <p>This project is a component of my PhD (LSU 2026) dissertation on post-tonal music theory pedagogy and how visualization other than the score might increase understanding.</p>
+            <p>This project is a component of my PhD (LSU 2026) dissertation on post-tonal music theory pedagogy and how extramusical visualization might increase understanding.</p>
             <p>My primary motivation for this project is to provide learners and experienced analysts access to a more intuition forward way of approaching post-tonal music theory.
                 Since my musical insterests often lie outside of the twelve-tone chromatic universe, all of these calculators except for the Neo-Riemannian one (for now!) permit larger and smaller universes.
                 This is to encourage G-SPACE analysis, beat-class, and microtonal exploration using the tools and terminology from pitch-class set theory and mathematical music theories. (But with a more pedagogical spin).</p>
@@ -29,7 +29,7 @@
                     <ul>
                         <li>Support for two sets, superset and a contained subset. Includes T<sub><em>n</em></sub>,T<sub><em>n</em></sub>I, and M<sub><em>n</em></sub> transformations that are included within parent superset.</li>
                         <li>Complement of superset or subset.</li>
-                        <li>Note Names (Stein-Zimmerman Accidentals) for {12, 24, 31}-EDO temperaments.</li>
+                        <li>Note Names (Stein-Zimmerman Accidentals) for {12, 19, 24, 31}-EDO temperaments.</li>
                         <li>Results for:
                             <ul>
                                 <li>Normal Form</li>
