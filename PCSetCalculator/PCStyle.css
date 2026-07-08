@@ -181,6 +181,7 @@ button:hover {
     padding-right: .5em;
     text-align: center;
     align:center;
+    align-items: center;
 }
 
 #bigTable {
