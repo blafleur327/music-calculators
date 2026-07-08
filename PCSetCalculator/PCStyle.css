@@ -180,6 +180,7 @@ button:hover {
 .semi > * {
     padding-right: .5em;
     text-align: center;
+    align:center;
 }
 
 #bigTable {
