@@ -1,6 +1,6 @@
 @font-face {
     font-family: 'Bravura';
-    src: url('../Fonts/Bravura.woff2') format('woff2');
+    src: url('../fonts/Bravura.woff2') format('woff2');
     font-weight: normal;
     font-style: normal;
     font-display:swap;
@@ -34,6 +34,7 @@ p {
 .box {
     display: flex;
     flex-direction: row;
+    max-width: 30%;
 }
 
 .box > *:not(.void) {
@@ -143,19 +144,17 @@ button:hover {
     stroke-color:black;
 }
 
-
 .row {
-    width:20em;
-    height:2.3em;
+    min-height:2.3em;
     display: flex;
     flex-direction: row;
     overflow-x: auto;
     overflow-y: hidden;
 }
 
-/* .row > * {
-    align-content: space-evenly;
-} */
+.head {
+    font-weight: bolder;
+}
 
 .hov:hover {
     transform:scale(1.1);
@@ -175,13 +174,13 @@ button:hover {
     border-color: grey;
     border-width: .1em;
     border-style: inset;
+    /* align-items: center; */
+    overflow-x: auto;
 }
 
 .semi > * {
     padding-right: .5em;
-    text-align: center;
-    align:center;
-    align-items: center;
+    text-align:center;
 }
 
 #bigTable {
