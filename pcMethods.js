@@ -173,6 +173,14 @@ export function PCset(modulus,...pcs) {
         return value >= 0? value%modulus : ((value%modulus)+modulus)%modulus;
     }
     /**
+     * Returns the array elements that are included in 
+     * @param {Array} array 
+     * @param {Array} indices 
+     */
+    const grab_indexes = (array,indices) => {
+        return indices.map(x => array[x]);
+    }
+    /**
      * Transpose this.pcs by a given index. (Tn)
      * @param {int} index 
      * @returns 
@@ -314,6 +322,19 @@ export function PCset(modulus,...pcs) {
         return res;
     }
     /**
+     * Determines if this set has exhibits cardinality equals variety for chords.
+     */
+    this.cardinalityEqualsVariety = () => {
+        //c, d ≤ ⎣c/2⎦ + 1. such that c = universe cardinality and d is the set cardinality.
+        let wf = this.wellFormed();
+        if (wf['Well-Formed'] == true && wf['Degenerate'] == false) {
+            return this.cardinality <= Math.floor(this.universe/2) + 1;
+        }
+        else {
+            return false;
+        }
+    }
+    /**
      * The number of unique members of the Tn/TnI group in this set class.
      * @returns 
      */
@@ -398,12 +419,41 @@ export function PCset(modulus,...pcs) {
         return ct > 0? result : undefined;
     }
     /**
-     * Converts the pcs to a different modulus.
+     * Converts the pcs to a different modulus. Rounded to the nearest discrete element in the new modulus.
      * @param {int} universeOut 
      * @returns 
      */
     this.modulusConvert = (universeOut) => {
         return new PCset(universeOut,...this.pcs.map(element => Math.round((element*universeOut)/this.universe)));
+    }
+    /**
+     * Isaacson's ICVSIM function, the pairwise difference between two ICVs and their standard deviation. 0 is more similar than 1.
+     * @param {PCset} setB
+     * @param {int} format = 0 where {0: pairwise object, 1: standard population deviation, 2: Both ICVs}
+     */
+    this.ICVSIM = (setB,format = 0) => {
+        let rel = setB instanceof PCset? setB : new PCset(modulus,...setB);
+        let pairwise = {};
+        let icv = rel.intervalClassVector(false);
+        for (let a = 0; a < icv.length; a++) {
+            //Take absolute value or no?
+            pairwise[`${a+1}.${modulus-(a+1)}`] = icv[a]-this.intervalClassVector(false)[a];
+        }
+        switch (format) {
+            case 0:
+                return pairwise;
+            break;
+            case 1:
+                let arr = Object.values(pairwise);
+                let mean = arr.reduce((a,b) => a+=b)/arr.length;
+                let dev = arr.map(x => (x-mean)**2);
+                let vari = dev.reduce((a,b) => a+=b)/dev.length;
+                return Math.sqrt(vari);
+            break;
+            case 2:
+                return `SELF: <${this.intervalClassVector(false)}>\nARG: <${icv}>`;
+            break;
+        }
     }
 }
 /**
@@ -1416,5 +1466,7 @@ const divisionsPer = (universe = 12) => {
     return result.filter(x => x.proximity == min);
 }
 
-console.log(divisionsPer(19));
 
+let S = new PCset(12,0,2,4,5,7,9,11);
+
+console.log(S.cardinalityEqualsVariety())
