@@ -1,6 +1,5 @@
 @font-face {
     font-family: 'Bravura';
-    Access-Control-Allow-Origin: *;
     src: url('../fonts/Bravura.woff2') format('woff2');
     font-weight: normal;
     font-style: normal;
@@ -151,6 +150,7 @@ button:hover {
     flex-direction: row;
     overflow-x: auto;
     overflow-y: hidden;
+    /* text-align: center; */
 }
 
 .head {
@@ -175,7 +175,7 @@ button:hover {
     border-color: grey;
     border-width: .1em;
     border-style: inset;
-    /* align-items: center; */
+    align-items: safe center;  /*THIS IS THE IMPORTANT ONE!*/
     overflow-x: auto;
 }
 
