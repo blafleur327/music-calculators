@@ -1129,7 +1129,7 @@ export function MySynth() {
     }
 }
 
-export default { PCset, Serialism, Combinatorics, DisplayTypes, mouseTracking , MyDropdown, MySynth}
+export default { PCset, Serialism, Combinatorics, DisplayTypes, mouseTracking , MyDropdown}
 
 /**
  * Pair up the entries of an object for ICVSim.
