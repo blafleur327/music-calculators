@@ -68,7 +68,7 @@ function DrawingManager (parent = document.querySelector(`#drawing`)) {
         'subset': null,
         'superset': null,
     }
-    this.synthManager = new MySynth();
+    // this.synthManager = new MySynth();
     /**
      * Controls the display type, the visual format of the drawing.
      */
