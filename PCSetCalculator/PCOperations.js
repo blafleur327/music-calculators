@@ -1,5 +1,5 @@
 
-import { PCset,Serialism,DisplayTypes,mouseTracking, MyDropdown, IntervalLookup, findIntervals} from "../pcMethods.js";
+import { PCset,Serialism,DisplayTypes,mouseTracking, MyDropdown, IntervalLookup, findIntervals, MySynth} from "../pcMethods.js";
 
     /**
      * Returns the factors/divisors of an input.
@@ -68,7 +68,7 @@ function DrawingManager (parent = document.querySelector(`#drawing`)) {
         'subset': null,
         'superset': null,
     }
-    // this.synthManager = new MySynth();
+    this.synthManager = new MySynth();
     /**
      * Controls the display type, the visual format of the drawing.
      */
@@ -616,10 +616,10 @@ function DrawingManager (parent = document.querySelector(`#drawing`)) {
                             let z = document.createElement('div');
                             z.classList.add('hov');
                             if (x == 0) {
-                                z.textContent = `WF: ${tem['Well-Formed']}`;
+                                z.textContent = `WF: ${String(tem['Well-Formed']).toUpperCase()}`;
                             }
                             else if (x == 1) {
-                                z.textContent = `Degenerate: ${tem['Well-Formed']? setRep.wellFormed()['Degenerate'] : 'N/A'}`;
+                                z.textContent = `Degenerate: ${tem['Well-Formed']? String(setRep.wellFormed()['Degenerate']).toUpperCase() : 'N/A'}`;
                                 z.dataset.tooltip = `If the generating interval is a divisor of the chromatic universe, the collection is degenerate. If the cardinality of the chromatic universe and the generating interval are coprime, the collection is non-degenerate.`;
                             }
                             else {
@@ -722,6 +722,18 @@ document.addEventListener('DOMContentLoaded',() => {
                 relevant['status'] = (relevant['status']+2)%3;
             }
             F.update();
+        }
+        /**
+         * If a polygon is clicked, play the related PCs successively.
+         */
+        else if (event.target.tagName == 'polygon') {
+            let clean = event.target['data-pcs'].match(/[0-9]+/ig).map(x => parseInt(x));
+            if (F.display < 3) {
+                F.synthManager.playSuccessive(...clean.map(x => F.synthManager.middleC*2**(x/F.universe)));
+            }
+            else {
+                F.synthManager.playDuration(...clean);
+            }
         }
     })
     /**
