@@ -1,4 +1,4 @@
-import * as Tone from "./localTone";
+// import * as Tone from "./localTone";
 
 /**
  * Class filled with methods for combinatorics calculation.
@@ -1077,57 +1077,57 @@ let Pareidolia = {
 /**
  * Build a synth.
  */
-export function MySynth() {
-    this.aVal = 440;
-    this.middleC = this.aVal*2**(-9/12);
-    // this.monoSynth = new Tone.Synth().toDestination();
-    // this.polySynth = new Tone.PolySynth(Tone.Synth).toDestination();
-    this.tempo = 120;
-    /**
-     * Plays the input frequencies successively.
-     * @param  {...float} pitches
-     */
-    this.playSuccessive = (...pitches) => {
-        let duration = 1;
-        let now = Tone.now();
-        for (let a = 0; a < pitches.length; a++) {
-            let pc = Math.round(Math.log2(pitches[a]/this.middleC)*(F.universe));
-            this.monoSynth.triggerAttack(pitches[a],now+(a*duration));
-            setTimeout(() => document.querySelector(`#node${pc}`).classList.add('play'),now+a*duration*1000);
-            this.monoSynth.triggerRelease(now+(a*duration)+duration+.1);
-            setTimeout(() => document.querySelector(`#node${pc}`).classList.remove('play'),now+((a*duration)+duration+.1)*1000);
-        }
-    }
-    this.playDuration = (...onsets) => {
-        let bcDuration = (60/this.tempo)/2;//In Seconds.
-        let long = [];
-        let reps = 4;
-        for (let i = 0; i < reps; i++) {
-            long.push(...onsets.map(x => x+(i*F.universe)));
-        }
-        let now = Tone.now();
-        for (let a = 0; a < long.length; a++) {
-            let onTime = now+long[a]*bcDuration;
-            this.monoSynth.triggerAttack(long[a]%F.universe == 0? this.middleC*2 : this.middleC,onTime);
-            // setTimeout(() => document.querySelector(`#node${long[a]%F.universe}`).classList.add('play'),onTime*1000);
-            this.monoSynth.triggerRelease(onTime+.05);
-            // setTimeout(() => document.querySelector(`#node${long[a]%F.universe}`).classList.remove('play'),(onTime+.05)*1000);
-        }
-    }
-    /**
-     * Plays the structure as a stack.
-     * @param  {...float} pitches 
-     */
-    this.playSimultaneous = (...pitches) => {
-        let stack = true;
-        let duration = 1;
-        let now = Tone.now();
-        for (let a = 0; a < pitches.length; a++) {
-            this.polySynth.triggerAttack(pitches[a],now+(duration*a));
-        }
-        this.polySynth.triggerRelease([...pitches],now+(duration*1.5)*pitches.length);
-    }
-}
+// export function MySynth() {
+//     this.aVal = 440;
+//     this.middleC = this.aVal*2**(-9/12);
+//     // this.monoSynth = new Tone.Synth().toDestination();
+//     // this.polySynth = new Tone.PolySynth(Tone.Synth).toDestination();
+//     this.tempo = 120;
+//     /**
+//      * Plays the input frequencies successively.
+//      * @param  {...float} pitches
+//      */
+//     this.playSuccessive = (...pitches) => {
+//         let duration = 1;
+//         let now = Tone.now();
+//         for (let a = 0; a < pitches.length; a++) {
+//             let pc = Math.round(Math.log2(pitches[a]/this.middleC)*(F.universe));
+//             this.monoSynth.triggerAttack(pitches[a],now+(a*duration));
+//             setTimeout(() => document.querySelector(`#node${pc}`).classList.add('play'),now+a*duration*1000);
+//             this.monoSynth.triggerRelease(now+(a*duration)+duration+.1);
+//             setTimeout(() => document.querySelector(`#node${pc}`).classList.remove('play'),now+((a*duration)+duration+.1)*1000);
+//         }
+//     }
+//     this.playDuration = (...onsets) => {
+//         let bcDuration = (60/this.tempo)/2;//In Seconds.
+//         let long = [];
+//         let reps = 4;
+//         for (let i = 0; i < reps; i++) {
+//             long.push(...onsets.map(x => x+(i*F.universe)));
+//         }
+//         let now = Tone.now();
+//         for (let a = 0; a < long.length; a++) {
+//             let onTime = now+long[a]*bcDuration;
+//             this.monoSynth.triggerAttack(long[a]%F.universe == 0? this.middleC*2 : this.middleC,onTime);
+//             // setTimeout(() => document.querySelector(`#node${long[a]%F.universe}`).classList.add('play'),onTime*1000);
+//             this.monoSynth.triggerRelease(onTime+.05);
+//             // setTimeout(() => document.querySelector(`#node${long[a]%F.universe}`).classList.remove('play'),(onTime+.05)*1000);
+//         }
+//     }
+//     /**
+//      * Plays the structure as a stack.
+//      * @param  {...float} pitches 
+//      */
+//     this.playSimultaneous = (...pitches) => {
+//         let stack = true;
+//         let duration = 1;
+//         let now = Tone.now();
+//         for (let a = 0; a < pitches.length; a++) {
+//             this.polySynth.triggerAttack(pitches[a],now+(duration*a));
+//         }
+//         this.polySynth.triggerRelease([...pitches],now+(duration*1.5)*pitches.length);
+//     }
+// }
 
 export default { PCset, Serialism, Combinatorics, DisplayTypes, mouseTracking , MyDropdown}
 
