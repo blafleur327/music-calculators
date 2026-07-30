@@ -1080,8 +1080,8 @@ let Pareidolia = {
 export function MySynth() {
     this.aVal = 440;
     this.middleC = this.aVal*2**(-9/12);
-    this.monoSynth = new Tone.Synth().toDestination();
-    this.polySynth = new Tone.PolySynth(Tone.Synth).toDestination();
+    // this.monoSynth = new Tone.Synth().toDestination();
+    // this.polySynth = new Tone.PolySynth(Tone.Synth).toDestination();
     this.tempo = 120;
     /**
      * Plays the input frequencies successively.
