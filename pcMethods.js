@@ -1,5 +1,3 @@
-// import * as Tone from "./localTone";
-
 /**
  * Class filled with methods for combinatorics calculation.
  */
