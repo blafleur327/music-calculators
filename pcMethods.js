@@ -1,4 +1,4 @@
-// import * as Tone from "tone";
+import * as Tone from "tone";
 
 /**
  * Class filled with methods for combinatorics calculation.
