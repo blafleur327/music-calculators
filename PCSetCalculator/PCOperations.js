@@ -735,7 +735,7 @@ document.addEventListener('DOMContentLoaded',() => {
     //             F.synthManager.playDuration(...clean);
     //         }
     //     }
-    // })
+    })
     /**
      * Shortcut Button Commands.
      */
