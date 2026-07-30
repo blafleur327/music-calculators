@@ -1,5 +1,5 @@
 
-import { PCset,Serialism,DisplayTypes,mouseTracking, MyDropdown, IntervalLookup, findIntervals} from "../pcMethods.js";
+import { PCset,Serialism,DisplayTypes,mouseTracking, MyDropdown, IntervalLookup, findIntervals, MySynth} from "../pcMethods.js";
 
     /**
      * Returns the factors/divisors of an input.
@@ -68,7 +68,7 @@ function DrawingManager (parent = document.querySelector(`#drawing`)) {
         'subset': null,
         'superset': null,
     }
-    // this.synthManager = new MySynth();
+    this.synthManager = new MySynth();
     /**
      * Controls the display type, the visual format of the drawing.
      */
@@ -723,19 +723,19 @@ document.addEventListener('DOMContentLoaded',() => {
             }
             F.update();
         }
-    //     /**
-    //      * If a polygon is clicked, play the related PCs successively.
-    //      */
-    //     else if (event.target.tagName == 'polygon') {
-    //         let clean = event.target['data-pcs'].match(/[0-9]+/ig).map(x => parseInt(x));
-    //         if (F.display < 3) {
-    //             F.synthManager.playSuccessive(...clean.map(x => F.synthManager.middleC*2**(x/F.universe)));
-    //         }
-    //         else {
-    //             F.synthManager.playDuration(...clean);
-    //         }
-    //     }
-    // })
+        /**
+         * If a polygon is clicked, play the related PCs successively.
+         */
+        else if (event.target.tagName == 'polygon') {
+            let clean = event.target['data-pcs'].match(/[0-9]+/ig).map(x => parseInt(x));
+            if (F.display < 3) {
+                F.synthManager.playSuccessive(...clean.map(x => F.synthManager.middleC*2**(x/F.universe)));
+            }
+            else {
+                F.synthManager.playDuration(...clean);
+            }
+        }
+    })
     /**
      * Shortcut Button Commands.
      */
