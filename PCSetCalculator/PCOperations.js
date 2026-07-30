@@ -723,18 +723,6 @@ document.addEventListener('DOMContentLoaded',() => {
             }
             F.update();
         }
-    //     /**
-    //      * If a polygon is clicked, play the related PCs successively.
-    //      */
-    //     else if (event.target.tagName == 'polygon') {
-    //         let clean = event.target['data-pcs'].match(/[0-9]+/ig).map(x => parseInt(x));
-    //         if (F.display < 3) {
-    //             F.synthManager.playSuccessive(...clean.map(x => F.synthManager.middleC*2**(x/F.universe)));
-    //         }
-    //         else {
-    //             F.synthManager.playDuration(...clean);
-    //         }
-    //     }
     })
     /**
      * Shortcut Button Commands.
