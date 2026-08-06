@@ -1390,7 +1390,7 @@ function LatticeManager (parent,structure = 'Triadic') {
             /**
              * Filter again by proximity;
              */
-            let fin = temp.filter(value => proximity(...value.coordinate,...coord,65) == true);//Consider expanding radius/deviation...
+            let fin = temp.filter(value => proximity(...value.coordinate,...coord,55) == true);//Consider expanding radius/deviation...
             console.log(`FIND NEAREST ${en}? ${fin[0].self['node'] !== undefined}`);
             fin[0].self['node'].classList.add(primary? classes['circle'] : classes['circle'][parity]);
             let grp = fin[0].self['node']['data-cluster'].split('.');
