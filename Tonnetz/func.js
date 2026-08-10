@@ -1500,6 +1500,7 @@ function LatticeManager (parent,structure = 'Triadic') {
             }
             node.classList.remove('sel1','active1','sel2','active2','sel3','active3','sel4','active4');
         })
+        this.chords = {};
     }
     /**
      * 
