@@ -1,5 +1,5 @@
 
-import { PCset,Serialism,DisplayTypes,mouseTracking, MyDropdown, IntervalLookup, findIntervals, MySynth} from "../pcMethods.js";
+import { PCset,Serialism,DisplayTypes,mouseTracking, MyDropdown, IntervalLookup, findIntervals} from "../pcMethods.js";
 
     /**
      * Returns the factors/divisors of an input.
@@ -72,7 +72,7 @@ function DrawingManager (parent = document.querySelector(`#drawing`)) {
         'subset': false,
         'superset': false,
     };
-    this.synthManager = new MySynth();
+    // this.synthManager = new MySynth();
     /**
      * Controls the display type, the visual format of the drawing.
      */
