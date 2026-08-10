@@ -721,15 +721,15 @@ document.addEventListener('DOMContentLoaded',() => {
         /**
          * If a polygon is clicked, play the related PCs successively.
          */
-        else if (event.target.tagName == 'polygon') {
-            let clean = event.target['data-pcs'].match(/[0-9]+/ig).map(x => parseInt(x));
-            if (F.display < 3) {
-                F.synthManager.playSuccessive(...clean.map(x => F.synthManager.middleC*2**(x/F.universe)));
-            }
-            else {
-                F.synthManager.playDuration(...clean);
-            }
-        }
+        // else if (event.target.tagName == 'polygon') {
+        //     let clean = event.target['data-pcs'].match(/[0-9]+/ig).map(x => parseInt(x));
+        //     if (F.display < 3) {
+        //         F.synthManager.playSuccessive(...clean.map(x => F.synthManager.middleC*2**(x/F.universe)));
+        //     }
+        //     else {
+        //         F.synthManager.playDuration(...clean);
+        //     }
+        // }
         else if (event.target.id == 'supersetCents' || event.target.id == 'subsetCents') {
             if (event.target.id == 'supersetCents') {
                 F.cents['superset'] = F.cents['superset'] == true? false : true;
