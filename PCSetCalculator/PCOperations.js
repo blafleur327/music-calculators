@@ -1,5 +1,5 @@
 
-import { PCset,Serialism,DisplayTypes,mouseTracking, MyDropdown, IntervalLookup, findIntervals} from "../pcMethods.js";
+import { PCset,Serialism,DisplayTypes,mouseTracking, MyDropdown, IntervalLookup, findIntervals, MySynth} from "../pcMethods.js";
 
     /**
      * Returns the factors/divisors of an input.
@@ -68,7 +68,11 @@ function DrawingManager (parent = document.querySelector(`#drawing`)) {
         'subset': null,
         'superset': null,
     }
-    // this.synthManager = new MySynth();
+    this.cents = {
+        'subset': false,
+        'superset': false,
+    };
+    this.synthManager = new MySynth();
     /**
      * Controls the display type, the visual format of the drawing.
      */
@@ -274,50 +278,41 @@ function DrawingManager (parent = document.querySelector(`#drawing`)) {
             D3.construct();
         }
         this.information();
+        this.showCents();
     }
     /**
      * Returns an array of innerHTML for cents display.
-     * @param {string} set 
      * @returns 
      */
-    this.showCents = (set) => {
+    this.showCents = () => {
         let period = 2;
-        let addRemove = null;
-        let par = document.querySelector(`#${set}Cents`);
-        if (par.classList.contains('selButton')) {
-            par.classList.remove('selButton');
-            addRemove = 0; 
-        }
-        else {
-            this.sets[set]['elems'].length > 0? par.classList.add('selButton') : null;
-            addRemove = 1;
-        }
-        let els = this.sets[set]['elems'].sort((a,b) => a-b);
+        let els = null;
         document.querySelectorAll('.centCircle').forEach(item => {
             item.remove();
         })
-        /**
-         * If only remove, break here.
-         */
-        if (addRemove == 0) {
-            return;
-        }
-        //Close circle if larger than dyad.
-        els.push(els[0]);
-        console.table(els)
-        let res = [];
-        for (let a = 1; a < els.length; a++) {
-            let x = Math.log2((100*period**(els[a]/this.universe))/(100*period**(els[a-1]/this.universe)))*1200;
-            let fixed = x > 0? x : 1200+x;
-            let coords = [this.referent[els[a-1]].inner,this.referent[els[a]%this.universe].inner];
-            let midpoint = [([coords[0][0],coords[1][0]]).reduce((i,j) => i+=j)/2,([coords[0][1],coords[1][1]]).reduce((i,j) => i+=j)/2];
-            let c = this.draw.circle(5);
-            c.fill('none').stroke({color: 'black', width: '.1em'}).center(...midpoint);
-            c['node'].dataset.tooltip = `${fixed.toFixed(4)}\&cent<br>${findIntervals(parseFloat(fixed.toFixed(4)))}`;
-            c.addClass('centCircle');
-            res.push(findIntervals(parseFloat(fixed.toFixed(4))));
-        }
-        return res;
+        Object.entries(this.cents).forEach(([key,value]) => {
+            if (value == true) {
+                document.querySelector(`#${key}Cents`).classList.add('selButton');
+                els = this.sets[key]['elems'].sort((a,b) => a-b);
+                els.push(els[0]);
+                let res = [];
+                for (let a = 1; a < els.length; a++) {
+                    let x = Math.log2((100*period**(els[a]/this.universe))/(100*period**(els[a-1]/this.universe)))*1200;
+                    let fixed = x > 0? x : 1200+x;
+                    let coords = [this.referent[els[a-1]].inner,this.referent[els[a]%this.universe].inner];
+                    let midpoint = [([coords[0][0],coords[1][0]]).reduce((i,j) => i+=j)/2,([coords[0][1],coords[1][1]]).reduce((i,j) => i+=j)/2];
+                    let c = this.draw.circle(5);
+                    c.fill('none').stroke({color: 'black', width: '.1em'}).center(...midpoint);
+                    c['node'].dataset.tooltip = `${fixed.toFixed(4)}\&cent<br>${findIntervals(parseFloat(fixed.toFixed(4)))}`;
+                    c.addClass('centCircle');
+                res.push(findIntervals(parseFloat(fixed.toFixed(4))));
+                }
+            return res;
+            }
+            else {
+                document.querySelector(`#${key}Cents`).classList.remove('selButton');
+            }
+        })
     }
     /**
      * Create a polygon illustrating a PC transformation of the chosen set.
@@ -699,7 +694,7 @@ document.addEventListener('DOMContentLoaded',() => {
             }
         }
     })
-    document.querySelector('#drawing').addEventListener('mousedown',(event) => {
+    document.addEventListener('mousedown',(event) => {
         /**
          * If a node is clicked, perform the associated operation.
          */
@@ -726,15 +721,24 @@ document.addEventListener('DOMContentLoaded',() => {
         /**
          * If a polygon is clicked, play the related PCs successively.
          */
-        // else if (event.target.tagName == 'polygon') {
-        //     let clean = event.target['data-pcs'].match(/[0-9]+/ig).map(x => parseInt(x));
-        //     if (F.display < 3) {
-        //         F.synthManager.playSuccessive(...clean.map(x => F.synthManager.middleC*2**(x/F.universe)));
-        //     }
-        //     else {
-        //         F.synthManager.playDuration(...clean);
-        //     }
-        // }
+        else if (event.target.tagName == 'polygon') {
+            let clean = event.target['data-pcs'].match(/[0-9]+/ig).map(x => parseInt(x));
+            if (F.display < 3) {
+                F.synthManager.playSuccessive(...clean.map(x => F.synthManager.middleC*2**(x/F.universe)));
+            }
+            else {
+                F.synthManager.playDuration(...clean);
+            }
+        }
+        else if (event.target.id == 'supersetCents' || event.target.id == 'subsetCents') {
+            if (event.target.id == 'supersetCents') {
+                F.cents['superset'] = F.cents['superset'] == true? false : true;
+            }
+            else if (event.target.id == 'subsetCents') {
+                F.cents['subset'] = F.cents['subset'] == true? false : true;
+            }
+            F.update();
+        }
     })
     /**
      * Shortcut Button Commands.
