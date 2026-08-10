@@ -1739,6 +1739,7 @@ document.addEventListener('DOMContentLoaded',() => {
     let inp = document.querySelector('#tBox > input')
     inp.addEventListener('keydown',(event) => {
         if (event.key == 'Enter') {
+            console.log(`CYCLE: ${inp.value}`)
             if (D.selectedTriad !== null) {
                 console.log(`Cycle Start: ${D.selectedTriad}`);
                 D.highlightCycle(D.selectedTriad,...uttJoiner(inp.value));
