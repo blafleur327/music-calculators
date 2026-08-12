@@ -1007,7 +1007,7 @@ function UTT (parity,majorInt,minorInt,tooltip) {
         }
         let init = temp.match(/[A-G♭♯b#]+/g)[0];
         let qual = temp.match(/[+-]/g)[0];
-        root = fixAccidentals(init);
+        let root = fixAccidentals(init);
         let index = TuningSystems['12-EDO']['unwound'].indexOf(root);
         if (qual == '+') {
             index+=IntsByTuning['12-EDO'][this.majorInt].unwound;
