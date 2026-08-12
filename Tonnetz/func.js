@@ -595,7 +595,7 @@ const PC = {
         for (let a = 1; a < chord.length; a++) {
             ints.push(chord[a]-chord[0]);
         }
-        console.table(triads)
+        // console.table(triads)
         for (let [key,value] of Object.entries(triads)) {
             let temp = value.map(x => x.unwound);
             if (temp.join('.') == ints.join('.')) {
