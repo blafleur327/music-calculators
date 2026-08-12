@@ -1,3 +1,5 @@
+// import {mouseTracking} from "../pcMethods.js";
+
 /**
  * Relevant Globals
  */
@@ -972,13 +974,13 @@ function Cycle (start,...utts) {
 
 /**
  * Create a Uniform Triadic Transformation or UTT object.
- * @param {string} parody +/-
+ * @param {string} parity +/-
  * @param {int} majorInt 
  * @param {int} minorInt
  * @param {string} tooltip to display upon hover
  */
-function UTT (parody,majorInt,minorInt,tooltip) {
-    this.quality = parody;
+function UTT (parity,majorInt,minorInt,tooltip) {
+    this.quality = parity;
     this.majorInt = findOPCI(majorInt);
     this.minorInt = findOPCI(minorInt);
     /**
@@ -988,11 +990,11 @@ function UTT (parody,majorInt,minorInt,tooltip) {
     /**
      * Boolean, if the UTT is a Schritt. That is, it is a contextual transposition that transposes a major triad in one direction and a minor triad in an equal and opposite direction.
      */
-    this.isSchritt = parody == '+' && (majorInt+minorInt)%12 == 0;
+    this.isSchritt = parity == '+' && (majorInt+minorInt)%12 == 0;
     /**
      * Boolean, if the UTT is a Wechsel. That is, it is a contextual inversion that transposes a major triad in one direction and a minor triad in an equal and opposite direction.
     */
-    this.isWechsel = parody == '-' && (majorInt+minorInt)%12 == 0;
+    this.isWechsel = parity == '-' && (majorInt+minorInt)%12 == 0;
     /**
      * Perform this transformation on an input triad.
      * @param {any} triad 
@@ -1013,7 +1015,7 @@ function UTT (parody,majorInt,minorInt,tooltip) {
         else {
             index+=IntsByTuning['12-EDO'][this.minorInt].unwound;
         }
-        if (parody == '-') {
+        if  (parity == '-') {
             if (qual == '-') {
                 qual = '+';
             }
@@ -1032,6 +1034,22 @@ function UTT (parody,majorInt,minorInt,tooltip) {
      * Boolean, if the input UTT creates a simply transitive, closed group. That is, with recursive application, this transformation can produce the complete consonant triad group.
      */
     this.kGroup = Array.from(new Set(grp)).length == 24;
+}
+
+/**
+ * 
+ * @param {string} chord1 
+ * @param {string} chord2 
+ */
+const constructUTT = (chord1,chord2) => {
+    let par = [chord1,chord2].map(x => x.match(/[+-]/ig)[0]);
+    console.log(par)
+    let init = par[0];
+    let sign = par[0] == par[1]? '+' : '-';
+    let pcs = [getPC(chord1.slice(0,chord1.length-1).length > 2? chord1.slice(0,chord1.length-1).split('/')[0] : chord1.slice(0,chord1.length-1)),
+        getPC(chord2.slice(0,chord2.length-1).length > 2? chord2.slice(0,chord2.length-1).split('/')[0] : chord2.slice(0,chord2.length-1))];
+    let distance = PC.modulo(pcs[0]-pcs[1],12);
+    return init == '+'? `<${sign},${12-distance},${distance}>` : `<${sign},${distance},${12-distance}>`;
 }
 
 /**
@@ -1235,16 +1253,31 @@ const proximity = (x1,y1,x2,y2,deviation = 10) => {
  * @param {string} structure Key in tonnetzStructure object
  */
 function LatticeManager (parent,structure = 'Triadic') {
+    /**
+     * X and Y size (px) for SVG drawing.
+     */
     let drawSize = {'x': 1200,'y': 750};
+    /**
+     * Tuning for this lattice.
+     */
     this.tuning = '12-EDO';
     this.selectedTriad = null;
+    this.option2 = null;
     this.selectedTriadNode = null;
     // this.initialCoord = null;
+    /**
+     * Number of hexagons in both x and y dimensions.
+     */
     this.depth = 15;
+    /**
+     * Permits the hexagons to be rotated.
+     */
+    this.rotation = -30;
     /**
      * Stores hexagonal nodes.
      */
     this.nodes = {};
+    this.chain = null;
     this.structure = TonnetzStructure[structure];
     this.draw = null;
     this.center = [drawSize['x']/2,drawSize['y']/2];
@@ -1269,7 +1302,10 @@ function LatticeManager (parent,structure = 'Triadic') {
         this.nodes = {};
         this.chords = {};
         let xChange = 52;   //52
-        let diag = [26,45]; //[26,45]
+        /**
+         * The diagonal coord for south-east.
+         */
+        let diag = [26,45]; //[26,45] 
         let first = 12;
         for (let a = 0; a < this.depth; a++) {
             first = (first*a)%TuningSystems[this.tuning]['unwound'].length;//???
@@ -1311,36 +1347,79 @@ function LatticeManager (parent,structure = 'Triadic') {
          */
         this.cluster = false;
         /**
-         * Event Listener to select a hexagon.
+         * Prevent contextmenu
+         */
+        document.querySelector('svg').addEventListener('contextmenu',(event) => {
+            event.preventDefault();
+        })
+        /**
+         * Select chord nodes.
          */
         document.querySelector('svg').addEventListener('mousedown',(event) => {
             /**
              * Select nearest .chord
              */
             if (event.target.parentNode.classList.contains('chord') || event.target.parentNode.parentNode.classList.contains('chord')) {
-                this.resetTonnetz(true);
-                let active = event.target.closest('.chord');
-                active.classList.add('sel');
-                // active.childNodes[0].setAttribute('r',22)
-                console.log(`Chord Selected: ${active.childNodes[1].textContent}`);
-                this.selectedTriad = active.childNodes[1].textContent;
-                this.selectedTriadNode = active;
-                this.initialCoord = [parseFloat(...active.getAttribute('transform').match(/[0-9.]+/g).slice(-2,-1)),parseFloat(...active.getAttribute('transform').match(/[0-9.]+/g).slice(-1))];
-                this.previous = this.initialCoord;
                 /**
-                 * Select only single instance.
+                 * Left Click.
                  */
-                if (this.cluster == false) {
-                    let grp = active['data-cluster'].split('.');
-                    grp.forEach(el => {
-                        document.querySelector(`#${el}`).classList.add('active');
-                    });
+                if (event.button == 0) {
+                    this.resetTonnetz('.secondary','.secondaryActive');
+                    let active = event.target.closest('.chord');
+                    active.classList.add('sel');
+                    this.selectedTriad = active.childNodes[1].textContent;
+                    this.selectedTriadNode = active;
+                    this.initialCoord = [parseFloat(...active.getAttribute('transform').match(/[0-9.]+/g).slice(-2,-1)),parseFloat(...active.getAttribute('transform').match(/[0-9.]+/g).slice(-1))];
+                    this.previous = this.initialCoord;
+                    /**
+                     * Select only single instance.
+                     */
+                    if (this.cluster == false) {
+                        let grp = active['data-cluster'].split('.');
+                        grp.forEach(el => {
+                            document.querySelector(`#${el}`).classList.add('active');
+                        });
+                    }
+                    /**
+                     * Select all instances.
+                     */
+                    else {
+                        this.selectAll(this.selectedTriad,true);
+                    }
                 }
-                /**
-                 * Select all instances.
-                 */
-                else {
-                    this.selectAll(this.selectedTriad,true);
+                else if (event.button == 2) {
+                    this.resetTonnetz('.sel','.active');
+                    let act = event.target.closest('.chord');
+                    act.classList.add('secondary');
+                    this.option2 = act.childNodes[1].textContent;
+                    /**
+                     * Select only single instance.
+                     */
+                    if (this.cluster == false) {
+                        let grp = act['data-cluster'].split('.');
+                        grp.forEach(el => {
+                            document.querySelector(`#${el}`).classList.add('secondaryActive');
+                        });
+                    }
+                    /**
+                     * Select all instances.
+                     */
+                    else {
+                        this.selectAll(act.textContent,true);
+                    }
+                }
+                if (this.selectedTriad !== null && this.option2 !== null) {
+                    let sels = `${this.selectedTriad} to ${this.option2}`;
+                    let utt = constructUTT(this.selectedTriad,this.option2);
+                    document.querySelector('#additional').classList.remove('void');
+                    document.querySelectorAll('#additional > div').forEach(item => {
+                        if (item.childNodes[1].textContent == 'Chords:') {
+                            item.childNodes[3].textContent = sels;
+                        }
+                        else if (item.childNodes[1].textContent == 'UTT:') {
+                            item.childNodes[3].textContent = utt;
+                        }
+                    })
                 }
             }
         });
@@ -1354,8 +1433,9 @@ function LatticeManager (parent,structure = 'Triadic') {
      * @param {string} chord 'C+' 
      * @param {boolean} primary
      * @param {array} coordinate [x,y]
+     * @param {string} tooltip
      */
-    this.selectAll = (chord,primary = true,coordinate = undefined) => {
+    this.selectAll = (chord,primary = true,coordinate = undefined,tooltip) => {
         //clear some things?
         this.previous = this.initialCoord;
         let en = PC.enharmonicRespell(chord,'B♯','C♭');
@@ -1370,6 +1450,7 @@ function LatticeManager (parent,structure = 'Triadic') {
                 let tSplit = [...el.textContent.match(/[^+\/-]+/ig)];
                 if (ArrayMethods.intersection(annoying,tSplit) > 0 && el.textContent.slice(-1) == spl.slice(-1)[0]) {//CHANGE THIS LINE
                     el.classList.add(primary? classes['circle'] : classes['circle'][parity]);
+                    el.dataset.tooltip = tooltip;
                     let grp = el['data-cluster'].split('.');
                     grp.forEach(sub => {
                         document.querySelector(`#${sub}`).classList.add(primary? classes['hex'] : classes[hex][parity]);
@@ -1390,9 +1471,10 @@ function LatticeManager (parent,structure = 'Triadic') {
             /**
              * Filter again by proximity;
              */
-            let fin = temp.filter(value => proximity(...value.coordinate,...coord,70) == true);//Consider expanding radius/deviation...
+            let fin = temp.filter(value => proximity(...value.coordinate,...coord,65) == true);//Consider expanding radius/deviation...
             console.log(`FIND NEAREST ${en}? ${fin[0].self['node'] !== undefined}`);
             fin[0].self['node'].classList.add(primary? classes['circle'] : classes['circle'][parity]);
+            fin[0].self['node'].dataset.tooltip = tooltip;
             let grp = fin[0].self['node']['data-cluster'].split('.');
             this.previous = fin[0].coordinate;
             grp.forEach(sub => {
@@ -1491,17 +1573,17 @@ function LatticeManager (parent,structure = 'Triadic') {
         this.highlightPCs(inds);
     }
     /**
-     * Resets the tonnetz to default.
+     * Resets the Tonnetz to include only specified classes.
+     * @param {string} keep classes to keep after operation called. Must be (".className1",".className2",...);
      */
-    this.resetTonnetz = (initial = false) => {
-        document.querySelectorAll('.sel,.active,.sel1,.active1,.sel2,.active2,.sel3,.active3,.sel4,.active4').forEach(node => {
-            if (initial == true) {
-                node.classList.remove('sel','active');
-            }
-            node.classList.remove('sel1','active1','sel2','active2','sel3','active3','sel4','active4');
-        })
-        this.chords = {};
-    }
+    this.resetTonnetz = (...keep) => {
+        keep = keep !== undefined? keep : ['.sel1','.active1','.sel2','.active2','.sel3','.active3','.sel4','.active4','.secondary','.secondaryActive'];
+        let options = ['.sel','.active','.sel1','.active1','.sel2','.active2','.sel3','.active3','.sel4','.active4','.secondary','.secondaryActive'];
+        let toRemove = Array.from(new Set(options).difference(new Set(keep)));
+        document.querySelectorAll(toRemove.join(',')).forEach(node => {
+            node.classList.remove(...toRemove.map(x => x.slice(1)));
+            })
+        }
     /**
      * 
      * @param {string} start C+
@@ -1514,12 +1596,12 @@ function LatticeManager (parent,structure = 'Triadic') {
          */
         this.resetTonnetz();
         let cyc = new Cycle(start,...operations);
-        cyc['result'].forEach(entry => {
-            this.selectAll(entry,false,this.previous);
-            parity = (parity+1)%operations.length;
-            console.log(`PARITY: ${parity}`);
-        })
         console.table(cyc['result']);
+        for (let a = 0; a < cyc['result'].length; a++) {
+            let tt = `${cyc['result'][a]} under ${operations[a%operations.length]} = ${cyc['result'][(a+1)%cyc['result'].length]}.`
+            this.selectAll(cyc['result'][a],false,this.previous,tt);
+            parity = (parity+1)%operations.length;
+        }
         this.previous = this.initialCoord;
     }
 }    
@@ -1711,38 +1793,50 @@ document.addEventListener('DOMContentLoaded',() => {
         Y.addOption(entry,entry);
     });
     Y.construct();
-    /**
-     * Allows selecting of hex nodes. Useful if isomorphic keyboard functionality fleshed out.
-     */
-    document.querySelector('#drawing').addEventListener('mousedown',(event) => {
-        let single = true;//Add to something global later.
-        let sel = event.target.closest('.hexNode');
-        console.log(sel);
-        if (single) {
-            document.querySelectorAll('.wham').forEach(item => {
-                item.classList.remove('wham');
-            })
-            sel.classList.add('wham');
-        }
-        else {
-            if (sel.classList.contains('wham')) {
-            sel.classList.remove('wham');
-            }
-            else {
-                sel.classList.add('wham');
-            }
-        }
-    })
+    // /**
+    //  * Allows selecting of hex nodes. Useful if isomorphic keyboard functionality fleshed out.
+    //  */
+    // document.querySelector('#drawing').addEventListener('mousedown',(event) => {
+    //     let single = true;//Add to something global later.
+    //     let sel = event.target.closest('.hexNode');
+    //     console.log(sel);
+    //     if (single) {
+    //         document.querySelectorAll('.wham').forEach(item => {
+    //             item.classList.remove('wham');
+    //         })
+    //         sel.classList.add('wham');
+    //     }
+    //     else {
+    //         if (sel.classList.contains('wham')) {
+    //         sel.classList.remove('wham');
+    //         }
+    //         else {
+    //             sel.classList.add('wham');
+    //         }
+    //     }
+    // })
+    // mouseTracking();
     /**
      * Event listener for transform input.
      */
-    let inp = document.querySelector('#tBox > input')
+    let inp = document.querySelector('#tBox > input');
     inp.addEventListener('keydown',(event) => {
         if (event.key == 'Enter') {
-            console.log(`CYCLE: ${inp.value}`)
             if (D.selectedTriad !== null) {
                 console.log(`Cycle Start: ${D.selectedTriad}`);
-                D.highlightCycle(D.selectedTriad,...uttJoiner(inp.value));
+                /**
+                 * If chain isn't drawn, draw it now.
+                 */
+                if (inp.value !== D.chain) {
+                    D.chain = inp.value;
+                    D.highlightCycle(D.selectedTriad,...uttJoiner(D.chain));
+                }
+                /**
+                 * If chain already drawn, don't change anything.
+                 */
+                else {
+                    console.error(`Chain ${inp.value} is already drawn!`);
+                }
             }
             else {
                 alert(`Select a starting triad on the tonnetz!`);
