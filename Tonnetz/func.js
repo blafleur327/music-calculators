@@ -1,4 +1,4 @@
-// import {mouseTracking} from "../pcMethods.js";
+import {mouseTracking} from "../pcMethods.js";
 
 /**
  * Relevant Globals
@@ -1815,7 +1815,7 @@ document.addEventListener('DOMContentLoaded',() => {
     //         }
     //     }
     // })
-    // mouseTracking();
+    mouseTracking();
     /**
      * Event listener for transform input.
      */
