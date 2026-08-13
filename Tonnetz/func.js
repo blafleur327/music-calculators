@@ -1476,6 +1476,7 @@ function LatticeManager (parent,structure = 'Triadic') {
             fin[0].self['node'].classList.add(primary? classes['circle'] : classes['circle'][parity]);
             console.log(fin[0].self['node']);
             fin[0].self['node'].childNodes[0].dataset.tooltip = tooltip;
+            fin[0].self['node'].childNodes[1].dataset.tooltip = tooltip;
             let grp = fin[0].self['node']['data-cluster'].split('.');
             this.previous = fin[0].coordinate;
             grp.forEach(sub => {
