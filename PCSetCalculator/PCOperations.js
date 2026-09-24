@@ -373,7 +373,13 @@ function DrawingManager (parent = document.querySelector(`#drawing`)) {
      * @param {int} type 
      */
     this.changeDisplay = (type) => {
-        this.display = type;
+        let tot = 2;
+        for (let [key,value] of Object.entries(DisplayTypes)) {
+            if (value.indexOf(this.universe) !== -1) {
+                tot++;
+            }
+        } 
+        this.display = type%tot;
         this.populate(this.center,this.universe,160,this.referent);
     }
     /**
