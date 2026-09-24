@@ -135,6 +135,8 @@ function DrawingManager (parent = document.querySelector(`#drawing`)) {
                 /**
                  * Select the correct display type.
                  */
+                let inc = document.querySelector('#increment');
+                let dec = document.querySelector('#decrement');
                 switch (this.display) {
                     case 0:
                         text = this.referent[a/2]['val'];
