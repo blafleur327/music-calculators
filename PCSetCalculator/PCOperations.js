@@ -750,12 +750,12 @@ document.addEventListener('DOMContentLoaded',() => {
     })
 
     document.querySelectorAll('.dButton').forEach(item => {
-        if (item.textContent == '+') {
+        if (item.id == 'increment') {
             item.addEventListener('mousedown',() => {
                  F.changeDisplay(F.display = (F.display+1)%4);
             })
         }
-        else if (item.textContent == '-') {
+        else if (item.id == 'decrement') {
             item.addEventListener('mousedown',() => {
                  F.changeDisplay(F.display = (F.display+3)%4);
             })
