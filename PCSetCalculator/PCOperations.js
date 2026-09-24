@@ -749,10 +749,14 @@ document.addEventListener('DOMContentLoaded',() => {
 
     document.querySelectorAll('.dButton').forEach(item => {
         if (item.textContent == '+') {
-            F.changeDisplay(F.display = (F.display+1)%4);
+            item.addEventListener('mousedown',() => {
+                 F.changeDisplay(F.display = (F.display+1)%4);
+            })
         }
         else if (item.textContent == '-') {
-            F.changeDisplay(F.display = (F.display+3)%4);
+            item.addEventListener('mousedown',() => {
+                 F.changeDisplay(F.display = (F.display+3)%4);
+            })
         }
     })
     
