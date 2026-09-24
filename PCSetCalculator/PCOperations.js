@@ -373,7 +373,7 @@ function DrawingManager (parent = document.querySelector(`#drawing`)) {
      * @param {int} type 
      */
     this.changeDisplay = (type) => {
-        let tot = 2;
+        let tot = this.universe <= 36? 2 : 1;
         for (let [key,value] of Object.entries(DisplayTypes)) {
             if (Object.keys(value).indexOf(this.universe) !== -1) {
                 tot++;
