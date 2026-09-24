@@ -218,6 +218,10 @@ button:hover {
     margin:1em;
 }
 
+button {
+    font-family: "Times New Roman"
+}
+
 #toggle {
     display: flex;
     flex-direction: row;
