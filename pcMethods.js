@@ -729,15 +729,6 @@ export const DisplayTypes = {
                 `E`,`E${String.fromCodePoint(0xe444)}`,`F`,`F${String.fromCodePoint(0xe444)}`,`F${String.fromCodePoint(0xed36)}/G${String.fromCharCode(0xed32)}`,`G${String.fromCharCode(0xe443)}`,`G`,`G${String.fromCharCode(0xe444)}`,`G${String.fromCharCode(0xed36)}/A${String.fromCharCode(0xed32)}`,
                 `A${String.fromCodePoint(0xe443)}`,`A`,`A${String.fromCodePoint(0xe444)}`,`A${String.fromCodePoint(0xed36)}/B${String.fromCharCode(0xed32)}`,`B${String.fromCharCode(0xe443)}`,`B`,`B${String.fromCharCode(0xe444)}`
             ],
-        // '31': [
-        //         `C`,`C${String.fromCodePoint(0xe444)}`,`C${String.fromCharCode(0xed36)}`,`D${String.fromCodePoint(0xed32)}`,`D${String.fromCharCode(0xe443)}`,'D',
-        //         `D${String.fromCodePoint(0xe444)}`,`D${String.fromCodePoint(0xed36)}`,
-        //         `E${String.fromCodePoint(0xed32)}`,`E${String.fromCodePoint(0xe443)}`,`E`,`E${String.fromCharCode(0xe444)}`,`E${String.fromCharCode(0xed36)}`,
-        //         `F`,`F${String.fromCharCode(0xe444)}`,`F${String.fromCharCode(0xed36)}`,
-        //         `G${String.fromCodePoint(0xed32)}`,`G${String.fromCharCode(0xe443)}`,`G`,`G${String.fromCharCode(0xe444)}`,`G${String.fromCharCode(0xed36)}`,
-        //         `A${String.fromCodePoint(0xed32)}`,`A${String.fromCharCode(0xe443)}`,'A',`A${String.fromCharCode(0xe444)}`,`A${String.fromCharCode(0xed36)}`,
-        //         `B${String.fromCodePoint(0xed32)}`,`B${String.fromCharCode(0xe443)}`,`B`,`C${String.fromCodePoint(0xed32)}`,`C${String.fromCharCode(0xe443)}`
-        // ],
         '31': [
                 `C`,`D${String.fromCodePoint(0xe264)}/C${String.fromCodePoint(0xe444)}`,`C${String.fromCharCode(0xed36)}/D${String.fromCodePoint(0xe281)}`,`D${String.fromCodePoint(0xed32)}/C${String.fromCodePoint(0xe283)}`,`C${String.fromCodePoint(0xe263)}/D${String.fromCharCode(0xe443)}`,'D',
                 `E${String.fromCodePoint(0xe264)}/D${String.fromCodePoint(0xe444)}`,`D${String.fromCodePoint(0xed36)}/E${String.fromCodePoint(0xe281)}`,
