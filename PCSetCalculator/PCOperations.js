@@ -746,18 +746,22 @@ document.addEventListener('DOMContentLoaded',() => {
             F.update();
         }
     })
+
+    document.querySelectorAll('.dButton').forEach(item => {
+        if (item.textContent == '+') {
+            F.changeDisplay(F.display = (F.display+1)%4);
+        }
+        else if (item.textContent == '-') {
+            F.changeDisplay(F.display = (F.display+3)%4);
+        }
+    })
+    
     /**
      * Shortcut Button Commands.
      */
     document.addEventListener('keydown',(event) => {
         if (event.key == 'Backspace') {
             F.removeAllTransformations();
-        }
-        else if (event.key == 'ArrowRight') {
-            F.changeDisplay(F.display = (F.display+1)%4);
-        }
-        else if (event.key == 'ArrowLeft') {
-            F.changeDisplay(F.display = (F.display+3)%4);
         }
     })
     mouseTracking();
