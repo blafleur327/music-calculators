@@ -45,6 +45,10 @@ p {
     padding-right: .2em;
 }
 
+input {
+    font-family: "Times New Roman";
+}
+
 .inp {
     display:flex;
     flex-direction: column;
