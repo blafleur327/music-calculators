@@ -697,6 +697,7 @@ document.addEventListener('DOMContentLoaded',() => {
     F = window.F = new DrawingManager();
     F.populate(undefined,undefined);
     let targ = document.querySelector('#universe');
+    F.changeDisplay(F.display);
     targ.addEventListener('keydown',(event) => {
         if (event.key == 'Enter') {
             let spl = targ.value.match(/[0-9]+/ig);
