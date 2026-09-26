@@ -223,10 +223,14 @@ button:hover {
 }
 
 button {
-    font-family: "Times New Roman"
+    font-family: "Times New Roman";
 }
 
 #toggle {
     display: flex;
     flex-direction: row;
+}
+
+#toggle > button:hover {
+    font-weight: bolder;
 }
