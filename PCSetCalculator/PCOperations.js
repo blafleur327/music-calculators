@@ -136,8 +136,6 @@ function DrawingManager (parent = document.querySelector(`#drawing`)) {
                 /**
                  * Select the correct display type.
                  */
-                let inc = document.querySelector('#increment');
-                let dec = document.querySelector('#decrement');
                 switch (this.display) {
                     case 0:
                         text = this.referent[a/2]['val'];
@@ -152,6 +150,12 @@ function DrawingManager (parent = document.querySelector(`#drawing`)) {
                         text = DisplayTypes['rhythm'][this.universe][this.referent[a/2]['val']];
                         break;
                 }
+                let nextOption = (this.display+1)%this.nextItems.length;
+                let previousOption = (this.display+(this.nextItems.length-1))%this.nextItems.length;
+                let inc = document.querySelector('#increment');
+                let dec = document.querySelector('#decrement');
+                inc.dataset.tooltip = `${nextOption}`;
+                dec.dataset.tooltip = `${previousOption}`;
                 let gr = this.draw.group();
                 this.referent[a/2]['svgGrp'] = gr;
                 let cr = this.draw.circle(40,40).fill('white').stroke({color: 'black', width: '1px'}).center(0,0);
