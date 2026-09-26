@@ -154,8 +154,8 @@ function DrawingManager (parent = document.querySelector(`#drawing`)) {
                 let previousOption = (this.display+(this.nextItems.length-1))%this.nextItems.length;
                 let inc = document.querySelector('#increment');
                 let dec = document.querySelector('#decrement');
-                inc.dataset.tooltip = `${nextOption}`;
-                dec.dataset.tooltip = `${previousOption}`;
+                inc.dataset.tooltip = `${this.nextItems[nextOption]}`;
+                dec.dataset.tooltip = `${this.nextItems[previousOption]}`;
                 let gr = this.draw.group();
                 this.referent[a/2]['svgGrp'] = gr;
                 let cr = this.draw.circle(40,40).fill('white').stroke({color: 'black', width: '1px'}).center(0,0);
@@ -762,6 +762,7 @@ document.addEventListener('DOMContentLoaded',() => {
             }
             F.update();
         }
+        F.changeDisplay(F.display);
     })
 
     document.querySelectorAll('.dButton').forEach(item => {
