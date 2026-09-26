@@ -77,6 +77,7 @@ function DrawingManager (parent = document.querySelector(`#drawing`)) {
      * Controls the display type, the visual format of the drawing.
      */
     this.display = 0;
+    this.nextItems = [];
     /**
     * Populates the relevant object references and draws the main polygon.
     * @param {array} center [x,y] 
@@ -375,9 +376,19 @@ function DrawingManager (parent = document.querySelector(`#drawing`)) {
      * @param {int} type 
      */
     this.changeDisplay = (type) => {
-        let tot = this.universe <= 36? 2 : 1;
+        let tot = null;
+        this.nextItems = [];
+        if (this.universe <= 36) {
+            tot = 2;
+            this.nextItems.push('integers','integers base k');
+        }
+        else {
+            tot = 1;
+            this.nextItems.push('integers');
+        }
         for (let [key,value] of Object.entries(DisplayTypes)) {
             if (Object.keys(value).indexOf(`${this.universe}`) !== -1) {
+                this.nextItems.push(key);
                 tot++;
             }
         } 
