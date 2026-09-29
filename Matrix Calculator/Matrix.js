@@ -45,8 +45,7 @@ function Matrix(parent = 'matrix') {
             let normal = cell.classList.contains('label') == false;
             let tot = this.universe <= 36? 2 : 1;
             for (let [key,value] of Object.entries(DisplayTypes)) {
-                console.table(value)
-                if (Object.keys(`${value}`).indexOf(`${this.universe}`) !== -1) {
+                if (Object.keys(value).indexOf(`${this.universe}`) !== -1) {
                     tot++;
                 }
             }
