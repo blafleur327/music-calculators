@@ -614,7 +614,7 @@ function DrawingManager (parent = document.querySelector(`#drawing`)) {
                         let duh = null;
                         if (key == 'subset') {
                             duh = setRep.modulusConvert(this.sets['superset']['elems'].length).maximallyEven();
-                            d.dataset.tooltip = `Determines if {${setRep.pcs} is the ME distribution of ${setRep.pcs.length} into ${this.sets['superset']['elems'].length}`
+                            d.dataset.tooltip = `Determines if {${setRep.pcs}} is the ME distribution of ${setRep.pcs.length} into ${this.sets['superset']['elems'].length}`
                         }
                         else {
                             duh = setRep.maximallyEven();
