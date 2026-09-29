@@ -641,14 +641,6 @@ document.addEventListener('DOMContentLoaded',(event) => {
             }
             Z.build(Z.universe,...shuffle(arr));
         }
-        else if (event.key == 'ArrowRight') {
-            Z.display = (Z.display+=1)%5;
-            Z.changeDisplay(Z.display);
-        }
-        else if (event.key == 'ArrowLeft') {
-            Z.display = (Z.display+=4)%5;
-            Z.changeDisplay(Z.display);
-        }
         /**
          * Populate the matrix with a random row from OpenMusicTheory's row library.
          */
@@ -671,6 +663,16 @@ document.addEventListener('DOMContentLoaded',(event) => {
         }
     })
     mouseTracking();
+    let inc = document.querySelector("#increment");
+    let dec = document.querySelector("#decrement");
+    inc.addEventListener("mousedown",() => {
+        Z.display = (Z.display+=1)%5;
+        Z.changeDisplay(Z.display);
+    })
+    dec.addEventListener("mousedown",() => {
+        Z.display = (Z.display+=4)%5;
+        Z.changeDisplay(Z.display);
+    })
 }) 
 
 //[4,1,3,2,8,5,7,6,9,0,10,11];
