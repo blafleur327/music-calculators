@@ -43,6 +43,13 @@ function Matrix(parent = 'matrix') {
             let refer = cell['data-primary'];
             let changed = null;
             let normal = cell.classList.contains('label') == false;
+            let tot = this.universe <= 36? 2 : 1;
+            for (let [key,value] of Object.entries(DisplayTypes)) {
+                if (Object.keys(`${value}`).indexOf(`${this.universe}`) !== -1) {
+                    tot++;
+                }
+            }
+            this.display = this.display%tot;
             switch (this.display) {
                 /**
                  * Base 10 Integers
