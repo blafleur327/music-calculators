@@ -771,7 +771,7 @@ document.addEventListener('DOMContentLoaded',() => {
                 F.changeDisplay(F.display = (F.display+3)%4);
             }
         }
-        F.changeDisplay(F.display);
+        // F.changeDisplay(F.display);  //Surely this is an issue?
     })
     
     /**
