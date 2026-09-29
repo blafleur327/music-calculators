@@ -49,6 +49,7 @@ function Matrix(parent = 'matrix') {
                     tot++;
                 }
             }
+            console.log(`k = ${this.universe} supports ${tot} display options!`);
             this.display = this.display%tot;
             switch (this.display) {
                 /**
@@ -70,9 +71,6 @@ function Matrix(parent = 'matrix') {
                     if (Object.keys(DisplayTypes['pitch']).indexOf(`${this.universe}`) > -1) {
                         let notes = DisplayTypes['pitch'][this.universe];
                         changed = normal? notes[refer] : `${refer.match(/[RIP]+/ig)[0]}${notes[parseInt((refer.match(/[0-9]+/ig)[0]))]}`
-                    }
-                    else {
-                        console.error(`No Tuning System defined for universe = ${this.universe}!`);
                     }
                     break;
                 /**
