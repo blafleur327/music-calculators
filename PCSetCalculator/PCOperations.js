@@ -763,21 +763,16 @@ document.addEventListener('DOMContentLoaded',() => {
             }
             F.update();
         }
+        else if (event.target.classList.contains('dButton')) {
+            if (event.target.id == "increment") {
+                F.changeDisplay(F.display = (F.display+1)%4);
+            }
+            else if (event.target.id == "decrement") {
+                F.changeDisplay(F.display = (F.display+3)%4);
+            }
+        }
         F.changeDisplay(F.display);
     })
-    
-    // document.querySelectorAll('.dButton').forEach(item => {
-    //     if (item.id == 'increment') {
-    //         item.addEventListener('mousedown',() => {
-    //              F.changeDisplay(F.display = (F.display+1)%4);
-    //         })
-    //     }
-    //     else if (item.id == 'decrement') {
-    //         item.addEventListener('mousedown',() => {
-    //              F.changeDisplay(F.display = (F.display+3)%4);
-    //         })
-    //     }
-    // })
     
     /**
      * Shortcut Button Commands.
