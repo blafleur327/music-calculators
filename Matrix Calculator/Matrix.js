@@ -446,27 +446,27 @@ function Matrix(parent = 'matrix') {
                             })
                         component.appendChild(levelBox);
                         });
-                    /**
-                    * Method to be used for event listener.
-                    * @param {*} event 
-                    */
-                    const _combinClick = (event) => {
-                        console.log(`${event.target.textContent} ${event.target.classList.contains('selectCombinGroup')? 'is' : 'is not'} currently selected!`)
-                        document.querySelectorAll(`.selectCombinGroup`).forEach(item => {
-                            item.classList.remove('selectCombinGroup');
-                        })
-                        if (!event.target.classList.contains('selectCombinGroup')) {
-                            let parts = event.target.textContent.match(/[RIP0-9]+/ig);
-                            let card = Z.referent.series.length/parts.length;
-                            console.log(`${parts.length} slices of size: ${card}`);
-                            this.multiSelect(parseInt(card),...parts);
-                            event.target.classList.add('selectCombinGroup');
-                        }
-                    }
+                    // /**
+                    // * Method to be used for event listener.
+                    // * @param {*} event 
+                    // */
+                    // const _combinClick = (event) => {
+                    //     console.log(`${event.target.textContent} ${event.target.classList.contains('selectCombinGroup')? 'is' : 'is not'} currently selected!`)
+                    //     document.querySelectorAll(`.selectCombinGroup`).forEach(item => {
+                    //         item.classList.remove('selectCombinGroup');
+                    //     })
+                    //     if (!event.target.classList.contains('selectCombinGroup')) {
+                    //         let parts = event.target.textContent.match(/[RIP0-9]+/ig);
+                    //         let card = Z.referent.series.length/parts.length;
+                    //         console.log(`${parts.length} slices of size: ${card}`);
+                    //         this.multiSelect(parseInt(card),...parts);
+                    //         event.target.classList.add('selectCombinGroup');
+                    //     }
+                    // }
                     /**
                     * Add click functionality for combinatorial groups.
                     */
-                    component.addEventListener('mousedown',_combinClick);
+                    // component.addEventListener('mousedown',_combinClick);
                 }
                 /**
                 * Adds the relevant boxes for showing derivation levels.
@@ -682,6 +682,25 @@ document.addEventListener('DOMContentLoaded',(event) => {
     dec.addEventListener("mousedown",() => {
         Z.display = (Z.display+=4)%5;
         Z.changeDisplay(Z.display);
+    })
+    /**
+    Should be a single listener to handle combin clicking.
+    */
+    document.querySelector('#extra').addEventListener('mousedown',(event) => {
+        if (event.target.classList.contains('combin')) {
+            let parts = event.target.textContent.match(/[RPI0-9]+/ig);
+            let total = Z.referent.series.length;
+            if (event.target.classList.contains('selectCombinGroup')) {
+                event.target.classList.remove('selectCombinGroup'));
+                document.querySelectorAll('.subGr').forEach(item => {
+                    item.classList.remove('subGr');
+                })
+            }
+            else {
+                Z.multiSelect(parseInt(parts.length,...parts));
+                event.target.classList.add('selectCombinGroup');
+            }
+        }
     })
 }) 
 
