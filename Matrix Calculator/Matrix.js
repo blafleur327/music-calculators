@@ -451,13 +451,12 @@ function Matrix(parent = 'matrix') {
                     * @param {*} event 
                     */
                     const _combinClick = (event) => {
+                        console.log(`${event.target.textContent} ${event.target.contains('selectCombinGroup')? 'is' : 'is not'} currently selected!`)
                         document.querySelectorAll(`.selectCombinGroup`).forEach(item => {
                             item.classList.remove('selectCombinGroup');
                         })
-                        if (!event.target.classList.contains('selectCombinGroup')) {
-                            this.multiSelect(parseInt(card),...event.target.textContent.match(/[RIP0-9]+/ig));
-                            event.target.classList.add('selectCombinGroup');
-                        }
+                        this.multiSelect(parseInt(card),...event.target.textContent.match(/[RIP0-9]+/ig));
+                        event.target.classList.add('selectCombinGroup');
                     }
                     /**
                     * Add click functionality for combinatorial groups.
