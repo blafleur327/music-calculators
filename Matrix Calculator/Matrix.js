@@ -694,7 +694,6 @@ document.addEventListener('DOMContentLoaded',(event) => {
             let parts = event.target.textContent.match(/[RIP0-9]+/ig);
             Z.multiSelect(parseInt(Z.referent.series.length/parts.length),...parts);
             event.target.classList.add('selectCombinGroup');
-            Z.update();
         }
     })
 }) 
