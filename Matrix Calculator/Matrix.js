@@ -691,7 +691,7 @@ document.addEventListener('DOMContentLoaded',(event) => {
             let parts = event.target.textContent.match(/[RPI0-9]+/ig);
             let total = Z.referent.series.length;
             if (event.target.classList.contains('selectCombinGroup')) {
-                event.target.classList.remove('selectCombinGroup'));
+                event.target.classList.remove('selectCombinGroup');
                 document.querySelectorAll('.subGr').forEach(item => {
                     item.classList.remove('subGr');
                 })
