@@ -223,7 +223,7 @@ function Matrix(parent = 'matrix') {
         div.removeEventListener('mousedown',this._clickFunction);
         div.addEventListener('mousedown',this._clickFunction);
         document.querySelector('#extra').classList.remove('void');
-        this.changeDisplay(vis);
+        // this.changeDisplay(vis);
         this.display = vis;
         this.makeKey();
     }
