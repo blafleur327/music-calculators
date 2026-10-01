@@ -698,7 +698,7 @@ document.addEventListener('DOMContentLoaded',(event) => {
             }
             else {
                 document.querySelector('selectCombinGroup').classList.remove('selectCombinGroup');
-                Z.multiSelect(parseInt(total/parts.length),...parts));
+                Z.multiSelect(parseInt(total/parts.length),...parts);
                 event.target.classList.add('selectCombinGroup');
             }
         }
