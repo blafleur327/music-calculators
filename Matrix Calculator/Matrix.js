@@ -688,7 +688,7 @@ document.addEventListener('DOMContentLoaded',(event) => {
     */
     document.querySelector('#extra').addEventListener('mousedown',(event) => {
         if (event.target.classList.contains('combin')) {
-            document.querySelectorAll('selectCombinGroup').forEach(item => {
+            document.querySelectorAll('.selectCombinGroup').forEach(item => {
                 item.classList.remove('selectCombinGroup');
             })
             let parts = event.target.textContent.match(/[RIP0-9]+/ig);
