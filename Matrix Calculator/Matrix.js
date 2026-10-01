@@ -688,17 +688,18 @@ document.addEventListener('DOMContentLoaded',(event) => {
     */
     document.querySelector('#extra').addEventListener('mousedown',(event) => {
         if (event.target.classList.contains('combin')) {
+            document.querySelectorAll('selectCombinGroup').forEach(item => {
+                item.classList.remove('selectCombinGroup');
+            })
             let parts = event.target.textContent.match(/[RIP0-9]+/ig);
             if (event.target.classList.contains('selectCombinGroup')) {
                 event.target.classList.remove('selectCombinGroup');
                 document.querySelectorAll('.subGr').forEach(item => {
                     item.classList.remove('subGr');
                 })
+                Z.update();
             }
             else {
-                document.querySelectorAll('selectCombinGroup').forEach(item => {
-                    item.classList.remove('selectCombinGroup');
-                })
                 Z.multiSelect(parseInt(Z.referent.series.length/parts.length),...parts);
                 event.target.classList.add('selectCombinGroup');
             }
