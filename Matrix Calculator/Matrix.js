@@ -697,12 +697,12 @@ document.addEventListener('DOMContentLoaded',(event) => {
                 document.querySelectorAll('.subGr').forEach(item => {
                     item.classList.remove('subGr');
                 })
-                Z.update();
             }
             else {
                 Z.multiSelect(parseInt(Z.referent.series.length/parts.length),...parts);
                 event.target.classList.add('selectCombinGroup');
             }
+            Z.update();
         }
     })
 }) 
