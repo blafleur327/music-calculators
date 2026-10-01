@@ -451,13 +451,16 @@ function Matrix(parent = 'matrix') {
                     * @param {*} event 
                     */
                     const _combinClick = (event) => {
-                        document.querySelectorAll(`.selectCombinGroup`).forEach(item => {
-                            item.classList.remove('selectCombinGroup');
-                        })
-                        let card = event.target.parentElement.parentElement.childNodes[0].textContent.match(/[0-9]+/ig)[0];
-                        this.multiSelect(parseInt(card),...event.target.textContent.match(/[RIP0-9]+/ig));
-                        event.target.classList.add('selectCombinGroup');
+                        if (event.target.classList.contains('selectCombinGroup')) {
+                            document.querySelectorAll(`.selectCombinGroup`).forEach(item => {
+                                item.classList.remove('selectCombinGroup');
+                            })
                         }
+                        else {
+                            this.multiSelect(parseInt(card),...event.target.textContent.match(/[RIP0-9]+/ig));
+                            event.target.classList.add('selectCombinGroup');
+                        }
+                    }
                     /**
                     * Add click functionality for combinatorial groups.
                     */
