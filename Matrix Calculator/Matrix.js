@@ -455,9 +455,12 @@ function Matrix(parent = 'matrix') {
                         document.querySelectorAll(`.selectCombinGroup`).forEach(item => {
                             item.classList.remove('selectCombinGroup');
                         })
-                        let card = Z.referent.series.length;
-                        this.multiSelect(parseInt(card),...event.target.textContent.match(/[RIP0-9]+/ig));
-                        event.target.classList.add('selectCombinGroup');
+                        if (!event.target.classList.contains('selectCombinGroup') {
+                            let parts = event.target.textContent.match(/[RIP0-9]+/ig));
+                            let card = Z.referent.series.length/parts.length;
+                            this.multiSelect(parseInt(card),parts);
+                            event.target.classList.add('selectCombinGroup');
+                        }
                     }
                     /**
                     * Add click functionality for combinatorial groups.
