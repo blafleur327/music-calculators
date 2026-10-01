@@ -451,12 +451,10 @@ function Matrix(parent = 'matrix') {
                     * @param {*} event 
                     */
                     const _combinClick = (event) => {
-                        if (event.target.classList.contains('selectCombinGroup')) {
-                            document.querySelectorAll(`.selectCombinGroup`).forEach(item => {
-                                item.classList.remove('selectCombinGroup');
-                            })
-                        }
-                        else {
+                        document.querySelectorAll(`.selectCombinGroup`).forEach(item => {
+                            item.classList.remove('selectCombinGroup');
+                        })
+                        if (event.target.classList.indexOf('selectCombinGroup') == -1) {
                             this.multiSelect(parseInt(card),...event.target.textContent.match(/[RIP0-9]+/ig));
                             event.target.classList.add('selectCombinGroup');
                         }
