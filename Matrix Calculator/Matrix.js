@@ -692,16 +692,8 @@ document.addEventListener('DOMContentLoaded',(event) => {
                 item.classList.remove('selectCombinGroup');
             })
             let parts = event.target.textContent.match(/[RIP0-9]+/ig);
-            if (event.target.classList.contains('selectCombinGroup')) {
-                event.target.classList.remove('selectCombinGroup');
-                document.querySelectorAll('.subGr').forEach(item => {
-                    item.classList.remove('subGr');
-                })
-            }
-            else {
-                Z.multiSelect(parseInt(Z.referent.series.length/parts.length),...parts);
-                event.target.classList.add('selectCombinGroup');
-            }
+            Z.multiSelect(parseInt(Z.referent.series.length/parts.length),...parts);
+            event.target.classList.add('selectCombinGroup');
             Z.update();
         }
     })
