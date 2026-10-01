@@ -725,9 +725,9 @@ export const DisplayTypes = {
             `B${String.fromCodePoint(0xed32)}`,`B`,`B${String.fromCodePoint(0xed36)}`
             ],
         '24': [
-                `C`,`C${String.fromCodePoint(0xe444)}`,`C${String.fromCodePoint(0xed36)}/D${String.fromCodePoint(0xed32)}`,`D${String.fromCharCode(0xe443)}`,`D`,`D${String.fromCharCode(0xe444)}`,`D${String.fromCharCode(0xed36)}/E${String.fromCharCode(0xed32)}`,`E${String.fromCharCode(0xe443)}`,
-                `E`,`E${String.fromCodePoint(0xe444)}`,`F`,`F${String.fromCodePoint(0xe444)}`,`F${String.fromCodePoint(0xed36)}/G${String.fromCharCode(0xed32)}`,`G${String.fromCharCode(0xe443)}`,`G`,`G${String.fromCharCode(0xe444)}`,`G${String.fromCharCode(0xed36)}/A${String.fromCharCode(0xed32)}`,
-                `A${String.fromCodePoint(0xe443)}`,`A`,`A${String.fromCodePoint(0xe444)}`,`A${String.fromCodePoint(0xed36)}/B${String.fromCharCode(0xed32)}`,`B${String.fromCharCode(0xe443)}`,`B`,`B${String.fromCharCode(0xe444)}`
+                `C`,`C${String.fromCodePoint(0xe444)}/D${String.fromCodePoint(0xe281)}`,`C${String.fromCodePoint(0xed36)}/D${String.fromCodePoint(0xed32)}`,`C${String.fromCodePoint(0xe283)}/D${String.fromCharCode(0xe443)}`,`D`,`D${String.fromCharCode(0xe444)}/E${String.fromCodePoint(0xe281)}`,`D${String.fromCharCode(0xed36)}/E${String.fromCharCode(0xed32)}`,`D${String.fromCodePoint(0xe283)}/E${String.fromCharCode(0xe443)}`,
+                `E`,`E${String.fromCodePoint(0xe444)}`,`F`,`F${String.fromCodePoint(0xe444)}/G${String.fromCodePoint(0xe281)}`,`F${String.fromCodePoint(0xed36)}/G${String.fromCharCode(0xed32)}`,`F${String.fromCodePoint(0xe283)}/G${String.fromCharCode(0xe443)}`,`G`,`G${String.fromCharCode(0xe444)}/A${String.fromCodePoint(0xe281)}`,`G${String.fromCharCode(0xed36)}/A${String.fromCharCode(0xed32)}`,
+                `G${String.fromCodePoint(0xe283)}/A${String.fromCodePoint(0xe443)}`,`A`,`A${String.fromCodePoint(0xe444)}/B${String.fromCodePoint(0xe281)}`,`A${String.fromCodePoint(0xed36)}/B${String.fromCharCode(0xed32)}`,`A${String.fromCodePoint(0xe283)}/B${String.fromCharCode(0xe443)}`,`B`,`B${String.fromCharCode(0xe444)}`
             ],
         '31': [
                 `C`,`D${String.fromCodePoint(0xe264)}/C${String.fromCodePoint(0xe444)}`,`C${String.fromCharCode(0xed36)}/D${String.fromCodePoint(0xe281)}`,`D${String.fromCodePoint(0xed32)}/C${String.fromCodePoint(0xe283)}`,`C${String.fromCodePoint(0xe263)}/D${String.fromCharCode(0xe443)}`,'D',
