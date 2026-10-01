@@ -689,7 +689,6 @@ document.addEventListener('DOMContentLoaded',(event) => {
     document.querySelector('#extra').addEventListener('mousedown',(event) => {
         if (event.target.classList.contains('combin')) {
             let parts = event.target.textContent.match(/[RIP0-9]+/ig);
-            let total = Z.referent.series.length;
             if (event.target.classList.contains('selectCombinGroup')) {
                 event.target.classList.remove('selectCombinGroup');
                 document.querySelectorAll('.subGr').forEach(item => {
@@ -698,7 +697,7 @@ document.addEventListener('DOMContentLoaded',(event) => {
             }
             else {
                 document.querySelector('selectCombinGroup').classList.remove('selectCombinGroup');
-                Z.multiSelect(parseInt(total/parts.length),...parts);
+                Z.multiSelect(parseInt(Z.referent.series.length/parts.length),...parts);
                 event.target.classList.add('selectCombinGroup');
             }
         }
