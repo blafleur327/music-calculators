@@ -688,7 +688,7 @@ document.addEventListener('DOMContentLoaded',(event) => {
     */
     document.querySelector('#extra').addEventListener('mousedown',(event) => {
         if (event.target.classList.contains('combin')) {
-            let parts = event.target.textContent.match(/[RPI0-9]+/ig);
+            let parts = event.target.textContent.match(/[RIP0-9]+/ig);
             let total = Z.referent.series.length;
             if (event.target.classList.contains('selectCombinGroup')) {
                 event.target.classList.remove('selectCombinGroup');
@@ -697,7 +697,8 @@ document.addEventListener('DOMContentLoaded',(event) => {
                 })
             }
             else {
-                Z.multiSelect(parseInt(parts.length,...parts));
+                document.querySelector('selectCombinGroup').classList.remove('selectCombinGroup');
+                Z.multiSelect(parseInt(total/parts.length),...parts));
                 event.target.classList.add('selectCombinGroup');
             }
         }
