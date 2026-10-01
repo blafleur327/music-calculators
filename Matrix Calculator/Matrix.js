@@ -455,6 +455,7 @@ function Matrix(parent = 'matrix') {
                         document.querySelectorAll(`.selectCombinGroup`).forEach(item => {
                             item.classList.remove('selectCombinGroup');
                         })
+                        let card = Z.referent.series.length;
                         this.multiSelect(parseInt(card),...event.target.textContent.match(/[RIP0-9]+/ig));
                         event.target.classList.add('selectCombinGroup');
                     }
