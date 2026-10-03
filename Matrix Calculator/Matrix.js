@@ -716,8 +716,7 @@ document.addEventListener('DOMContentLoaded',(event) => {
                 console.log(`DESELECT: ${name}`);
             }
             console.log(`CURRENT: { ${Z.selectedRows} }`);
-        }
-        Z.update();
+            Z.update();
         }
 }) 
 
