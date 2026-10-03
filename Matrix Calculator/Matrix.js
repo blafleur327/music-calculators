@@ -215,8 +215,8 @@ function Matrix(parent = 'matrix') {
         //         console.log(`CURRENT: { ${this.selectedRows} }`);
         //     }
         //     this.update();
-        }
-        this.update();
+        // }
+        // this.update();
         // /**
         //  * add Event Listener.
         //  */
