@@ -719,7 +719,6 @@ document.addEventListener('DOMContentLoaded',(event) => {
         }
         Z.update();
         }
-    })
 }) 
 
 //[4,1,3,2,8,5,7,6,9,0,10,11];
