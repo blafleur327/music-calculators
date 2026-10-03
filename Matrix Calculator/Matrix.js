@@ -549,7 +549,6 @@ function Matrix(parent = 'matrix') {
             c.classList.add(value[0]);
             par.appendChild(c);
         })
-    }
 }
 
 //Change querySelectorAll(`#${parent} > * > .cell....`)
