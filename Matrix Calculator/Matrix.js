@@ -189,39 +189,39 @@ function Matrix(parent = 'matrix') {
             }
             div.append(row);
         }
-        /**
-         * 
-         * @param {} event 
-         */
-        this._clickFunction = (event) => {
-            if (event.target.classList.contains('label')) {
-                let name = event.target['data-primary'];
-                /**
-                 * If not currently selected...
-                 */
-                if (this.selectedRows.indexOf(name) == -1) {
-                    this.selectedRows.push(name);
-                    this.selectedLabels.push(event.target);
-                    console.log(`SELECT: ${name}`);
-                }
-                /**
-                 * If already selected...
-                 */
-                else {
-                    this.selectedRows = this.selectedRows.filter(x => x !== name);
-                    this.selectedLabels = this.selectedLabels.filter(x => x['data-primary'] !== name);
-                    console.log(`DESELECT: ${name}`);
-                }
-                console.log(`CURRENT: { ${this.selectedRows} }`);
-            }
-            this.update();
+        // /**
+        //  * 
+        //  * @param {} event 
+        //  */
+        // this._clickFunction = (event) => {
+        //     if (event.target.classList.contains('label')) {
+        //         let name = event.target['data-primary'];
+        //         /**
+        //          * If not currently selected...
+        //          */
+        //         if (this.selectedRows.indexOf(name) == -1) {
+        //             this.selectedRows.push(name);
+        //             this.selectedLabels.push(event.target);
+        //             console.log(`SELECT: ${name}`);
+        //         }
+        //         /**
+        //          * If already selected...
+        //          */
+        //         else {
+        //             this.selectedRows = this.selectedRows.filter(x => x !== name);
+        //             this.selectedLabels = this.selectedLabels.filter(x => x['data-primary'] !== name);
+        //             console.log(`DESELECT: ${name}`);
+        //         }
+        //         console.log(`CURRENT: { ${this.selectedRows} }`);
+        //     }
+        //     this.update();
         }
         this.update();
-        /**
-         * add Event Listener.
-         */
-        div.removeEventListener('mousedown',this._clickFunction);
-        div.addEventListener('mousedown',this._clickFunction);
+        // /**
+        //  * add Event Listener.
+        //  */
+        // div.removeEventListener('mousedown',this._clickFunction);
+        // div.addEventListener('mousedown',this._clickFunction);
         document.querySelector('#extra').classList.remove('void');
         // this.changeDisplay(vis);
         this.display = vis;
@@ -683,10 +683,10 @@ document.addEventListener('DOMContentLoaded',(event) => {
         Z.display = (Z.display+=4)%5;
         Z.changeDisplay(Z.display);
     })
-    /**
-    Should be a single listener to handle combin clicking.
-    */
-    document.querySelector('#extra').addEventListener('mousedown',(event) => {
+    document.addEventListener('mousedown',(event) => {
+        /**
+        Combinatorial group click functionality.
+        */
         if (event.target.classList.contains('combin')) {
             document.querySelectorAll('.selectCombinGroup').forEach(item => {
                 item.classList.remove('selectCombinGroup');
@@ -694,6 +694,31 @@ document.addEventListener('DOMContentLoaded',(event) => {
             let parts = event.target.textContent.match(/[RIP0-9]+/ig);
             Z.multiSelect(parseInt(Z.referent.series.length/parts.length),...parts);
             event.target.classList.add('selectCombinGroup');
+        }
+        /**
+        Label click functionality.
+        */
+        else if (event.target.classList.contains('label')) {
+            let name = event.target['data-primary'];
+            /**
+            * If not currently selected...
+            */
+            if (Z.selectedRows.indexOf(name) == -1) {
+                Z.selectedRows.push(name);
+                Z.selectedLabels.push(event.target);
+                console.log(`SELECT: ${name}`);
+            }
+            /**
+            * If already selected...
+            */
+            else {
+                Z.selectedRows = Z.selectedRows.filter(x => x !== name);
+                Z.selectedLabels = Z.selectedLabels.filter(x => x['data-primary'] !== name);
+                console.log(`DESELECT: ${name}`);
+            }
+            console.log(`CURRENT: { ${Z.selectedRows} }`);
+        }
+        Z.update();
         }
     })
 }) 
