@@ -188,44 +188,11 @@ function Matrix(parent = 'matrix') {
                 row.appendChild(cell);
             }
             div.append(row);
-        }
-        // /**
-        //  * 
-        //  * @param {} event 
-        //  */
-        // this._clickFunction = (event) => {
-        //     if (event.target.classList.contains('label')) {
-        //         let name = event.target['data-primary'];
-        //         /**
-        //          * If not currently selected...
-        //          */
-        //         if (this.selectedRows.indexOf(name) == -1) {
-        //             this.selectedRows.push(name);
-        //             this.selectedLabels.push(event.target);
-        //             console.log(`SELECT: ${name}`);
-        //         }
-        //         /**
-        //          * If already selected...
-        //          */
-        //         else {
-        //             this.selectedRows = this.selectedRows.filter(x => x !== name);
-        //             this.selectedLabels = this.selectedLabels.filter(x => x['data-primary'] !== name);
-        //             console.log(`DESELECT: ${name}`);
-        //         }
-        //         console.log(`CURRENT: { ${this.selectedRows} }`);
-        //     }
-        //     this.update();
-        // }
-        // this.update();
-        // /**
-        //  * add Event Listener.
-        //  */
-        // div.removeEventListener('mousedown',this._clickFunction);
-        // div.addEventListener('mousedown',this._clickFunction);
+            }
         document.querySelector('#extra').classList.remove('void');
-        // this.changeDisplay(vis);
         this.display = vis;
         this.makeKey();
+        this.update();
     }
     /**
      * Grab the matrix cells for a given row form in the order in which they occur.
@@ -446,27 +413,6 @@ function Matrix(parent = 'matrix') {
                             })
                         component.appendChild(levelBox);
                         });
-                    // /**
-                    // * Method to be used for event listener.
-                    // * @param {*} event 
-                    // */
-                    // const _combinClick = (event) => {
-                    //     console.log(`${event.target.textContent} ${event.target.classList.contains('selectCombinGroup')? 'is' : 'is not'} currently selected!`)
-                    //     document.querySelectorAll(`.selectCombinGroup`).forEach(item => {
-                    //         item.classList.remove('selectCombinGroup');
-                    //     })
-                    //     if (!event.target.classList.contains('selectCombinGroup')) {
-                    //         let parts = event.target.textContent.match(/[RIP0-9]+/ig);
-                    //         let card = Z.referent.series.length/parts.length;
-                    //         console.log(`${parts.length} slices of size: ${card}`);
-                    //         this.multiSelect(parseInt(card),...parts);
-                    //         event.target.classList.add('selectCombinGroup');
-                    //     }
-                    // }
-                    /**
-                    * Add click functionality for combinatorial groups.
-                    */
-                    // component.addEventListener('mousedown',_combinClick);
                 }
                 /**
                 * Adds the relevant boxes for showing derivation levels.
@@ -549,9 +495,8 @@ function Matrix(parent = 'matrix') {
             c.classList.add(value[0]);
             par.appendChild(c);
         })
+    }
 }
-
-//Change querySelectorAll(`#${parent} > * > .cell....`)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -577,7 +522,7 @@ function toggle (btn) {
     }
 }
 
-document.addEventListener('DOMContentLoaded',(event) => {
+document.addEventListener('DOMContentLoaded',() => {
     vis = window.vis = 0;
     console.log('LOAD');
     Z = window.Z = new Matrix();
@@ -629,7 +574,7 @@ document.addEventListener('DOMContentLoaded',(event) => {
     })
     document.addEventListener('keydown',(event) => {
         if (event.key == 'c') {
-            Z.universe = parseInt(document.querySelector('#universe').value);
+            Z.universe = Z.universe? parseInt(document.querySelector('#universe').value) : 12;
             let arr = new Array(Z.universe).fill(0,0,Z.universe).map((i,j) => i+=j);
             /**
             * Shuffles the elements in the input array.
@@ -687,17 +632,28 @@ document.addEventListener('DOMContentLoaded',(event) => {
         Combinatorial group click functionality.
         */
         if (event.target.classList.contains('combin')) {
-            document.querySelectorAll('.selectCombinGroup').forEach(item => {
-                item.classList.remove('selectCombinGroup');
-            })
-            let parts = event.target.textContent.match(/[RIP0-9]+/ig);
-            Z.multiSelect(parseInt(Z.referent.series.length/parts.length),...parts);
-            event.target.classList.add('selectCombinGroup');
+            if (event.target.classList.contains('selectCombinGroup')) {
+                event.target.classList.remove('selectCombinGroup');
+                document.querySelectorAll('.subGrp').forEach(item => {
+                    item.classList.remove('subGrp');
+                });
+            }
+            else {
+                document.querySelectorAll('.selectCombinGroup').forEach(item => {
+                    item.classList.remove('selectCombinGroup');
+                });
+                let parts = event.target.textContent.match(/[RIP0-9]+/ig);
+                Z.multiSelect(parseInt(Z.referent.series.length/parts.length),...parts);
+                event.target.classList.add('selectCombinGroup');
+            }
         }
         /**
         Label click functionality.
         */
         else if (event.target.classList.contains('label')) {
+            document.querySelectorAll('.subGrp').forEach(item => {
+                item.classList.remove('subGrp');
+            });
             let name = event.target['data-primary'];
             /**
             * If not currently selected...
@@ -705,7 +661,6 @@ document.addEventListener('DOMContentLoaded',(event) => {
             if (Z.selectedRows.indexOf(name) == -1) {
                 Z.selectedRows.push(name);
                 Z.selectedLabels.push(event.target);
-                console.log(`SELECT: ${name}`);
             }
             /**
             * If already selected...
@@ -713,9 +668,8 @@ document.addEventListener('DOMContentLoaded',(event) => {
             else {
                 Z.selectedRows = Z.selectedRows.filter(x => x !== name);
                 Z.selectedLabels = Z.selectedLabels.filter(x => x['data-primary'] !== name);
-                console.log(`DESELECT: ${name}`);
             }
-            console.log(`CURRENT: { ${Z.selectedRows} }`);
+            // console.log(`CURRENT: { ${Z.selectedRows} }`);
             Z.update();
         }
     })
@@ -737,5 +691,4 @@ document.addEventListener('DOMContentLoaded',(event) => {
 //     })
 //     return pre
 //   }, {})
-
 
