@@ -718,6 +718,7 @@ document.addEventListener('DOMContentLoaded',(event) => {
             console.log(`CURRENT: { ${Z.selectedRows} }`);
             Z.update();
         }
+    })
 }) 
 
 //[4,1,3,2,8,5,7,6,9,0,10,11];
