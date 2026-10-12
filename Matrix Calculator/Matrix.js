@@ -1,6 +1,7 @@
-import { PCset,Serialism,DisplayTypes,mouseTracking } from "../pcMethods.js";
+import { PCset,Serialism,DisplayTypes,mouseTracking, MyDropdown} from "../pcMethods.js";
 
 import { Library } from "../ExternalRowLibrary.js";
+
 
 /**
  * Builds a matrix object.
@@ -35,6 +36,7 @@ function Matrix(parent = 'matrix') {
      * Changes the appearance of the matrix to a few preset types.
      * @param {int} type 
      */
+    this.dropdown = null;
     this.changeDisplay = (type) => {
         this.display = type;
         vis = type;
@@ -442,6 +444,22 @@ function Matrix(parent = 'matrix') {
                     component.appendChild(sub);
                 }
             })
+            this.dropdown = new MyDropdown('drop','MULTIPLICATION',this.multiply);
+            for (let a = 0; a < this.universe; a++) {
+                this.dropdown.addOption(`M<sub>${a}</sub>`,a);
+            }
+            this.dropdown.construct();
+    }
+    /**
+     * Multiplies the series by the given index then redraws the matrix.
+     * @param {int} index
+     * @param {array} row 
+     */
+    this.multiply = (index,row = this.series) => {
+        let modified = row.map(x => (x*index)%this.universe);
+        console.log(`<${row}> => <${modified}>`);
+        this.series = modified;
+        this.build(this.universe,...modified);
     }
     /**
      * Partitions the matrix into smaller sub matrices.
