@@ -652,12 +652,12 @@ document.addEventListener('DOMContentLoaded',() => {
         if (event.target.classList.contains('combin')) {
             if (event.target.classList.contains('selectCombinGroup')) {
                 event.target.classList.remove('selectCombinGroup');
-                document.querySelectorAll('#matrix > .subGrp').forEach(item => {
+                document.querySelectorAll('.subGrp').forEach(item => {
                     item.classList.remove('subGrp');
                 });
             }
             else {
-                document.querySelectorAll('#matrix > .selectCombinGroup').forEach(item => {
+                document.querySelectorAll('.selectCombinGroup').forEach(item => {
                     item.classList.remove('selectCombinGroup');
                 });
                 let parts = event.target.textContent.match(/[RIP0-9]+/ig);
@@ -669,7 +669,7 @@ document.addEventListener('DOMContentLoaded',() => {
         Label click functionality.
         */
         else if (event.target.classList.contains('label')) {
-            document.querySelectorAll('#matrix > .subGrp').forEach(item => {
+            document.querySelectorAll('.subGrp').forEach(item => {
                 item.classList.remove('subGrp');
             });
             let name = event.target['data-primary'];
