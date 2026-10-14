@@ -652,12 +652,12 @@ document.addEventListener('DOMContentLoaded',() => {
         if (event.target.classList.contains('combin')) {
             if (event.target.classList.contains('selectCombinGroup')) {
                 event.target.classList.remove('selectCombinGroup');
-                document.querySelectorAll('.subGrp').forEach(item => {
+                document.querySelectorAll('#matrix > .subGrp').forEach(item => {
                     item.classList.remove('subGrp');
                 });
             }
             else {
-                document.querySelectorAll('.selectCombinGroup').forEach(item => {
+                document.querySelectorAll('#matrix > .selectCombinGroup').forEach(item => {
                     item.classList.remove('selectCombinGroup');
                 });
                 let parts = event.target.textContent.match(/[RIP0-9]+/ig);
