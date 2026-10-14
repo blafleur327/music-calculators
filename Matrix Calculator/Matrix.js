@@ -669,7 +669,7 @@ document.addEventListener('DOMContentLoaded',() => {
         Label click functionality.
         */
         else if (event.target.classList.contains('label')) {
-            document.querySelectorAll('.subGrp').forEach(item => {
+            document.querySelectorAll('#matrix > .subGrp').forEach(item => {
                 item.classList.remove('subGrp');
             });
             let name = event.target['data-primary'];
