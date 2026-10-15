@@ -653,7 +653,7 @@ document.addEventListener('DOMContentLoaded',() => {
         if (event.target.classList.contains('combin')) {
             if (event.target.classList.contains('selectCombinGroup')) {
                 event.target.classList.remove('selectCombinGroup');
-                document.querySelectorAll('.subGrp').forEach(item => {
+                document.querySelectorAll('.row > .subGrp').forEach(item => {
                     item.classList.remove('subGrp');
                 });
             }
