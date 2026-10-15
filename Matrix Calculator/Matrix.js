@@ -569,10 +569,36 @@ document.addEventListener('DOMContentLoaded',() => {
                         // console.log(`Search for [${element.value.match(/[0-9]+/ig).map(x => parseInt(x))}]`);
                         let literalSearch = document.querySelector('#searchType').textContent == 'Literal'? true : false;
                         Z.search(literalSearch,...element.value.match(/[a-z0-9]+/ig));
-                        // console.log(`Search for ${literalSearch? 'literal' : 'set-class'} [${element.value.match(/[0-9]+/ig).map(x => parseInt(x))}]`)
                         redrawMatrix = false;
                         console.log('PRESERVE MATRIX');
                     }
+                }
+                else if (element.id == 'rowFinder') {
+                    console.log(`Searching for: ${element.value}`);
+                    document.querySelector('#options').classList.remove('void');
+                    document.querySelector('#options').innerHTML = '';
+                    // let temps = Library.filter(x => x.Composer.match(new RegExp(element.value,'ig')));
+                    let temps = [];
+                    for (let a = 0; a < Library.length; a++) {
+                        Object.values(Library[a]).forEach(value => {
+                            if (typeof value == 'string') {
+                                if (value.match(RegExp(element.value,'ig'))) {
+                                    temps.push([Library[a],a]);
+                                }
+                            }
+                            // if (value.match(RegExp(element.value,'ig'))) {
+                            //     temps.push([Library[a],a]);
+                            // }
+                        })
+                    }
+                    temps.forEach(find => {
+                        let t = document.createElement('div');
+                        t.classList.add('ooga');
+                        t.textContent = `${find[0].Composer} ${find[0].Title}`;
+                        t.dataset.series = find[0].Row;
+                        t.dataset.index = find[1];
+                        document.querySelector('#options').appendChild(t);
+                    })
                 }
             })
             /**
@@ -592,48 +618,48 @@ document.addEventListener('DOMContentLoaded',() => {
         }
     })
     document.addEventListener('keydown',(event) => {
-        if (event.key == 'c') {
-            Z.universe = Z.universe? parseInt(document.querySelector('#universe').value) : 12;
-            let arr = new Array(Z.universe).fill(0,0,Z.universe).map((i,j) => i+=j);
-            /**
-            * Shuffles the elements in the input array.
-            * @param {array} array 
-            * @param {array} result 
-            * @returns 
-            */
-            const shuffle = (array,result = []) => {
-                if (array.length > 0) {
-                    let index = Math.floor(Math.random()*array.length);
-                    result.push(array[index]);
-                    array = [...array.slice(0,index),...array.slice(index+1)];
-                    return shuffle(array,result);
-                }
-                else {
-                    return result;
-                }
-            }
-            Z.build(Z.universe,...shuffle(arr));
-        }
+        // if (event.key == 'c') {
+        //     Z.universe = Z.universe? parseInt(document.querySelector('#universe').value) : 12;
+        //     let arr = new Array(Z.universe).fill(0,0,Z.universe).map((i,j) => i+=j);
+        //     /**
+        //     * Shuffles the elements in the input array.
+        //     * @param {array} array 
+        //     * @param {array} result 
+        //     * @returns 
+        //     */
+        //     const shuffle = (array,result = []) => {
+        //         if (array.length > 0) {
+        //             let index = Math.floor(Math.random()*array.length);
+        //             result.push(array[index]);
+        //             array = [...array.slice(0,index),...array.slice(index+1)];
+        //             return shuffle(array,result);
+        //         }
+        //         else {
+        //             return result;
+        //         }
+        //     }
+        //     Z.build(Z.universe,...shuffle(arr));
+        // }
         /**
          * Populate the matrix with a random row from OpenMusicTheory's row library.
          */
-        else if (event.key == 'r') {
-            let rando = Library[Math.floor(Math.random()*(Library.length-1))];
-            Z.build(12,...rando.Row);
-            let par = document.querySelector('#cool');
-            par.innerHTML = '';
-            Object.entries(rando).forEach(([key,value]) => {
-                let b = document.createElement('div');
-                //b.classList.add();
-                let lab = document.createElement('label');
-                lab.textContent = `${key}:`;
-                let info = document.createElement('div');
-                info.textContent = value;
-                b.appendChild(lab);
-                b.appendChild(info);
-                par.appendChild(b);
-            })
-        }
+        // else if (event.key == 'r') {
+        //     let rando = Library[Math.floor(Math.random()*(Library.length-1))];
+        //     Z.build(12,...rando.Row);
+        //     let par = document.querySelector('#cool');
+        //     par.innerHTML = '';
+        //     Object.entries(rando).forEach(([key,value]) => {
+        //         let b = document.createElement('div');
+        //         //b.classList.add();
+        //         let lab = document.createElement('label');
+        //         lab.textContent = `${key}:`;
+        //         let info = document.createElement('div');
+        //         info.textContent = value;
+        //         b.appendChild(lab);
+        //         b.appendChild(info);
+        //         par.appendChild(b);
+        //     })
+        // }
     })
     mouseTracking();
     let inc = document.querySelector("#increment");
@@ -653,7 +679,7 @@ document.addEventListener('DOMContentLoaded',() => {
         if (event.target.classList.contains('combin')) {
             if (event.target.classList.contains('selectCombinGroup')) {
                 event.target.classList.remove('selectCombinGroup');
-                document.querySelectorAll('.row > .subGrp').forEach(item => {
+                document.querySelectorAll('.subGrp').forEach(item => {
                     item.classList.remove('subGrp');
                 });
             }
@@ -691,6 +717,22 @@ document.addEventListener('DOMContentLoaded',() => {
             // console.log(`CURRENT: { ${Z.selectedRows} }`);
             Z.update();
         }
+        else if (event.target.classList.contains('ooga')) {
+            Z.build(12,...event.target.dataset.series.match(/[0-9]+/ig).map(x => parseInt(x)));
+            let par = document.querySelector('#cool');
+            par.innerHTML = '';
+            Object.entries(Library[parseInt(event.target.dataset.index)]).forEach(([key,value]) => {
+                let b = document.createElement('div');
+                //b.classList.add();
+                let lab = document.createElement('label');
+                lab.textContent = `${key}:`;
+                let info = document.createElement('div');
+                info.textContent = value;
+                b.appendChild(lab);
+                b.appendChild(info);
+                par.appendChild(b);
+            })
+        }
     })
 }) 
 
@@ -710,4 +752,6 @@ document.addEventListener('DOMContentLoaded',() => {
 //     })
 //     return pre
 //   }, {})
+
+// let x = new MyDropdown('k','ooga',null);
 

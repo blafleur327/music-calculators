@@ -1,6 +1,6 @@
 @font-face {
     font-family: 'Bravura';
-    src: url('../Fonts/Bravura.woff2') format('woff2');
+    src: url('../fonts/Bravura.woff2') format('woff2');
     font-weight: normal;
     font-style: normal;
     font-display:swap;
@@ -197,4 +197,18 @@ button:hover {
 
 .shrink {
     font-size: .8em;
+}
+
+#options {
+    max-height: 4em;
+    max-width: 15em;
+    overflow: scroll;
+    display:flex;
+    flex-direction: column;
+}
+
+.ooga:hover {
+    cursor:pointer;
+    font-weight: bolder;
+    background-color: lightblue;
 }
