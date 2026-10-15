@@ -546,25 +546,25 @@ document.addEventListener('DOMContentLoaded',() => {
     document.addEventListener('keydown',(event) => {
         if (event.key == 'Enter') {
             let ins = document.querySelectorAll('input').forEach(elem => {
-        if (elem.id == 'start') {
-            STORE.start = elem.value;
-        }
-        else if (elem.id == 'utts') {
-            STORE.chain = [];//Clear
-            let str = elem.value;
-            let spl = [];
-            let i = 0;
-            while (i < str.length) {//Regex was too hard, and wouldn't maintain indices. 
-                if (str[i] == '<') {
-                    temp = '';
-                    while (str[i] !== '>') {    
-                    temp+=str[i];
-                        i++
-                    }
-                    temp+='>';
-                    spl.push(temp);
-                    }
-                    else if ((/[A-Z]/ig).test(str[i])) {
+            if (elem.id == 'start') {
+                STORE.start = elem.value;
+            }
+            else if (elem.id == 'utts') {
+                STORE.chain = [];//Clear
+                let str = elem.value;
+                let spl = [];
+                let i = 0;
+                while (i < str.length) {//Regex was too hard, and wouldn't maintain indices. 
+                    if (str[i] == '<') {
+                        temp = '';
+                        while (str[i] !== '>') {    
+                        temp+=str[i];
+                            i++
+                        }
+                        temp+='>';
+                        spl.push(temp);
+                        }
+                        else if ((/[A-Z]/ig).test(str[i])) {
                             spl.push(str[i]);
                         }
                         i++;
@@ -587,8 +587,6 @@ document.addEventListener('DOMContentLoaded',() => {
             })
         }
     });
-        })
-    })
     mouseTracking();
 })
 
