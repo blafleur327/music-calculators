@@ -543,54 +543,52 @@ document.addEventListener('DOMContentLoaded',() => {
     F = new Drawing('drawing');
     console.log('YAY!');
     let dis = document.querySelector('#chain');
-    let ins = document.querySelectorAll('input').forEach(elem => {
+    document.addEventListener('keydown',(event) => {
+        if (event.key == 'Enter') {
+            let ins = document.querySelectorAll('input').forEach(elem => {
         if (elem.id == 'start') {
-            elem.addEventListener('keydown',(event) => {
-                if (event.key == 'Enter') {
-                    STORE.start = elem.value;
-                }
-            })
+            STORE.start = elem.value;
         }
         else if (elem.id == 'utts') {
-            elem.addEventListener('keydown',(event) => {
-                if (event.key == 'Enter') {
-                    STORE.chain = [];//Clear
-                    let str = elem.value;
-                    let spl = [];
-                    let i = 0;
-                    while (i < str.length) {//Regex was too hard, and wouldn't maintain indices. 
-                        if (str[i] == '<') {
-                            temp = '';
-                            while (str[i] !== '>') {    
-                                temp+=str[i];
-                                i++
-                            }
-                            temp+='>';
-                            spl.push(temp);
-                        }
-                        else if ((/[A-Z]/ig).test(str[i])) {
+            STORE.chain = [];//Clear
+            let str = elem.value;
+            let spl = [];
+            let i = 0;
+            while (i < str.length) {//Regex was too hard, and wouldn't maintain indices. 
+                if (str[i] == '<') {
+                    temp = '';
+                    while (str[i] !== '>') {    
+                    temp+=str[i];
+                        i++
+                    }
+                    temp+='>';
+                    spl.push(temp);
+                    }
+                    else if ((/[A-Z]/ig).test(str[i])) {
                             spl.push(str[i]);
                         }
                         i++;
                     }
                     spl.forEach(item => {
-                        let find = null;
-                        for (let [key,value] of Object.entries(NRTs)) {
-                            if (item == key) {
-                                find = value;
-                            }
+                    let find = null;
+                    for (let [key,value] of Object.entries(NRTs)) {
+                        if (item == key) {
+                            find = value;
                         }
-                        if (find == null) {
-                            find = item;
-                        }
-                        console.log(find)
-                        STORE.chain.push(find);
-                    })
-                    F.drawCycle(STORE.start,...STORE.chain);
+                    }
+                    if (find == null) {
+                        find = item;
+                    }
+                    console.log(find)
+                    STORE.chain.push(find);
+                })
+                F.drawCycle(STORE.start,...STORE.chain);
                 }
             })
         }
     });
+        }
+    })
     mouseTracking();
 })
 
