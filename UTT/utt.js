@@ -1,4 +1,4 @@
-import { MyDropdown } from ".pcMethods.js";
+import { MyDropdown } from "../pcMethods.js";
 /**
  * Constructor for new interval object.
  * @param {int} unwound
