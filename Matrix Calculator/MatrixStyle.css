@@ -1,7 +1,6 @@
 @font-face {
     font-family: 'Bravura';
-    Access-Control-Allow-Origin: *;
-    src: url('../Fonts/Bravura.woff2') format('woff2');
+    src: url('../fonts/Bravura.woff2') format('woff2');
     font-weight: normal;
     font-style: normal;
     font-display:swap;
@@ -35,13 +34,15 @@ body {
     display: flex;
     border-color: lightgrey;
     border-style:inset;
-    border-width:.01em;
-    width:2.5em;
-    height: 2.5em;
+    border-width:.01rem;
+    width:2.6rem;
+    height: 2.6rem;
     justify-content: center;
     align-items: center;
+    /* align-items: flex-start; */
     font-family: 'Bravura';
     user-select:none;
+    overflow:hidden;
 }
 
 .void {
@@ -192,4 +193,8 @@ button:hover {
 
 #key {
     padding: 5.5em;
+}
+
+.shrink {
+    font-size: .8em;
 }

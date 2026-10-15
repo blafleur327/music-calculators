@@ -53,6 +53,7 @@ function Matrix(parent = 'matrix') {
             }
             console.log(`k = ${this.universe} supports ${tot} display options!`);
             this.display = this.display%tot;
+            this.display == 2? cell.classList.add('shrink') : cell.classList.remove('shrink');// Should fix the overflow problems??
             switch (this.display) {
                 /**
                  * Base 10 Integers
@@ -72,7 +73,7 @@ function Matrix(parent = 'matrix') {
                 case 2:
                     if (Object.keys(DisplayTypes['pitch']).indexOf(`${this.universe}`) > -1) {
                         let notes = DisplayTypes['pitch'][this.universe];
-                        changed = normal? notes[refer] : `${refer.match(/[RIP]+/ig)[0]}${notes[parseInt((refer.match(/[0-9]+/ig)[0]))]}`
+                        changed = normal? notes[refer] : `${refer.match(/[RIP]+/ig)[0]}${notes[parseInt((refer.match(/[0-9]+/ig)[0]))]}`;
                     }
                     break;
                 /**
