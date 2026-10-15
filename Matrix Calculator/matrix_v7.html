@@ -31,6 +31,11 @@
                 <label for searchType>Type</label>
                 <button id="searchType" class="lit" onclick="toggle(this)">Literal</button>
             </div>
+            <div class="inp">
+                <label>Row-Lookup</label>
+                <input id="rowFinder" type="text">
+                <div id="options" class="void"></div>
+            </div>
             <div class=inp data-tooltip="Change the cell names on matrix display.">
                 <label for display>Display</label>
                 <div id="display"></div>
@@ -40,10 +45,6 @@
                 </div>
             <div class="inp" id="drop"></div>
             </div>
-            <!-- <div class="inp">
-                <label>Row-Lookup</label>
-                <input id="rowFinder" type="text" placeholder="Composer Name">
-            </div> -->
         </div>
         <div id="matrix"></div>
         <div id="extra" class="box void">
