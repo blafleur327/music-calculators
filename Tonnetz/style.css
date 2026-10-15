@@ -13,6 +13,7 @@ text {
     alignment-baseline: central;
     max-height:.8em;
     overflow-y:hidden;
+    font-size: .8em;
 }
 
 g {
