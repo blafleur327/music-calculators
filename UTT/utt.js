@@ -587,7 +587,7 @@ document.addEventListener('DOMContentLoaded',() => {
             })
         }
     });
-        }
+        })
     })
     mouseTracking();
 })
