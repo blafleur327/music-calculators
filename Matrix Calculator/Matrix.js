@@ -575,7 +575,7 @@ document.addEventListener('DOMContentLoaded',() => {
                 }
                 else if (element.id == 'rowFinder') {
                     console.log(`Searching for: ${element.value}`);
-                    document.querySelector('#options').classList.remove('void');
+                    // document.querySelector('#options').classList.remove('void');
                     document.querySelector('#options').innerHTML = '';
                     // let temps = Library.filter(x => x.Composer.match(new RegExp(element.value,'ig')));
                     let temps = [];
@@ -586,9 +586,6 @@ document.addEventListener('DOMContentLoaded',() => {
                                     temps.push([Library[a],a]);
                                 }
                             }
-                            // if (value.match(RegExp(element.value,'ig'))) {
-                            //     temps.push([Library[a],a]);
-                            // }
                         })
                     }
                     temps.forEach(find => {
@@ -617,50 +614,6 @@ document.addEventListener('DOMContentLoaded',() => {
             }
         }
     })
-    document.addEventListener('keydown',(event) => {
-        // if (event.key == 'c') {
-        //     Z.universe = Z.universe? parseInt(document.querySelector('#universe').value) : 12;
-        //     let arr = new Array(Z.universe).fill(0,0,Z.universe).map((i,j) => i+=j);
-        //     /**
-        //     * Shuffles the elements in the input array.
-        //     * @param {array} array 
-        //     * @param {array} result 
-        //     * @returns 
-        //     */
-        //     const shuffle = (array,result = []) => {
-        //         if (array.length > 0) {
-        //             let index = Math.floor(Math.random()*array.length);
-        //             result.push(array[index]);
-        //             array = [...array.slice(0,index),...array.slice(index+1)];
-        //             return shuffle(array,result);
-        //         }
-        //         else {
-        //             return result;
-        //         }
-        //     }
-        //     Z.build(Z.universe,...shuffle(arr));
-        // }
-        /**
-         * Populate the matrix with a random row from OpenMusicTheory's row library.
-         */
-        // else if (event.key == 'r') {
-        //     let rando = Library[Math.floor(Math.random()*(Library.length-1))];
-        //     Z.build(12,...rando.Row);
-        //     let par = document.querySelector('#cool');
-        //     par.innerHTML = '';
-        //     Object.entries(rando).forEach(([key,value]) => {
-        //         let b = document.createElement('div');
-        //         //b.classList.add();
-        //         let lab = document.createElement('label');
-        //         lab.textContent = `${key}:`;
-        //         let info = document.createElement('div');
-        //         info.textContent = value;
-        //         b.appendChild(lab);
-        //         b.appendChild(info);
-        //         par.appendChild(b);
-        //     })
-        // }
-    })
     mouseTracking();
     let inc = document.querySelector("#increment");
     let dec = document.querySelector("#decrement");
@@ -679,7 +632,7 @@ document.addEventListener('DOMContentLoaded',() => {
         if (event.target.classList.contains('combin')) {
             if (event.target.classList.contains('selectCombinGroup')) {
                 event.target.classList.remove('selectCombinGroup');
-                document.querySelectorAll('.subGrp').forEach(item => {
+                document.querySelectorAll('.row > .subGrp').forEach(item => {
                     item.classList.remove('subGrp');
                 });
             }
@@ -696,7 +649,7 @@ document.addEventListener('DOMContentLoaded',() => {
         Label click functionality.
         */
         else if (event.target.classList.contains('label')) {
-            document.querySelectorAll('.subGrp').forEach(item => {
+            document.querySelectorAll('.row > .subGrp').forEach(item => {
                 item.classList.remove('subGrp');
             });
             let name = event.target['data-primary'];
@@ -733,6 +686,17 @@ document.addEventListener('DOMContentLoaded',() => {
                 par.appendChild(b);
             })
         }
+    })
+    /**
+     * Box hovering.
+     */
+    document.querySelector('#rowFinder').closest('.inp').addEventListener('mouseover',() => {
+        if (document.querySelector('#options').childNodes.length !== 0) {
+            document.querySelector('#options').classList.remove('void');
+        }
+    })
+    document.querySelector('#rowFinder').closest('.inp').addEventListener('mouseout',() => {
+        document.querySelector('#options').classList.add('void');
     })
 }) 
 
