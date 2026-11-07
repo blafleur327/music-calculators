@@ -301,7 +301,7 @@ function DrawingManager (parent = document.querySelector(`#drawing`)) {
             if (value == true) {
                 document.querySelector(`#${key}Cents`).classList.add('selButton');
                 els = this.sets[key]['elems'].sort((a,b) => a-b);
-                els.push(els[0]);
+                els.length > 2? els.push(els[0]) : null;
                 let res = [];
                 for (let a = 1; a < els.length; a++) {
                     let x = Math.log2((100*period**(els[a]/this.universe))/(100*period**(els[a-1]/this.universe)))*1200;
