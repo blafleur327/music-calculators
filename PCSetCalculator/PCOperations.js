@@ -300,7 +300,7 @@ function DrawingManager (parent = document.querySelector(`#drawing`)) {
         Object.entries(this.cents).forEach(([key,value]) => {
             if (value == true) {
                 document.querySelector(`#${key}Cents`).classList.add('selButton');
-                els = this.sets[key]['elems'].sort((a,b) => a-b);
+                els = new PCset(this.universe,....this.sets[key]['elems']).normalOrder();
                 els.length > 2? els.push(els[0]) : null;
                 let res = [];
                 for (let a = 1; a < els.length; a++) {
